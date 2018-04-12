@@ -1,0 +1,4 @@
+services:
+  plugin.manager.rpc_endpoint:
+    class: Drupal\jsonrpc\Plugin\RpcEndpointManager
+    parent: default_plugin_manager
