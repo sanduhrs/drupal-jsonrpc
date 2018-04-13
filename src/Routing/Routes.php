@@ -1,7 +1,8 @@
 <?php
 
-use Drupal\Core\Plugin\PluginManagerInterface;
-use Symfony\Component\DependencyInjection\ContainerInjectionInterface;
+use Drupal\Core\DependencyInjection\ContainerInjectionInterface;
+use Drupal\Component\Plugin\PluginManagerInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Defines dynamic routes.
@@ -15,20 +16,18 @@ class Routes implements ContainerInjectionInterface {
   /**
    * The JSON-RPC plugin manager.
    *
-   * @var \Drupal\Core\Plugin\PluginManagerInterface
+   * @var \Drupal\Component\Plugin\PluginManagerInterface
    */
   protected $serviceManager;
 
   /**
    * Instantiates a Routes object.
    *
-   * @param \Drupal\jsonapi\ResourceType\ResourceTypeRepositoryInterface $resource_type_repository
-   *   The JSON API resource type repository.
-   * @param \Drupal\Core\Authentication\AuthenticationCollectorInterface $auth_collector
-   *   The authentication provider collector.
+   * @param \Drupal\Component\Plugin\PluginManagerInterface $service_manager
+   *   The plugin manager.
    */
   public function __construct(PluginManagerInterface $service_manager) {
-    $this->serviceManager = $plugin_manager;
+    $this->serviceManager = $service_manager;
   }
 
   /**
