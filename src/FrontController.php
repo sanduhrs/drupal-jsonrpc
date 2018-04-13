@@ -26,15 +26,19 @@ class FrontController {
     // TODO: Create custom exceptions for errors handled by the subscriber.
     // TODO: Allow passing the JSON object encoded in the URL as a query string parameter. Then make sure we can leverage page cache in the appropriate situations.
     if ($request->getMethod() !== Request::METHOD_POST) {
-      return new Response('{"jsonrpc": "2.0", "error": {"code": -32700, "message": "Invalid Request"}, "id": null}');
+      return new JsonResponse(['jsonrpc' => '2.0', 'error' => ['code' => -32700, 'message' => 'Invalid Request'], 'id' => NULL]);
     }
     $body = $request->getContent();
     if (!$body || !($parsed_body = Json::decode($body))) {
-      return new Response('{"jsonrpc": "2.0", "error": {"code": -32700, "message": "Invalid Request"}, "id": null}');
+      return new JsonResponse(['jsonrpc' => '2.0', 'error' => ['code' => -32700, 'message' => 'Invalid Request'], 'id' => NULL]);
     }
     // TODO: Inject plugin manager properly.
     $rpc_request = RpcRequest::create($parsed_body, \Drupal::service('plugin.manager.rpc_endpoint'));
-    $result = $rpc_request->getEndpoint()->execute();
+    $endpoint = $rpc_request->getEndpoint();
+    if (!$endpoint->access('execute')) {
+      return new JsonResponse(['jsonrpc' => '2.0', 'error' => ['code' => -32000, 'message' => 'Unauthorized'], 'id' => NULL]);
+    }
+    $result = $endpoint->execute();
     $output = [
       'jsonrpc' => '2.0',
       'result' => $result,
