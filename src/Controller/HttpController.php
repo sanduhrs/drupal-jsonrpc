@@ -22,7 +22,7 @@ class HttpController extends ControllerBase {
   }
 
   public function resolve(Request $request) {
-    // @todo Actually denormalize this well.
+    // @todo Actually denormalize this into a value object.
     $decoded = json_decode((string) $request->getContent());
     if (is_array($decoded)) {
       $responses = $this->handler->batch($decoded);

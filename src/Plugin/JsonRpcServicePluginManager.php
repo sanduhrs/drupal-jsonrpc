@@ -38,6 +38,9 @@ class JsonRpcServicePluginManager extends DefaultPluginManager implements JsonRp
     $this->setCacheBackend($cache_backend, 'jsonrpc_plugins');
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function execute($jsonrpc_request) {
     $executor = $this->getExecutor($jsonrpc_request);
     return isset($jsonrpc_request->id)
@@ -45,7 +48,10 @@ class JsonRpcServicePluginManager extends DefaultPluginManager implements JsonRp
       : $this->getResponse($executor);
   }
 
-  public function batch($jsonrpc_requests) {
+  /**
+   * {@inheritdoc}
+   */
+  public function batch(array $jsonrpc_requests) {
     $jsonrpc_responses = [];
     foreach ($jsonrpc_requests as $jsonrpc_request) {
       $jsonrpc_responses[] = $this->execute($jsonrpc_request);
@@ -53,6 +59,15 @@ class JsonRpcServicePluginManager extends DefaultPluginManager implements JsonRp
     return array_filter($jsonrpc_responses);
   }
 
+  /**
+   * Gets an anonymous function which executes the RPC method.
+   *
+   * @param $jsonrpc_request
+   *   The JSON-RPC request.
+   *
+   * @return \Closure
+   *   A closure which executes the RPC call.
+   */
   protected function getExecutor($jsonrpc_request) {
     list($service_id, $method) = explode('.', $jsonrpc_request);
     /* @var \Drupal\jsonrpc\Annotation\JsonRpcService $service_definition */
@@ -68,6 +83,18 @@ class JsonRpcServicePluginManager extends DefaultPluginManager implements JsonRp
     };
   }
 
+  /**
+   * Executes an RPC call and returns a JSON-RPC response.
+   *
+   * @param $executor \Closure
+   *   A closure which executes an RPC call.
+   *
+   * @param null $id
+   *   (optional) A JSON-RPC request ID if one was provided.
+   *
+   * @return array|null
+   *   The JSON-RPC response.
+   */
   protected function getResponse($executor, $id = NULL) {
     try {
       $result = $executor();
@@ -76,7 +103,7 @@ class JsonRpcServicePluginManager extends DefaultPluginManager implements JsonRp
       }
     }
     catch (\Exception $e) {
-      // @TODO Changing the data array will be a BC break. Consider this
+      // @TODO: Changing the data array will be a BC break. Consider this
       // structure more.
       $error = [
         'code' => -32603,
@@ -84,6 +111,7 @@ class JsonRpcServicePluginManager extends DefaultPluginManager implements JsonRp
         'data' => ['detail' => $e->getMessage()],
       ];
     }
+    // @TODO: Turn this into a response value object.
     $jsonrpc_response = [
       'jsonrpc' => '2.0',
       'id' => $id,

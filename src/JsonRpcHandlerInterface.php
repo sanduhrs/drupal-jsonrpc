@@ -13,7 +13,7 @@ interface JsonRpcHandlerInterface {
    * @return array|NULL
    *   The JSON-RPC response, if any. Notifications have no response.
    */
-  public function execute(array $request);
+  public function execute($request);
 
   /**
    * Executes a batch of remote procedure calls.
