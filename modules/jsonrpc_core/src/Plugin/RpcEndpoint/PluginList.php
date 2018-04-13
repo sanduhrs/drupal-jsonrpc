@@ -3,6 +3,7 @@
 namespace Drupal\jsonrpc_core\Plugin\RpcEndpoint;
 
 use Drupal\jsonrpc\Plugin\RpcEndpointBase;
+use Drupal\jsonrpc_core\Plugin\RpcEndpoint\Params\PaginationParam;
 use Drupal\jsonrpc_core\Plugin\RpcEndpoint\Params\PluginManagerParam;
 
 /**
@@ -24,9 +25,9 @@ class PluginList extends RpcEndpointBase {
    * {@inheritdoc}
    */
   protected function parameterFactory(array $raw_params) {
-    $plugin_manager_service_id = $raw_params['plugin_manager'];
     return [
-      'plugin_manager' => new PluginManagerParam($plugin_manager_service_id),
+      'plugin_manager' => new PluginManagerParam($raw_params['plugin_manager']),
+      'page' => new PaginationParam($raw_params['page']),
     ];
   }
 
@@ -34,7 +35,9 @@ class PluginList extends RpcEndpointBase {
     $parameters = $this->parameters();
     /** @var \Drupal\Component\Plugin\PluginManagerInterface $plugin_manager */
     $plugin_manager = $parameters['plugin_manager']->value();
-    return $plugin_manager->getDefinitions();
+    $offset = $parameters['page']->value()['offset'];
+    $limit = $parameters['page']->value()['limit'];
+    return array_slice($plugin_manager->getDefinitions(), $offset, $limit);
   }
 
 }
