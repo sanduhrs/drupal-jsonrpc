@@ -3,13 +3,16 @@
 namespace Drupal\jsonrpc\Plugin;
 
 use Drupal\Component\Plugin\PluginInspectionInterface;
+use Drupal\Core\Access\AccessibleInterface;
 
 /**
  * Defines an interface for RPC Endpoint plugins.
  */
-interface RpcEndpointInterface extends PluginInspectionInterface {
+interface RpcEndpointInterface extends PluginInspectionInterface, AccessibleInterface {
 
-
-  // Add get/set methods for your plugin type here.
+  /**
+   * Executes the procedure.
+   */
+  public function execute();
 
 }
