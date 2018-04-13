@@ -11,7 +11,6 @@ use Drupal\Core\Extension\ModuleHandlerInterface;
  */
 class RpcEndpointManager extends DefaultPluginManager {
 
-
   /**
    * Constructs a new RpcEndpointManager object.
    *
@@ -24,7 +23,13 @@ class RpcEndpointManager extends DefaultPluginManager {
    *   The module handler to invoke the alter hook with.
    */
   public function __construct(\Traversable $namespaces, CacheBackendInterface $cache_backend, ModuleHandlerInterface $module_handler) {
-    parent::__construct('Plugin/RpcEndpoint', $namespaces, $module_handler, 'Drupal\jsonrpc\Plugin\RpcEndpointInterface', 'Drupal\jsonrpc\Annotation\RpcEndpoint');
+    parent::__construct(
+      'Plugin/RpcEndpoint',
+      $namespaces,
+      $module_handler,
+      'Drupal\jsonrpc\Plugin\RpcEndpointInterface',
+      'Drupal\jsonrpc\Annotation\RpcEndpoint'
+    );
 
     $this->alterInfo('jsonrpc_rpc_endpoint_info');
     $this->setCacheBackend($cache_backend, 'jsonrpc_rpc_endpoint_plugins');
