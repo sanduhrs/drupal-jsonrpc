@@ -10,8 +10,8 @@ interface JsonRpcHandlerInterface {
    * @param array $request
    *   The JSON-RPC request.
    *
-   * @return array
-   *   The JSON-RPC response.
+   * @return array|NULL
+   *   The JSON-RPC response, if any. Notifications have no response.
    */
   public function execute(array $request);
 
@@ -22,8 +22,8 @@ interface JsonRpcHandlerInterface {
    *   The JSON-RPC requests.
    *
    * @return array
-   *   The JSON-RPC responses, if any.
+   *   The JSON-RPC responses, if any. Notifications are not returned.
    */
-  public function execute(array $request);
+  public function batch(array $requests);
 
 }

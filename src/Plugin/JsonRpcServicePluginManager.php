@@ -5,16 +5,15 @@ namespace Drupal\jsonrpc\Plugin;
 use Drupal\Core\Plugin\DefaultPluginManager;
 use Drupal\Core\Cache\CacheBackendInterface;
 use Drupal\Core\Extension\ModuleHandlerInterface;
-use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
+use Drupal\jsonrpc\JsonRpcHandlerInterface;
+use Drupal\jsonrpc\ParameterBag;
 
 /**
  * Provides the JsonRpcService plugin plugin manager.
  *
  * @internal
  */
-class JsonRpcServicePluginManager extends DefaultPluginManager {
+class JsonRpcServicePluginManager extends DefaultPluginManager implements JsonRpcHandlerInterface {
 
   /**
    * Constructs a new HookPluginManager object.
@@ -39,14 +38,60 @@ class JsonRpcServicePluginManager extends DefaultPluginManager {
     $this->setCacheBackend($cache_backend, 'jsonrpc_plugins');
   }
 
-  protected function execute($jsonrpc_request) {
+  public function execute($jsonrpc_request) {
+    $executor = $this->getExecutor($jsonrpc_request);
+    return isset($jsonrpc_request->id)
+      ? $this->getResponse($executor, $jsonrpc_request->id)
+      : $this->getResponse($executor);
+  }
+
+  public function batch($jsonrpc_requests) {
+    $jsonrpc_responses = [];
+    foreach ($jsonrpc_requests as $jsonrpc_request) {
+      $jsonrpc_responses[] = $this->execute($jsonrpc_request);
+    }
+    return array_filter($jsonrpc_responses);
+  }
+
+  protected function getExecutor($jsonrpc_request) {
     list($service_id, $method) = explode('.', $jsonrpc_request);
     /* @var \Drupal\jsonrpc\Annotation\JsonRpcService $service_definition */
     $service_definition = $this->getDefinition($service_id);
     if (!in_array($method, $service_definition->getMethods())) {
-      throw new \Exception('Method not found');
+      return function () {
+        throw new \Exception('Method not found');
+      };
     }
-    return $this->createInstance($service_id)->{$method}(new ParameterBag($jsonrpc_request['params']));
+    $params = new ParameterBag($jsonrpc_request['params']);
+    return function () use ($service_id, $method, $params) {
+      return $this->createInstance($service_id)->{$method}($params);
+    };
+  }
+
+  protected function getResponse($executor, $id = NULL) {
+    try {
+      $result = $executor();
+      if (is_null($id)) {
+        return NULL;
+      }
+    }
+    catch (\Exception $e) {
+      // @TODO Changing the data array will be a BC break. Consider this
+      // structure more.
+      $error = [
+        'code' => -32603,
+        'message' => 'Server error',
+        'data' => ['detail' => $e->getMessage()],
+      ];
+    }
+    $jsonrpc_response = [
+      'jsonrpc' => '2.0',
+      'id' => $id,
+    ];
+    return array_merge($jsonrpc_response, (isset($result) && !isset($error))
+      ? ['result' => $result]
+      : ['error' => $error]
+    );
   }
 
 }
