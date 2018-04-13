@@ -5,7 +5,7 @@ namespace Drupal\jsonrpc_core\Plugin\RpcEndpoint\Params;
 use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\jsonrpc\Plugin\RpcParameter;
 
-class PluginManagerParam extends RpcParameter {
+class ServiceParam extends RpcParameter {
 
   /**
    * {@inheritdoc}
