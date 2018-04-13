@@ -46,4 +46,37 @@ class JsonRpcMethod {
    */
   public $params;
 
+  /**
+   * Gets the method name.
+   *
+   * @return string
+   */
+  public function getName() {
+    return $this->name;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function access($operation = 'execute', AccountInterface $account = NULL, $return_as_object = FALSE) {
+    $account = $account ?: \Drupal::currentUser();
+    switch ($operation) {
+      case 'execute':
+        if (is_callable($this->access)) {
+          return call_user_func_array($this->access, [$operation, $account, $return_as_object]);
+        }
+        $access_result = AccessResult::neutral();
+        foreach ($this->access as $permission) {
+          $access_result = $access_result->andIf(AccessResult::allowedIfHasPermission($account, $permission));
+        }
+        return $access_result;
+
+      case 'view':
+        return AccessResult::allowedIfHasPermission($account, 'use jsonrpc services');
+
+      default:
+        return AccessResult::neutral();
+    }
+  }
+
 }

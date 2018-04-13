@@ -44,4 +44,13 @@ class JsonRpcService extends Plugin {
    */
   public $usage;
 
+  /**
+   * The available methods.
+   *
+   * @return \Drupal\jsonrpc\Annotation\JsonRpcMethod[]
+   */
+  public function getMethods() {
+    return $this->methods;
+  }
+
 }

@@ -5,6 +5,9 @@ namespace Drupal\jsonrpc\Plugin;
 use Drupal\Core\Plugin\DefaultPluginManager;
 use Drupal\Core\Cache\CacheBackendInterface;
 use Drupal\Core\Extension\ModuleHandlerInterface;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Provides the JsonRpcService plugin plugin manager.
@@ -34,6 +37,16 @@ class JsonRpcServicePluginManager extends DefaultPluginManager {
     );
     $this->alterInfo(FALSE);
     $this->setCacheBackend($cache_backend, 'jsonrpc_plugins');
+  }
+
+  protected function execute($jsonrpc_request) {
+    list($service_id, $method) = explode('.', $jsonrpc_request);
+    /* @var \Drupal\jsonrpc\Annotation\JsonRpcService $service_definition */
+    $service_definition = $this->getDefinition($service_id);
+    if (!in_array($method, $service_definition->getMethods())) {
+      throw new \Exception('Method not found');
+    }
+    return $this->createInstance($service_id)->{$method}(new ParameterBag($jsonrpc_request['params']));
   }
 
 }

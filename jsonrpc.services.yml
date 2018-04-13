@@ -1,3 +1,9 @@
 services:
   plugin.manager.jsonrpc_service:
+    public: false
     class: Drupal\jsonrpc\Plugin\JsonRpcServicePluginManager
+
+  jsonrpc.handler:
+    class: Drupal\jsonrpc\JsonRpcHandlerInterface
+    alias: plugin.manager.jsonrpc_service
+    public: true
