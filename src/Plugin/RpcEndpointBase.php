@@ -87,23 +87,32 @@ abstract class RpcEndpointBase extends PluginBase implements RpcEndpointInterfac
    * {@inheritdoc}
    */
   public function access($operation = 'execute', AccountInterface $account = NULL, $return_as_object = FALSE) {
-    $permissions = $this->getPluginDefinition()->permissions;
-    // TODO: Inject current user properly.
     $account = $account ?: \Drupal::currentUser();
+    $access_result = NULL;
+    $permissions = $this->getPluginDefinition()['permissions'];
+    // TODO: Inject current user properly.
     switch ($operation) {
       case 'execute':
         $access_result = $this->accessCallback($operation, $account, $return_as_object);
-        foreach ($this->$permissions as $permission) {
-          $access_result = $access_result->andIf(AccessResult::allowedIfHasPermission($account, $permission));
+        foreach ($permissions as $permission) {
+          $access_result = $access_result->andIf(
+            AccessResult::allowedIfHasPermission($account, $permission)
+          );
         }
-        return $access_result;
+        break;
 
       case 'view':
-        return AccessResult::allowedIfHasPermission($account, 'use json-rpc services');
+        $access_result = AccessResult::allowedIfHasPermission(
+          $account,
+          'use json-rpc services'
+        );
+        break;
 
       default:
-        return AccessResult::neutral();
+        $access_result = AccessResult::neutral();
+        break;
     }
+    return $return_as_object ? $access_result : $access_result->isAllowed();
   }
 
   /**
@@ -121,7 +130,7 @@ abstract class RpcEndpointBase extends PluginBase implements RpcEndpointInterfac
    *   The access result.
    */
   protected function accessCallback($operation, AccountInterface $account, $return_as_object) {
-    return AccessResult::neutral();
+    return AccessResult::allowed();
   }
 
 }
