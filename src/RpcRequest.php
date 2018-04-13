@@ -69,12 +69,28 @@ class RpcRequest {
     );
   }
 
+  /**
+   * Gets the endpoint plugin instance.
+   *
+   * @return \Drupal\jsonrpc\Plugin\RpcEndpointInterface
+   *   The plugin instance.
+   */
   public function getEndpoint() {
     if (!$this->endpoint) {
       // TODO: Handle the plugin not found exception.
       $this->endpoint = $this->endpointManager->createInstance($this->method, ['params' => $this->params]);
     }
     return $this->endpoint;
+  }
+
+  /**
+   * Get the ID.
+   *
+   * @return string
+   *   The ID.
+   */
+  public function getId() {
+    return $this->id;
   }
 
 }
