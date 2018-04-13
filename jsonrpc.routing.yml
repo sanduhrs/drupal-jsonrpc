@@ -6,3 +6,5 @@ jsonrpc.front_controller:
   requirements:
     _permission: 'use json-rpc services'
   methods: [GET, POST]
+  options:
+    _auth: ['basic_auth', 'cookie', 'oauth2']
