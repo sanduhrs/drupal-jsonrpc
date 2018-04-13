@@ -15,11 +15,36 @@ use Drupal\Component\Annotation\Plugin;
 class RpcEndpoint extends Plugin {
 
   /**
-   * The plugin ID.
+   * The method for the RPC endpoint.
    *
    * @var string
    */
-  public $id;
+  public $method;
+
+  /**
+   * The permissions necessary to operate this endpoint.
+   *
+   * @var string[]
+   */
+  public $permissions = [];
+
+  /**
+   * Description of the endpoint.
+   *
+   * @var \Drupal\Core\Annotation\Translation
+   *
+   * @ingroup plugin_translatable
+   */
+  public $description;
+
+  /**
+   * How to use this method.
+   *
+   * @var \Drupal\Core\Annotation\Translation
+   *
+   * @ingroup plugin_translatable
+   */
+  public $usage;
 
   /**
    * The label of the plugin.
