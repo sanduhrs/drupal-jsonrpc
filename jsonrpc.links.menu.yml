@@ -1,0 +1,9 @@
+
+# RPC Service menu items definition
+entity.rpc_service.collection:
+  title: 'RPC Service'
+  route_name: entity.rpc_service.collection
+  description: 'List RPC Service (bundles)'
+  parent: system.admin_structure
+  weight: 99
+
