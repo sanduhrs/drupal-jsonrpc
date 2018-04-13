@@ -6,12 +6,16 @@ use Drupal\Component\Plugin\PluginBase;
 use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Session\AccountInterface;
+use Symfony\Component\DependencyInjection\ContainerAwareTrait;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Base class for RPC Endpoint plugins.
  */
 abstract class RpcEndpointBase extends PluginBase implements RpcEndpointInterface, ContainerFactoryPluginInterface {
+
+  use ContainerAwareTrait;
+
   /**
    * @var \Drupal\jsonrpc\Plugin\RpcParameter[]
    */
@@ -21,7 +25,9 @@ abstract class RpcEndpointBase extends PluginBase implements RpcEndpointInterfac
    * {@inheritdoc}
    */
   public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
-    return new static($configuration, $plugin_id, $plugin_definition);
+    $self = new static($configuration, $plugin_id, $plugin_definition);
+    $self->setContainer($container);
+    return $self;
   }
 
   /**
@@ -38,6 +44,13 @@ abstract class RpcEndpointBase extends PluginBase implements RpcEndpointInterfac
   protected function parameters() {
     if (!$this->parameters) {
       $this->parameters = $this->parameterFactory($this->configuration['params']);
+      // Validates the parameters.
+      array_walk($this->parameters, function ($param) {
+        if (!$param instanceof RpcParameterInterface) {
+          // TODO: Throw a proper exception that conforms to the spec.
+          throw new \Exception();
+        }
+      });
     }
     return $this->parameters;
   }
