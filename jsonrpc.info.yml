@@ -1,5 +1,5 @@
-name: JSON-RPC
+name: JSON-RPC 2.0
 type: module
-description: RPC syste for Drupal remote introspection and administration
+description: Infrastructure for JSON-RPC 2.0 compliant web services.
 core: 8.x
-package: System
+package: Web services
