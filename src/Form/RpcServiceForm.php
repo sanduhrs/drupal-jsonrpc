@@ -45,10 +45,13 @@ class RpcServiceForm extends EntityForm {
         '%description' => $definition['description'],
       ]);
     }
+    $endpoints = $rpc_service->get('endpoints') ?: [];
     $form['endpoints'] = [
       '#type' => 'select',
       '#multiple' => TRUE,
       '#options' => $options,
+      // TODO: Fix the default value. It doesn't get preselected in the browser.
+      '#default_value' => $endpoints,
     ];
 
     return $form;
