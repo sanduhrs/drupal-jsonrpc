@@ -25,6 +25,7 @@ class PluginList extends RpcEndpointBase {
    * {@inheritdoc}
    */
   protected function parameterFactory(array $raw_params) {
+    // TODO: Make the parameters and their schema discoverable statically so we can generate docs for them automatically.
     return [
       'service' => new ServiceParam($raw_params['service']),
       'page' => new PaginationParam($raw_params['page']),
