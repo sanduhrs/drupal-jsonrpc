@@ -19,7 +19,7 @@ class RpcEndpoint extends Plugin {
    *
    * @var string
    */
-  public $method;
+  public $id;
 
   /**
    * The permissions necessary to operate this endpoint.

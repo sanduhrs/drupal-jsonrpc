@@ -10,3 +10,9 @@ jsonrpc.rpc_service.*:
       label: 'Label'
     uuid:
       type: string
+    endpoints:
+      type: sequence
+      sequence:
+        label: 'Endpoint ID'
+        type: string
+        # TODO: Add a constraint that validates that this is a valid plugin ID.

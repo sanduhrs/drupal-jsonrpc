@@ -35,7 +35,21 @@ class RpcServiceForm extends EntityForm {
       '#disabled' => !$rpc_service->isNew(),
     ];
 
-    /* You will need additional form elements for your custom properties. */
+    /** @var \Drupal\Component\Plugin\PluginManagerInterface $plugin_manager */
+    $plugin_manager = \Drupal::service('plugin.manager.rpc_endpoint');
+    $definitions = $plugin_manager->getDefinitions();
+    $options = [];
+    foreach ($definitions as $definition) {
+      $options[$definition['id']] = $this->t('%label: %description', [
+        '%label' => $definition['label'],
+        '%description' => $definition['description'],
+      ]);
+    }
+    $form['endpoints'] = [
+      '#type' => 'select',
+      '#multiple' => TRUE,
+      '#options' => $options,
+    ];
 
     return $form;
   }
