@@ -54,4 +54,11 @@ class RpcService extends ConfigEntityBase implements RpcServiceInterface {
    */
   protected $label;
 
+  /**
+   * Endpoints.
+   *
+   * @var array
+   */
+  protected $endpoints = [];
+
 }
