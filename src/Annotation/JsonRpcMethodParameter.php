@@ -2,15 +2,17 @@
 
 namespace Drupal\jsonrpc\Annotation;
 
+use Drupal\jsonrpc\MethodParameterInterface;
+
 /**
- * Defines a JsonRpcParam annotation object.
+ * Defines a JsonRpcMethodParameter annotation object.
  *
- * @see \Drupal\jsonrpc\Plugin\JsonRpcServicePluginManager
+ * @see \Drupal\jsonrpc\Plugin\JsonRpcServiceManager
  * @see plugin_api
  *
  * @Annotation
  */
-class JsonRpcParam {
+class JsonRpcMethodParameter implements MethodParameterInterface {
 
   /**
    * The parameter type name.
@@ -51,38 +53,28 @@ class JsonRpcParam {
   public $denormalization_class = FALSE;
 
   /**
-   * Gets the parameter description.
-   *
-   * @return \Drupal\Core\StringTranslation\TranslatableMarkup
+   * {@inheritdoc}
    */
   public function getDescription() {
     return $this->description;
   }
 
   /**
-   * Gets the parameter schema.
-   *
-   * Can be derived from the type when the schema property is not defined.
-   *
-   * @return array
+   * {@inheritdoc}
    */
   public function getSchema() {
     return $this->schema ?: [];
   }
 
   /**
-   * Whether the parameter should be denormalized.
-   *
-   * @return bool
+   * {@inheritdoc}
    */
   public function shouldBeDenormalized() {
     return !($this->denormalization_class === FALSE);
   }
 
   /**
-   * Whether the parameter should be denormalized.
-   *
-   * @return bool
+   * {@inheritdoc}
    */
   public function getDenormalizationClass() {
     return $this->shouldBeDenormalized() ? $this->denormalization_class : NULL;

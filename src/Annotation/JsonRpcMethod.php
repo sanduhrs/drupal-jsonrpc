@@ -5,16 +5,18 @@ namespace Drupal\jsonrpc\Annotation;
 use Drupal\Core\Access\AccessibleInterface;
 use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Session\AccountInterface;
+use Drupal\jsonrpc\MethodInterface;
+use Drupal\jsonrpc\MethodParameterInterface;
 
 /**
- * Defines a JsonRpcParam annotation object.
+ * Defines a JsonRpcMethodParameter annotation object.
  *
- * @see \Drupal\jsonrpc\Plugin\JsonRpcServicePluginManager
+ * @see \Drupal\jsonrpc\Plugin\JsonRpcServiceManager
  * @see plugin_api
  *
  * @Annotation
  */
-class JsonRpcMethod implements AccessibleInterface {
+class JsonRpcMethod implements MethodInterface {
 
   /**
    * The method name.
@@ -22,16 +24,6 @@ class JsonRpcMethod implements AccessibleInterface {
    * @var string
    */
   public $name;
-
-  /**
-   * The access required to use this method.
-   *
-   * Optional. Works in *addition* to the parent service's access controls.
-   * Can be either a callable or an array of permissions.
-   *
-   * @var string|string[]
-   */
-  public $access;
 
   /**
    * How to use this method.
@@ -46,17 +38,48 @@ class JsonRpcMethod implements AccessibleInterface {
    * Can be a keyed array where the parameter names are the keys or an indexed
    * array for positional parameters.
    *
-   * @var \Drupal\jsonrpc\Annotation\JsonRpcParam[]
+   * @var \Drupal\jsonrpc\Annotation\JsonRpcMethodParameter[]
    */
   public $params;
 
   /**
-   * Gets the method name.
+   * The access required to use this method.
    *
-   * @return string
+   * Optional. Works in *addition* to the parent service's access controls.
+   * Can be either a callable or an array of permissions.
+   *
+   * @var string|string[]
+   */
+  public $access;
+
+  /**
+   * {@inheritdoc}
    */
   public function getName() {
     return $this->name;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getUsage() {
+    $this->usage;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getParams() {
+    return $this->params;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function areParamsPositional() {
+    return array_reduce(array_keys($this->getParams()), function ($positional, $key) {
+      return $positional ? !is_string($key) : $positional;
+    }, TRUE);
   }
 
   /**

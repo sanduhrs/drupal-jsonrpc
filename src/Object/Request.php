@@ -39,12 +39,12 @@ class Request {
    *   The JSON-RPC version.
    * @param string $method
    *   The RPC service method id.
-   * @param \Drupal\jsonrpc\Object\ParameterBag|null $params
-   *   The request parameters, if any.
    * @param mixed|FALSE $id
    *   A string, number or NULL ID. FALSE for notification requests.
+   * @param \Drupal\jsonrpc\Object\ParameterBag|null $params
+   *   The request parameters, if any.
    */
-  public function __construct($version, $method, ParameterBag $params = NULL, $id = FALSE) {
+  public function __construct($version, $method, $id = FALSE, ParameterBag $params = NULL) {
     $this->assertValidRequest($version, $method, $id);
     $this->version = $version;
     $this->method = $method;

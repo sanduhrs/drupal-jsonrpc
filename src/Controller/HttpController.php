@@ -3,10 +3,12 @@
 namespace Drupal\jsonrpc\Controller;
 
 use Drupal\Core\Controller\ControllerBase;
-use Drupal\jsonrpc\JsonRpcHandlerInterface;
+use Drupal\jsonrpc\Exception\JsonRpcException;
+use Drupal\jsonrpc\HandlerInterface;
 use Drupal\jsonrpc\Object\Error;
 use Drupal\jsonrpc\Object\Request as RpcRequest;
 use Drupal\jsonrpc\Object\Response as RpcResponse;
+use Drupal\jsonrpc\ServiceInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -18,7 +20,7 @@ class HttpController extends ControllerBase {
   /**
    * The RPC handler service.
    *
-   * @var \Drupal\jsonrpc\JsonRpcHandlerInterface
+   * @var \Drupal\jsonrpc\HandlerInterface
    */
   protected $handler;
 
@@ -32,10 +34,10 @@ class HttpController extends ControllerBase {
   /**
    * HttpController constructor.
    *
-   * @param \Drupal\jsonrpc\JsonRpcHandlerInterface $handler
+   * @param \Drupal\jsonrpc\HandlerInterface $handler
    * @param \Symfony\Component\Serializer\SerializerInterface $serializer
    */
-  public function __construct(JsonRpcHandlerInterface $handler, SerializerInterface $serializer) {
+  public function __construct(HandlerInterface $handler, SerializerInterface $serializer) {
     $this->handler = $handler;
     $this->serializer = $serializer;
   }
@@ -59,12 +61,19 @@ class HttpController extends ControllerBase {
   public function resolve(Request $request) {
     /* @var \Drupal\jsonrpc\Object\Request $rpc_request */
     try {
-      $rpc_request = $this->serializer->deserialize($request->getContent(FALSE), RpcRequest::class, 'rpc_json');
+      $content = $request->getContent(FALSE);
+      $rpc_request = $this->serializer->deserialize($content, RpcRequest::class, 'rpc_json', [
+        'jsonrpc' => $this->handler::supportedVersion(),
+        'service_definition' => $this->handler,
+      ]);
+    }
+    catch (JsonRpcException $e) {
+      return $e->getResponse();
     }
     catch (\Exception $e) {
       $rpc_response = new RpcResponse(
         $this->handler->supportedVersion(),
-        NULL,
+        (isset($content) && is_object($content) && isset($content->id)) ? $content->id : NULL,
         NULL,
         Error::parseError($e->getMessage())
       );

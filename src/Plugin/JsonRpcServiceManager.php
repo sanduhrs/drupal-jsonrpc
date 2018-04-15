@@ -6,18 +6,20 @@ use Drupal\Core\Plugin\DefaultPluginManager;
 use Drupal\Core\Cache\CacheBackendInterface;
 use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\jsonrpc\Annotation\JsonRpcService;
-use Drupal\jsonrpc\JsonRpcHandlerInterface;
+use Drupal\jsonrpc\HandlerInterface;
+use Drupal\jsonrpc\MethodInterface;
 use Drupal\jsonrpc\Object\Error;
 use Drupal\jsonrpc\Object\ParameterBag;
 use Drupal\jsonrpc\Object\Request;
 use Drupal\jsonrpc\Object\Response;
+use Drupal\jsonrpc\ServiceInterface;
 
 /**
  * Provides the JsonRpcService plugin plugin manager.
  *
  * @internal
  */
-class JsonRpcServicePluginManager extends DefaultPluginManager implements JsonRpcHandlerInterface {
+class JsonRpcServiceManager extends DefaultPluginManager implements HandlerInterface {
 
   /**
    * The support JSON-RPC version.
@@ -71,6 +73,39 @@ class JsonRpcServicePluginManager extends DefaultPluginManager implements JsonRp
   }
 
   /**
+   * {@inheritdoc}
+   */
+  public function supportedMethods() {
+    return array_reduce($this->getDefinitions(), function ($methods, ServiceInterface $service) {
+      return array_merge($methods, $service->getMethods());
+    }, []);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function supportsMethod($name) {
+    foreach ($this->supportedMethods() as $method) {
+      if ($method->getName() === $name) {
+        return TRUE;
+      }
+    }
+    return FALSE;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getMethod($name) {
+    foreach ($this->supportedMethods() as $method) {
+      if ($method->getName() === $name) {
+        return $method;
+      }
+    }
+    return NULL;
+  }
+
+  /**
    * Gets an anonymous function which executes the RPC method.
    *
    * @param \Drupal\jsonrpc\Object\Request $request
@@ -81,20 +116,6 @@ class JsonRpcServicePluginManager extends DefaultPluginManager implements JsonRp
    */
   protected function doExecution(Request $request) {
     list($service_id, $method) = explode('.', $request->getMethod());
-    /* @var \Drupal\jsonrpc\Annotation\JsonRpcService $service_definition */
-    $service_definition = $this->getDefinition($service_id);
-    if (!in_array($method, $service_definition->getMethods())) {
-      $error = Error::methodNotFound(implode(' ', [
-        Error::$errorMeanings[Error::METHOD_NOT_FOUND],
-        'Available methods: ' . implode(', ', $service_definition->availableMethods())
-      ]));
-      return new Response(
-        static::SUPPORTED_VERSION,
-        $request->isNotification() ? NULL : $request->id(),
-        NULL,
-        $error
-      );
-    }
     return $request->hasParams()
       ? $this->createInstance($service_id)->{$method}($request->getParams())
       : $this->createInstance($service_id)->{$method};

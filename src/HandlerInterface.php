@@ -4,7 +4,7 @@ namespace Drupal\jsonrpc;
 
 use Drupal\jsonrpc\Object\Request;
 
-interface JsonRpcHandlerInterface {
+interface HandlerInterface {
 
   /**
    * Executes a remote procedure call.
@@ -34,5 +34,34 @@ interface JsonRpcHandlerInterface {
    * @return string
    */
   public static function supportedVersion();
+
+  /**
+   * The methods supported by the handler.
+   *
+   * @return \Drupal\jsonrpc\MethodInterface[]
+   */
+  public function supportedMethods();
+
+  /**
+   * Whether the given method is supported.
+   *
+   * @param string $name
+   *   The method name for which support should be determined.
+   *
+   * @return bool
+   *   Whether the handler supports the given method name.
+   */
+  public function supportsMethod($name);
+
+  /**
+   * Gets a method definition by method name.
+   *
+   * @param string $name
+   *   The method name for which support should be determined.
+   *
+   * @return \Drupal\jsonrpc\MethodInterface|null
+   *   The method definition.
+   */
+  public function getMethod($name);
 
 }
