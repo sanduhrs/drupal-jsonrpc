@@ -41,11 +41,14 @@ class JsonRpcParam {
   public $description;
 
   /**
-   * Whether the parameter should be upcasted.
+   * A denormalization target class.
    *
-   * @var bool
+   * If the parameter should be denormalized to an object, this class should be
+   * provided.
+   *
+   * @var string|FALSE
    */
-  public $upcast = FALSE;
+  public $denormalization_class = FALSE;
 
   /**
    * Gets the parameter description.
@@ -68,12 +71,21 @@ class JsonRpcParam {
   }
 
   /**
-   * Whether the parameter should be upcasted.
+   * Whether the parameter should be denormalized.
    *
    * @return bool
    */
-  public function shouldBeUpcasted() {
-    return $this->upcast;
+  public function shouldBeDenormalized() {
+    return !($this->denormalization_class === FALSE);
+  }
+
+  /**
+   * Whether the parameter should be denormalized.
+   *
+   * @return bool
+   */
+  public function getDenormalizationClass() {
+    return $this->shouldBeDenormalized() ? $this->denormalization_class : NULL;
   }
 
 }
