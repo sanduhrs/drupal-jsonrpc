@@ -28,4 +28,11 @@ interface JsonRpcHandlerInterface {
    */
   public function batch(array $requests);
 
+  /**
+   * The supported JSON-RPC version.
+   *
+   * @return string
+   */
+  public static function supportedVersion();
+
 }

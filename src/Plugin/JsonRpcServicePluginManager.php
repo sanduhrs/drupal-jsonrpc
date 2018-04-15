@@ -64,6 +64,13 @@ class JsonRpcServicePluginManager extends DefaultPluginManager implements JsonRp
   }
 
   /**
+   * {@inheritdoc}
+   */
+  public static function supportedVersion() {
+    return static::SUPPORTED_VERSION;
+  }
+
+  /**
    * Gets an anonymous function which executes the RPC method.
    *
    * @param \Drupal\jsonrpc\Object\Request $request
