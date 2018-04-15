@@ -5,9 +5,12 @@ namespace Drupal\jsonrpc\Plugin;
 use Drupal\Core\Plugin\DefaultPluginManager;
 use Drupal\Core\Cache\CacheBackendInterface;
 use Drupal\Core\Extension\ModuleHandlerInterface;
+use Drupal\jsonrpc\Annotation\JsonRpcService;
 use Drupal\jsonrpc\JsonRpcHandlerInterface;
+use Drupal\jsonrpc\Object\Error;
 use Drupal\jsonrpc\Object\ParameterBag;
 use Drupal\jsonrpc\Object\Request;
+use Drupal\jsonrpc\Object\Response;
 
 /**
  * Provides the JsonRpcService plugin plugin manager.
@@ -15,6 +18,13 @@ use Drupal\jsonrpc\Object\Request;
  * @internal
  */
 class JsonRpcServicePluginManager extends DefaultPluginManager implements JsonRpcHandlerInterface {
+
+  /**
+   * The support JSON-RPC version.
+   *
+   * @var string
+   */
+  const SUPPORTED_VERSION = '2.0';
 
   /**
    * Constructs a new HookPluginManager object.
@@ -43,25 +53,16 @@ class JsonRpcServicePluginManager extends DefaultPluginManager implements JsonRp
    * {@inheritdoc}
    */
   public function execute(Request $request) {
-    $executor = $this->getExecutor($request);
-    return $request->isNotification()
-      ? $this->getResponse($executor, $request->id())
-      : $this->getResponse($executor);
+    return $this->doRequest($request);
   }
 
   /**
    * {@inheritdoc}
    */
   public function batch(array $requests) {
-    return array_reduce($requests, function ($responses, Request $request) {
-      if ($request->isNotification()) {
-        $this->execute($request);
-      }
-      else {
-        $responses[] = $this->execute($request);
-      }
-      return $responses;
-    });
+    return array_filter(array_map(function (Request $request) {
+      return $this->doRequest($request);
+    }, $requests));
   }
 
   /**
@@ -70,62 +71,60 @@ class JsonRpcServicePluginManager extends DefaultPluginManager implements JsonRp
    * @param \Drupal\jsonrpc\Object\Request $request
    *   The JSON-RPC request.
    *
-   * @return \Closure
-   *   A closure which executes the RPC call.
+   * @return \Drupal\jsonrpc\Object\Response|null
+   *   The JSON-RPC response.
    */
-  protected function getExecutor(Request $request) {
+  protected function doExecution(Request $request) {
     list($service_id, $method) = explode('.', $request->getMethod());
     /* @var \Drupal\jsonrpc\Annotation\JsonRpcService $service_definition */
     $service_definition = $this->getDefinition($service_id);
     if (!in_array($method, $service_definition->getMethods())) {
-      return function () {
-        throw new \Exception('Method not found');
-      };
+      $error = Error::methodNotFound(implode(' ', [
+        Error::$errorMeanings[Error::METHOD_NOT_FOUND],
+        'Available methods: ' . implode(', ', $service_definition->availableMethods())
+      ]));
+      return new Response(
+        static::SUPPORTED_VERSION,
+        $request->isNotification() ? NULL : $request->id(),
+        NULL,
+        $error
+      );
     }
-    return function () use ($service_id, $method, $request) {
-      return $request->hasParams()
-        ? $this->createInstance($service_id)->{$method}($request->getParams())
-        : $this->createInstance($service_id)->{$method};
-    };
+    return $request->hasParams()
+      ? $this->createInstance($service_id)->{$method}($request->getParams())
+      : $this->createInstance($service_id)->{$method};
   }
 
   /**
    * Executes an RPC call and returns a JSON-RPC response.
    *
-   * @param $executor \Closure
-   *   A closure which executes an RPC call.
+   * @param \Drupal\jsonrpc\Object\Request $request
+   *   The JSON-RPC request.
    *
-   * @param null $id
-   *   (optional) A JSON-RPC request ID if one was provided.
-   *
-   * @return array|null
+   * @return \Drupal\jsonrpc\Object\Response|null
    *   The JSON-RPC response.
    */
-  protected function getResponse($executor, $id = NULL) {
+  protected function doRequest(Request $request) {
     try {
-      $result = $executor();
-      if (is_null($id)) {
+      if ($request->isNotification()) {
+        $this->doExecution($request);
         return NULL;
+      }
+      else {
+        $result = $this->doExecution($request);
+        return $result instanceof Response
+          ? $result
+          : new Response(static::SUPPORTED_VERSION, $request->id(), $result);
       }
     }
     catch (\Exception $e) {
-      // @TODO: Changing the data array will be a BC break. Consider this
-      // structure more.
-      $error = [
-        'code' => -32603,
-        'message' => 'Server error',
-        'data' => ['detail' => $e->getMessage()],
-      ];
+      return new Response(
+        static::SUPPORTED_VERSION,
+        $request->isNotification() ? NULL : $request->id(),
+        NULL,
+        Error::internalError($e->getMessage())
+      );
     }
-    // @TODO: Turn this into a response value object.
-    $jsonrpc_response = [
-      'jsonrpc' => '2.0',
-      'id' => $id,
-    ];
-    return array_merge($jsonrpc_response, (isset($result) && !isset($error))
-      ? ['result' => $result]
-      : ['error' => $error]
-    );
   }
 
 }

@@ -53,4 +53,13 @@ class JsonRpcService extends Plugin {
     return $this->methods;
   }
 
+  /**
+   * The available methods.
+   */
+  public function availableMethods() {
+    return array_filter($this->getMethods(), function (JsonRpcMethod $method) {
+      return $method->access();
+    });
+  }
+
 }

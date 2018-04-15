@@ -10,7 +10,7 @@ class Error {
   const INVALID_PARAMS = -32602;
   const INTERNAL_ERROR = -32603;
 
-  protected static $errorMessages = [
+  public static $errorMessages = [
     -32700 => 'Parse Error',
     -32600 => 'Invalid Request',
     -32601 => 'Method Not Found',
@@ -18,7 +18,7 @@ class Error {
     -32603 => 'Internal Error',
   ];
 
-  protected static $errorMeanings = [
+  public static $errorMeanings = [
     -32700 => 'Invalid JSON was received by the server. An error occurred on the server while parsing the JSON text.',
     -32600 => 'The JSON sent is not a valid Request object.',
     -32601 => 'The method does not exist/is not available.',

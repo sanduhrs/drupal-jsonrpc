@@ -73,14 +73,24 @@ class JsonRpcMethod implements AccessibleInterface {
         foreach ($this->access as $permission) {
           $access_result = $access_result->andIf(AccessResult::allowedIfHasPermission($account, $permission));
         }
-        return $access_result;
+        break;
 
       case 'view':
-        return AccessResult::allowedIfHasPermission($account, 'use jsonrpc services');
+        $access_result = AccessResult::allowedIfHasPermission($account, 'use jsonrpc services');
+        break;
 
       default:
-        return AccessResult::neutral();
+        $access_result = AccessResult::neutral();
+        break;
     }
+    return $return_as_object ? $access_result : $access_result->isAllowed();
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function __toString() {
+    return $this->getName();
   }
 
 }
