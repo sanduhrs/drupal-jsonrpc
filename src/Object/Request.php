@@ -28,7 +28,7 @@ class Request {
   /**
    * A string, number or NULL ID. False when an ID was not provided.
    *
-   * @var mixed|FALSE $id
+   * @var mixed|FALSE
    */
   protected $id;
 
