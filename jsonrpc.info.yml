@@ -1,0 +1,5 @@
+name: JSON-RPC
+type: module
+description: RPC syste for Drupal remote introspection and administration
+core: 8.x
+package: System

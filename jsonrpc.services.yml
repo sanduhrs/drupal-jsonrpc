@@ -1,0 +1,3 @@
+services:
+  plugin.manager.jsonrpc_service:
+    class: Drupal\jsonrpc\Plugin\JsonRpcServicePluginManager
