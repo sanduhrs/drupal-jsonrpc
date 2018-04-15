@@ -6,7 +6,7 @@ use Drupal\Core\Plugin\DefaultPluginManager;
 use Drupal\Core\Cache\CacheBackendInterface;
 use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\jsonrpc\JsonRpcHandlerInterface;
-use Drupal\jsonrpc\ParameterBag;
+use Drupal\jsonrpc\Object\ParameterBag;
 
 /**
  * Provides the JsonRpcService plugin plugin manager.

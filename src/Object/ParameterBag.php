@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\jsonrpc;
+namespace Drupal\jsonrpc\Object;
 
 class ParameterBag {
 
@@ -21,6 +21,10 @@ class ParameterBag {
   public function has($key) {
     $this->checkKeyIsValid($key);
     return isset($this->parameters[$key]);
+  }
+
+  public function empty() {
+    return empty($this->parameters);
   }
 
   protected function ensure($key) {
