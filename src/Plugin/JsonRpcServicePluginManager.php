@@ -38,14 +38,12 @@ class JsonRpcServicePluginManager extends DefaultPluginManager implements JsonRp
    *   The module handler to invoke the alter hook with.
    */
   public function __construct(\Traversable $namespaces, CacheBackendInterface $cache_backend, ModuleHandlerInterface $module_handler) {
-    parent::__construct(
-      'Plugin/jsonrpc/Service',
-      $namespaces,
-      $module_handler,
-      'Drupal\jsonrpc\Plugin\HookPluginInterface',
-      'Drupal\jsonrpc\Annotation\JsonRpcService'
-    );
+    // The following two lines prevent other modules from implementing RPC
+    // services. For now, all implementations should remain internal until the
+    // plugin API is finalized.
+    $namespaces = new \ArrayIterator([$module_handler->getModule('jsonrpc')->getPath() => '\Drupal\jsonrpc']);
     $this->alterInfo(FALSE);
+    parent::__construct('Plugin/jsonrpc/Service', $namespaces, $module_handler, NULL, JsonRpcService::class);
     $this->setCacheBackend($cache_backend, 'jsonrpc_plugins');
   }
 
