@@ -2,6 +2,10 @@
 
 namespace Drupal\jsonrpc\Annotation;
 
+use Drupal\Core\Access\AccessibleInterface;
+use Drupal\Core\Access\AccessResult;
+use Drupal\Core\Session\AccountInterface;
+
 /**
  * Defines a JsonRpcParam annotation object.
  *
@@ -10,7 +14,7 @@ namespace Drupal\jsonrpc\Annotation;
  *
  * @Annotation
  */
-class JsonRpcMethod {
+class JsonRpcMethod implements AccessibleInterface {
 
   /**
    * The method name.

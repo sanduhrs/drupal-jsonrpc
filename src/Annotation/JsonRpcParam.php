@@ -41,10 +41,39 @@ class JsonRpcParam {
   public $description;
 
   /**
-   * Whether the parameter should be upcast.
+   * Whether the parameter should be upcasted.
    *
    * @var bool
    */
   public $upcast = FALSE;
+
+  /**
+   * Gets the parameter description.
+   *
+   * @return \Drupal\Core\StringTranslation\TranslatableMarkup
+   */
+  public function getDescription() {
+    return $this->description;
+  }
+
+  /**
+   * Gets the parameter schema.
+   *
+   * Can be derived from the type when the schema property is not defined.
+   *
+   * @return array
+   */
+  public function getSchema() {
+    return $this->schema ?: [];
+  }
+
+  /**
+   * Whether the parameter should be upcasted.
+   *
+   * @return bool
+   */
+  public function shouldBeUpcasted() {
+    return $this->upcast;
+  }
 
 }
