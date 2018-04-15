@@ -45,20 +45,28 @@ class JsonRpcService extends Plugin {
   public $usage;
 
   /**
-   * The available methods.
+   * The service methods.
    *
    * @return \Drupal\jsonrpc\Annotation\JsonRpcMethod[]
+   *   The service methods.
    */
   public function getMethods() {
     return $this->methods;
   }
 
   /**
-   * The available methods.
+   * The service methods which are available to the current user.
+   *
+   * @param \Drupal\Core\Session\AccountInterface $account
+   *   (optional) The account for which to get accessible methods. The current
+   *   account will be used if one is not provided.
+   *
+   * @return \Drupal\jsonrpc\Annotation\JsonRpcMethod[]
+   *   The available methods.
    */
-  public function availableMethods() {
-    return array_filter($this->getMethods(), function (JsonRpcMethod $method) {
-      return $method->access();
+  public function availableMethods($account = NULL) {
+    return array_filter($this->getMethods(), function (JsonRpcMethod $method) use ($account) {
+      return $method->access('execute', $account);
     });
   }
 
