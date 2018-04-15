@@ -7,6 +7,7 @@ use Drupal\Core\Cache\CacheBackendInterface;
 use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\jsonrpc\JsonRpcHandlerInterface;
 use Drupal\jsonrpc\Object\ParameterBag;
+use Drupal\jsonrpc\Object\Request;
 
 /**
  * Provides the JsonRpcService plugin plugin manager.
@@ -41,35 +42,39 @@ class JsonRpcServicePluginManager extends DefaultPluginManager implements JsonRp
   /**
    * {@inheritdoc}
    */
-  public function execute($jsonrpc_request) {
-    $executor = $this->getExecutor($jsonrpc_request);
-    return isset($jsonrpc_request->id)
-      ? $this->getResponse($executor, $jsonrpc_request->id)
+  public function execute(Request $request) {
+    $executor = $this->getExecutor($request);
+    return $request->isNotification()
+      ? $this->getResponse($executor, $request->id())
       : $this->getResponse($executor);
   }
 
   /**
    * {@inheritdoc}
    */
-  public function batch(array $jsonrpc_requests) {
-    $jsonrpc_responses = [];
-    foreach ($jsonrpc_requests as $jsonrpc_request) {
-      $jsonrpc_responses[] = $this->execute($jsonrpc_request);
-    }
-    return array_filter($jsonrpc_responses);
+  public function batch(array $requests) {
+    return array_reduce($requests, function ($responses, Request $request) {
+      if ($request->isNotification()) {
+        $this->execute($request);
+      }
+      else {
+        $responses[] = $this->execute($request);
+      }
+      return $responses;
+    });
   }
 
   /**
    * Gets an anonymous function which executes the RPC method.
    *
-   * @param $jsonrpc_request
+   * @param \Drupal\jsonrpc\Object\Request $request
    *   The JSON-RPC request.
    *
    * @return \Closure
    *   A closure which executes the RPC call.
    */
-  protected function getExecutor($jsonrpc_request) {
-    list($service_id, $method) = explode('.', $jsonrpc_request);
+  protected function getExecutor(Request $request) {
+    list($service_id, $method) = explode('.', $request->getMethod());
     /* @var \Drupal\jsonrpc\Annotation\JsonRpcService $service_definition */
     $service_definition = $this->getDefinition($service_id);
     if (!in_array($method, $service_definition->getMethods())) {
@@ -77,9 +82,10 @@ class JsonRpcServicePluginManager extends DefaultPluginManager implements JsonRp
         throw new \Exception('Method not found');
       };
     }
-    $params = new ParameterBag($jsonrpc_request['params']);
-    return function () use ($service_id, $method, $params) {
-      return $this->createInstance($service_id)->{$method}($params);
+    return function () use ($service_id, $method, $request) {
+      return $request->hasParams()
+        ? $this->createInstance($service_id)->{$method}($request->getParams())
+        : $this->createInstance($service_id)->{$method};
     };
   }
 
