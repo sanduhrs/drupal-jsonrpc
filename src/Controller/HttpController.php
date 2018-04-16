@@ -178,7 +178,11 @@ class HttpController extends ControllerBase {
    * @return \Drupal\Core\Cache\CacheableResponseInterface
    */
   protected function exceptionResponse(JsonRpcException $e, $status = Response::HTTP_INTERNAL_SERVER_ERROR) {
-    $response = CacheableJsonResponse::create($e->getResponse(), $status);
+    $context = [
+      ResponseNormalizer::RESPONSE_VERSION_KEY => $this->handler::supportedVersion(),
+    ];
+    $serialized = $this->serializer->serialize($e->getResponse(), 'rpc_json', $context);
+    $response = CacheableJsonResponse::fromJsonString($serialized, $status);
     return $response->addCacheableDependency($e->getResponse());
   }
 

@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\jsonrpc\Plugin\jsonrpc\Service;
+namespace Drupal\jsonrpc_core\Plugin\jsonrpc\Service;
 
 use Drupal\Core\Annotation\Translation;
 use Drupal\jsonrpc\Annotation\JsonRpcMethod;

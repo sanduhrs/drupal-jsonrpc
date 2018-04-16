@@ -1,19 +1,18 @@
 <?php
 
-namespace Drupal\jsonrpc_core\Plugin\RpcEndpoint;
+namespace Drupal\jsonrpc_core\Plugin\jsonrpc\Service;
 
 use Drupal\Core\Annotation\Translation;
 use Drupal\jsonrpc\Annotation\JsonRpcMethod;
 use Drupal\jsonrpc\Annotation\JsonRpcMethodParameter;
+use Drupal\jsonrpc\Annotation\JsonRpcService;
 use Drupal\jsonrpc\Object\ParameterBag;
 use Drupal\jsonrpc\Plugin\JsonRpcServiceBase;
 use Drupal\user\PermissionHandlerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
- * Lists the plugin definitions of a given type.
- *
- * @RpcEndpoint(
+ * @JsonRpcService(
  *   id = "user_permissions",
  *   usage = @Translation("Introspect and modify user permissions."),
  *   access = {"administer permissions"},
@@ -22,22 +21,20 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  *       name = "list",
  *       params = {
  *         "page" = @JsonRpcMethodParameter(
- *           description = @Translation("The pagination options for the listing. Fewer than `limit` permissions may be returned.")
+ *           description = @Translation("The pagination options for the listing. Fewer than `limit` permissions may be returned."),
  *           schema = {
  *             "title": "Pagination",
  *             "type": "object",
  *             "properties": {
- *               "offset": {"type": "integer", "minimum": 0}
- *               "limit": {"type": "integer", "minimum": 0}
- *             }
- *           }
- *         ))
+ *               "offset": {"type": "integer", "minimum": 0},
+ *               "limit": {"type": "integer", "minimum": 0},
+ *             },
+ *           },
+ *         ),
  *       }
  *     )
  *   }
  * )
- *
- * @package Drupal\jsonrpc\Plugin\RpcEndpoint
  */
 class UserPermissions extends JsonRpcServiceBase {
 

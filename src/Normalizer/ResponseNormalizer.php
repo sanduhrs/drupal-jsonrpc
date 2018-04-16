@@ -30,7 +30,12 @@ class ResponseNormalizer extends NormalizerBase {
       $normalized['result'] = $this->serializer->normalize($object->getResult(), $format, $context);
     }
     if ($object->isErrorResponse()) {
-      $normalized['error'] = $this->serializer->normalize($object->getError(), $format, $context);
+      $error = $object->getError();
+      $normalized['error'] = [
+        'code' => $error->getCode(),
+        'message' => $error->getMessage(),
+        'data' => $this->serializer->normalize($error->getData(), $format, $context),
+      ];
     }
     return $normalized;
   }
