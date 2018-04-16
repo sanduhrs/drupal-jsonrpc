@@ -96,7 +96,9 @@ class RequestNormalizer implements DenormalizerInterface {
       $arguments = [];
       $positional = $method->areParamsPositional();
       foreach ($method->getParams() as $key => $param) {
-        $arguments[$key] = $this->denormalizer->denormalize($positional ? $data[$key] : $data->{$name}, $param->getDenormalizationClass(), 'rpc_json', $context);
+        $arguments[$key] = $param->shouldBeDenormalized()
+          ? $this->denormalizer->denormalize($positional ? $data[$key] : $data->{$name}, $param->getDenormalizationClass(), 'rpc_json', $context)
+          : $positional ? $data[$key] : $data->{$name};
       }
       return new ParameterBag($arguments, $positional);
     }
