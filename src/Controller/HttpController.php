@@ -7,9 +7,11 @@ use Drupal\Core\Cache\CacheableResponseInterface;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\jsonrpc\Exception\JsonRpcException;
 use Drupal\jsonrpc\HandlerInterface;
+use Drupal\jsonrpc\Normalizer\ResponseNormalizer;
 use Drupal\jsonrpc\Object\Error;
 use Drupal\jsonrpc\Object\Request as RpcRequest;
 use Drupal\jsonrpc\Object\Response as RpcResponse;
+use Psr\Http\Message\ResponseInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -90,11 +92,14 @@ class HttpController extends ControllerBase {
     if (empty($responses) && !isset($response)) {
       return CacheableJsonResponse::create(NULL, Response::HTTP_NO_CONTENT);
     }
+    $serialized = $this->serializer->serialize(empty($responses) ? $response : $responses, 'rpc_json', [
+      ResponseNormalizer::RESPONSE_VERSION_KEY => $this->handler::supportedVersion(),
+    ]);
     return empty($responses)
-      ? CacheableJsonResponse::create($response)->addCacheableDependency($response)
+      ? CacheableJsonResponse::fromJsonString($serialized)->addCacheableDependency($response)
       : array_reduce($responses, function (CacheableResponseInterface $http_response, $response) {
         return $http_response->addCacheableDependency($response);
-      }, CacheableJsonResponse::create($responses));
+      }, CacheableJsonResponse::fromJsonString($serialized));
   }
 
 }

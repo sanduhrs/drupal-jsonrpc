@@ -19,3 +19,8 @@ services:
     arguments: ['@jsonrpc.handler', '@typed_data_manager']
     tags:
       - { name: normalizer }
+
+  serializer.normalizer.jsonrpc_response:
+    class: Drupal\jsonrpc\Normalizer\ResponseNormalizer
+    tags:
+      - { name: normalizer }

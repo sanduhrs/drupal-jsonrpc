@@ -29,6 +29,7 @@ class Cache extends JsonRpcPluginBase {
   public function rebuild() {
     //drupal_flush_all_caches();
     \Drupal::logger('jsonrpc')->info('Rebuilt cache.');
+    return TRUE;
   }
 
 }

@@ -18,6 +18,13 @@ class RequestNormalizer implements DenormalizerInterface, SerializerAwareInterfa
 
   use SerializerAwareTrait;
 
+  /**
+   * The parent serializer.
+   *
+   * @var \Symfony\Component\Serializer\SerializerInterface|\Symfony\Component\Serializer\Normalizer\DenormalizerInterface
+   */
+  protected $serializer;
+
   const REQUEST_ID_KEY = 'jsonrpc_request_id';
 
   const REQUEST_VERSION_KEY = 'jsonrpc_request_version';
