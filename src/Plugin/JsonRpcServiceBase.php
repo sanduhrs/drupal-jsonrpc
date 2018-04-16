@@ -2,10 +2,12 @@
 
 namespace Drupal\jsonrpc\Plugin;
 
+use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Plugin\PluginBase;
 use Drupal\jsonrpc\ServiceInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
-class JsonRpcServiceBase extends PluginBase {
+class JsonRpcServiceBase extends PluginBase implements ContainerFactoryPluginInterface {
 
   /**
    * The RPC request for the current invocation.
@@ -32,6 +34,13 @@ class JsonRpcServiceBase extends PluginBase {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
     $this->rpcRequest = $configuration[JsonRpcServiceManager::JSONRPC_REQUEST_KEY];
     $this->methodDefinition = $configuration[JsonRpcServiceManager::JSONRPC_REQUEST_METHOD_KEY];
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
+    return new static($configuration, $plugin_id, $plugin_definition);
   }
 
   /**
