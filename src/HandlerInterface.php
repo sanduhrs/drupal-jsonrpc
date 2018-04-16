@@ -14,6 +14,8 @@ interface HandlerInterface {
    *
    * @return array|NULL
    *   The JSON-RPC response, if any. Notifications have no response.
+   *
+   * @throws \Drupal\jsonrpc\Exception\JsonRpcException
    */
   public function execute(Request $request);
 
@@ -25,6 +27,8 @@ interface HandlerInterface {
    *
    * @return array
    *   The JSON-RPC responses, if any. Notifications are not returned.
+   *
+   * @throws \Drupal\jsonrpc\Exception\JsonRpcException
    */
   public function batch(array $requests);
 

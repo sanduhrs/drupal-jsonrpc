@@ -3,6 +3,7 @@
 namespace Drupal\jsonrpc\Controller;
 
 use Drupal\Core\Cache\CacheableJsonResponse;
+use Drupal\Core\Cache\CacheableResponseInterface;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\jsonrpc\Exception\JsonRpcException;
 use Drupal\jsonrpc\HandlerInterface;
@@ -62,33 +63,38 @@ class HttpController extends ControllerBase {
     /* @var \Drupal\jsonrpc\Object\Request $rpc_request */
     try {
       $content = $request->getContent(FALSE);
-      $rpc_request = $this->serializer->deserialize($content, RpcRequest::class, 'rpc_json', [
+      $context = [
         'jsonrpc' => $this->handler::supportedVersion(),
         'service_definition' => $this->handler,
-      ]);
+      ];
+      $rpc_request = $this->serializer->deserialize($content, RpcRequest::class, 'rpc_json', $context);
+    }
+    catch (JsonRpcException|\Exception $e) {
+      if (!$e instanceof JsonRpcException) {
+        $id = (isset($content) && is_object($content) && isset($content->id)) ? $content->id : FALSE;
+        $e = JsonRpcException::fromPrevious($e, $id);
+      }
+      return CacheableJsonResponse::create($e->getResponse(), Response::HTTP_BAD_REQUEST)->addCacheableDependency($e->getResponse());
+    }
+    try {
+      if (is_array($rpc_request)) {
+        $responses = $this->handler->batch($rpc_request);
+      }
+      else {
+        $response = $this->handler->execute($rpc_request);
+      }
     }
     catch (JsonRpcException $e) {
-      return CacheableJsonResponse::create($e->getResponse());
+      return CacheableJsonResponse::create($e->getResponse(), Response::HTTP_INTERNAL_SERVER_ERROR)->addCacheableDependency($e->getResponse());
     }
-    catch (\Exception $e) {
-      $rpc_response = new RpcResponse(
-        $this->handler->supportedVersion(),
-        (isset($content) && is_object($content) && isset($content->id)) ? $content->id : NULL,
-        NULL,
-        Error::parseError($e->getMessage())
-      );
-      \Drupal::logger('jsonrpc')->error($e->getMessage());
-      return CacheableJsonResponse::create($rpc_response, Response::HTTP_BAD_REQUEST)->addCacheableDependency($rpc_response);
+    if (empty($responses) && !isset($response)) {
+      return CacheableJsonResponse::create(NULL, Response::HTTP_NO_CONTENT);
     }
-    if (is_array($rpc_request)) {
-      $responses = $this->handler->batch($rpc_request);
-    }
-    else {
-      $response = $this->handler->execute($rpc_request);
-    }
-    return empty($responses) && !isset($response)
-      ? CacheableJsonResponse::create(NULL, Response::HTTP_NO_CONTENT)
-      : CacheableJsonResponse::create(empty($responses) ? $response : $responses);
+    return empty($responses)
+      ? CacheableJsonResponse::create($response)->addCacheableDependency($response)
+      : array_reduce($responses, function (CacheableResponseInterface $http_response, $response) {
+        return $http_response->addCacheableDependency($response);
+      }, CacheableJsonResponse::create($responses));
   }
 
 }

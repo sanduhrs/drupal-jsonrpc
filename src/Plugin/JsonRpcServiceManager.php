@@ -6,6 +6,7 @@ use Drupal\Core\Plugin\DefaultPluginManager;
 use Drupal\Core\Cache\CacheBackendInterface;
 use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\jsonrpc\Annotation\JsonRpcService;
+use Drupal\jsonrpc\Exception\JsonRpcException;
 use Drupal\jsonrpc\HandlerInterface;
 use Drupal\jsonrpc\MethodInterface;
 use Drupal\jsonrpc\Object\Error;
@@ -156,6 +157,8 @@ class JsonRpcServiceManager extends DefaultPluginManager implements HandlerInter
    *
    * @return \Drupal\jsonrpc\Object\Response|null
    *   The JSON-RPC response.
+   *
+   * @throws \Drupal\jsonrpc\Exception\JsonRpcException
    */
   protected function doRequest(Request $request) {
     try {
@@ -171,12 +174,7 @@ class JsonRpcServiceManager extends DefaultPluginManager implements HandlerInter
       }
     }
     catch (\Exception $e) {
-      return new Response(
-        static::SUPPORTED_VERSION,
-        $request->isNotification() ? NULL : $request->id(),
-        NULL,
-        Error::internalError($e->getMessage())
-      );
+      throw JsonRpcException::fromPrevious($e, $request->isNotification() ? FALSE : $request->id());
     }
   }
 
