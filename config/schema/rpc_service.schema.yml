@@ -1,0 +1,18 @@
+jsonrpc.rpc_service.*:
+  type: config_entity
+  label: 'RPC Service config'
+  mapping:
+    id:
+      type: string
+      label: 'ID'
+    label:
+      type: label
+      label: 'Label'
+    uuid:
+      type: string
+    endpoints:
+      type: sequence
+      sequence:
+        label: 'Endpoint ID'
+        type: string
+        # TODO: Add a constraint that validates that this is a valid plugin ID.
