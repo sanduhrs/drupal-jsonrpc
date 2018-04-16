@@ -55,51 +55,131 @@ class HttpController extends ControllerBase {
   /**
    * Resolves an RPC request over HTTP.
    *
-   * @param \Symfony\Component\HttpFoundation\Request $request
+   * @param \Symfony\Component\HttpFoundation\Request $http_request
    *   The HTTP request.
    *
-   * @return \Symfony\Component\HttpFoundation\Response
+   * @return \Drupal\Core\Cache\CacheableResponseInterface
    *   The HTTP response.
    */
-  public function resolve(Request $request) {
-    /* @var \Drupal\jsonrpc\Object\Request $rpc_request */
+  public function resolve(Request $http_request) {
+    // Map the HTTP request to an RPC request.
     try {
-      $content = $request->getContent(FALSE);
+      $rpc_request = $this->getRpcRequest($http_request);
+    } catch (JsonRpcException $e) {
+      return $this->exceptionResponse($e, Response::HTTP_BAD_REQUEST);
+    }
+
+    // Execute the RPC request and get the RPC response.
+    try {
+      $rpc_response = $this->getRpcResponse($rpc_request);
+    } catch (JsonRpcException $e) {
+      return $this->exceptionResponse($e, Response::HTTP_INTERNAL_SERVER_ERROR);
+    }
+
+    // If no RPC response(s) were generated (happens if all of the request(s)
+    // were notifications), then return a 204 HTTP response.
+    if (is_null($rpc_response) || empty($rpc_response)) {
+      return CacheableJsonResponse::create(NULL, Response::HTTP_NO_CONTENT);
+    }
+
+    // Map the RPC response(s) to an HTTP response.
+    return $this->getHttpResponse($rpc_response);
+  }
+
+  /**
+   * @param \Symfony\Component\HttpFoundation\Request $http_request
+   *
+   * @return \Drupal\jsonrpc\Object\Request|\Drupal\jsonrpc\Object\Request[]
+   *   The JSON-RPC request or requests.
+   *
+   * @throws \Drupal\jsonrpc\Exception\JsonRpcException
+   */
+  protected function getRpcRequest(Request $http_request) {
+    try {
+      $content = $http_request->getContent(FALSE);
       $context = [
         'jsonrpc' => $this->handler::supportedVersion(),
         'service_definition' => $this->handler,
       ];
-      $rpc_request = $this->serializer->deserialize($content, RpcRequest::class, 'rpc_json', $context);
+      /* @var \Drupal\jsonrpc\Object\Request|\Drupal\jsonrpc\Object\Request[] $deserialized */
+      $deserialized = $this->serializer->deserialize($content, RpcRequest::class, 'rpc_json', $context);
+      return $deserialized;
     }
-    catch (JsonRpcException|\Exception $e) {
+    catch (\Exception $e) {
       if (!$e instanceof JsonRpcException) {
         $id = (isset($content) && is_object($content) && isset($content->id)) ? $content->id : FALSE;
-        $e = JsonRpcException::fromPrevious($e, $id);
+        throw JsonRpcException::fromPrevious($e, $id);
       }
-      return CacheableJsonResponse::create($e->getResponse(), Response::HTTP_BAD_REQUEST)->addCacheableDependency($e->getResponse());
+      throw $e;
     }
-    try {
-      if (is_array($rpc_request)) {
-        $responses = $this->handler->batch($rpc_request);
-      }
-      else {
-        $response = $this->handler->execute($rpc_request);
-      }
+  }
+
+
+  /**
+   * @param \Drupal\jsonrpc\Object\Request $rpc_request
+   *
+   * @return \Drupal\jsonrpc\Object\Response|\Drupal\jsonrpc\Object\Response[]|null $rpc_response
+   *   The JSON-RPC response(s). NULL when the RPC request contains only
+   *   notifications.
+   *
+   * @throws \Drupal\jsonrpc\Exception\JsonRpcException
+   */
+  protected function getRpcResponse($rpc_request) {
+    if (is_array($rpc_request)) {
+      return ($rpc_responses = $this->handler->batch($rpc_request)) && !empty($rpc_responses)
+        ? $rpc_responses
+        : NULL;
     }
-    catch (JsonRpcException $e) {
-      return CacheableJsonResponse::create($e->getResponse(), Response::HTTP_INTERNAL_SERVER_ERROR)->addCacheableDependency($e->getResponse());
-    }
-    if (empty($responses) && !isset($response)) {
-      return CacheableJsonResponse::create(NULL, Response::HTTP_NO_CONTENT);
-    }
-    $serialized = $this->serializer->serialize(empty($responses) ? $response : $responses, 'rpc_json', [
-      ResponseNormalizer::RESPONSE_VERSION_KEY => $this->handler::supportedVersion(),
-    ]);
-    return empty($responses)
-      ? CacheableJsonResponse::fromJsonString($serialized)->addCacheableDependency($response)
-      : array_reduce($responses, function (CacheableResponseInterface $http_response, $response) {
+    return ($rpc_response = $this->handler->execute($rpc_request))
+      ? $rpc_response
+      : NULL;
+  }
+
+  /**
+   * Map RPC response(s) to an HTTP response.
+   *
+   * @param \Drupal\jsonrpc\Object\Response|\Drupal\jsonrpc\Object\Response[] $rpc_response
+   *
+   * @return \Drupal\Core\Cache\CacheableResponseInterface
+   *   The cacheable HTTP version of the RPC response(s).
+   */
+  protected function getHttpResponse($rpc_response) {
+    $serialized = $this->serializeRpcResponse($rpc_response);
+    $http_response = CacheableJsonResponse::fromJsonString($serialized, Response::HTTP_OK);
+    // Adds the cacheability information of the RPC response(s) to the HTTP
+    // response.
+    return is_array($rpc_response)
+      ? array_reduce($rpc_response, function (CacheableResponseInterface $http_response, $response) {
         return $http_response->addCacheableDependency($response);
-      }, CacheableJsonResponse::fromJsonString($serialized));
+      }, $http_response)
+      : $http_response->addCacheableDependency($rpc_response);
+  }
+
+  /**
+   * @param \Drupal\jsonrpc\Object\Response|\Drupal\jsonrpc\Object\Response[] $rpc_response
+   *
+   * @return string
+   *   The serialized JSON-RPC response body.
+   */
+  protected function serializeRpcResponse($rpc_response) {
+    $context = [
+      ResponseNormalizer::RESPONSE_VERSION_KEY => $this->handler::supportedVersion(),
+    ];
+    // This following is needed to prevent the serializer from using array
+    // indices as JSON object keys like {"0": "foo", "1": "bar"}.
+    $data = is_array($rpc_response) ? array_values($rpc_response) : $rpc_response;
+    return $this->serializer->serialize($data, 'rpc_json', $context);
+  }
+
+  /**
+   * @param \Drupal\jsonrpc\Exception\JsonRpcException $e
+   * @param int $status
+   *
+   * @return \Drupal\Core\Cache\CacheableResponseInterface
+   */
+  protected function exceptionResponse(JsonRpcException $e, $status = Response::HTTP_INTERNAL_SERVER_ERROR) {
+    $response = CacheableJsonResponse::create($e->getResponse(), $status);
+    return $response->addCacheableDependency($e->getResponse());
   }
 
 }
