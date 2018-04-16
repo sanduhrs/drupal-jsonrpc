@@ -7,6 +7,7 @@ use Drupal\jsonrpc\Annotation\JsonRpcMethod;
 use Drupal\jsonrpc\Annotation\JsonRpcMethodParameter;
 use Drupal\jsonrpc\Annotation\JsonRpcService;
 use Drupal\jsonrpc\Plugin\JsonRpcPluginBase;
+use Drupal\jsonrpc\Plugin\JsonRpcServiceBase;
 
 /**
  * Class CacheService
@@ -19,16 +20,14 @@ use Drupal\jsonrpc\Plugin\JsonRpcPluginBase;
  *     @JsonRpcMethod(
  *       name = "rebuild",
  *       usage = @Translation("Rebuild the site cache."),
- *       params = {@JsonRpcMethodParameter(data_type="string")}
  *     ),
  *   },
  * )
  */
-class Cache extends JsonRpcPluginBase {
+class Cache extends JsonRpcServiceBase {
 
   public function rebuild() {
-    //drupal_flush_all_caches();
-    \Drupal::logger('jsonrpc')->info('Rebuilt cache.');
+    drupal_flush_all_caches();
     return TRUE;
   }
 

@@ -11,7 +11,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * @JsonRpcService(
- *   id = "router",
+ *   id = "route_builder",
  *   access = {"administer site configuration"},
  *   methods = {@JsonRpcMethod(
  *     name = "rebuild"
@@ -19,7 +19,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  *   )}
  * )
  */
-class RouterRpcService extends JsonRpcServiceBase {
+class RouteBuilder extends JsonRpcServiceBase {
 
   /**
    * The route builder service.
@@ -29,7 +29,7 @@ class RouterRpcService extends JsonRpcServiceBase {
   protected $routeBuilder;
 
   /**
-   * RouterRpcService constructor.
+   * RouteBuilder constructor.
    *
    * {@inheritdoc}
    */
