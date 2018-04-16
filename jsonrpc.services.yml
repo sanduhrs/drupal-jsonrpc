@@ -1,4 +1,26 @@
 services:
-  plugin.manager.rpc_endpoint:
-    class: Drupal\jsonrpc\Plugin\RpcEndpointManager
+  plugin.manager.jsonrpc_service:
     parent: default_plugin_manager
+    class: Drupal\jsonrpc\Plugin\JsonRpcServiceManager
+    public: false
+
+  jsonrpc.handler:
+    class: Drupal\jsonrpc\HandlerInterface'
+    alias: plugin.manager.jsonrpc_service
+    public: true
+
+  serializer.encoder.rpc_json:
+    class: Drupal\jsonrpc\Encoder\JsonRpcEncoder
+    tags:
+      - { name: encoder, format: rpc_json }
+
+  serializer.normalizer.jsonrpc_request:
+    class: Drupal\jsonrpc\Normalizer\RequestNormalizer
+    arguments: ['@jsonrpc.handler', '@typed_data_manager']
+    tags:
+      - { name: normalizer }
+
+  serializer.normalizer.jsonrpc_response:
+    class: Drupal\jsonrpc\Normalizer\ResponseNormalizer
+    tags:
+      - { name: normalizer }

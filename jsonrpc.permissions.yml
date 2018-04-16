@@ -1,3 +1,0 @@
-use json-rpc services:
-  title: 'Use JSON-RPC 2.0 services'
-  description: 'This permission grants access to RPC endpoints. Each endpoint may require additional permissions to execute the particular procedure.'

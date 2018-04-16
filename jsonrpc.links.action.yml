@@ -1,6 +1,0 @@
-entity.rpc_service.add_form:
-  route_name: entity.rpc_service.add_form
-  title: 'Add RPC Service'
-  appears_on:
-    - entity.rpc_service.collection
-

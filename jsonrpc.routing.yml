@@ -1,10 +1,9 @@
-jsonrpc.front_controller:
+jsonrpc.handler:
   path: '/jsonrpc'
   defaults:
-    _controller: '\Drupal\jsonrpc\FrontController::handle'
-    _title: 'JSON-RPC 2.0'
+    _controller: '\Drupal\jsonrpc\Controller\HttpController::resolve'
+  methods: [POST]
   requirements:
-    _permission: 'use json-rpc services'
-  methods: [GET, POST]
+    _permission: 'use jsonrpc services'
   options:
-    _auth: ['basic_auth', 'cookie', 'oauth2']
+    _auth: ['basic_auth']
