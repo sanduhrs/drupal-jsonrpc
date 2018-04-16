@@ -7,11 +7,6 @@ use Drupal\jsonrpc\Annotation\JsonRpcMethod;
 use Drupal\jsonrpc\Annotation\JsonRpcMethodParameter;
 use Drupal\jsonrpc\Object\ParameterBag;
 use Drupal\jsonrpc\Plugin\JsonRpcServiceBase;
-use Drupal\jsonrpc\Plugin\RpcEndpointBase;
-use Drupal\jsonrpc\ServiceInterface;
-use Drupal\jsonrpc_core\Plugin\RpcEndpoint\Params\PaginationParam;
-use Drupal\jsonrpc_core\Plugin\RpcEndpoint\Params\ServiceParam;
-use Drupal\user\PermissionHandler;
 use Drupal\user\PermissionHandlerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
