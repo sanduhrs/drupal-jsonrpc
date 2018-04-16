@@ -5,3 +5,5 @@ jsonrpc.handler:
   methods: [POST]
   requirements:
     _permission: 'use jsonrpc services'
+  options:
+    _auth: ['basic_auth']

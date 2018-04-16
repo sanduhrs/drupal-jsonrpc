@@ -2,13 +2,13 @@
 
 namespace Drupal\jsonrpc\Controller;
 
+use Drupal\Core\Cache\CacheableJsonResponse;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\jsonrpc\Exception\JsonRpcException;
 use Drupal\jsonrpc\HandlerInterface;
 use Drupal\jsonrpc\Object\Error;
 use Drupal\jsonrpc\Object\Request as RpcRequest;
 use Drupal\jsonrpc\Object\Response as RpcResponse;
-use Drupal\jsonrpc\ServiceInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -68,7 +68,7 @@ class HttpController extends ControllerBase {
       ]);
     }
     catch (JsonRpcException $e) {
-      return $e->getResponse();
+      return CacheableJsonResponse::create($e->getResponse());
     }
     catch (\Exception $e) {
       $rpc_response = new RpcResponse(
@@ -77,7 +77,8 @@ class HttpController extends ControllerBase {
         NULL,
         Error::parseError($e->getMessage())
       );
-      return new Response($rpc_response, Response::HTTP_BAD_REQUEST);
+      \Drupal::logger('jsonrpc')->error($e->getMessage());
+      return CacheableJsonResponse::create($rpc_response, Response::HTTP_BAD_REQUEST)->addCacheableDependency($rpc_response);
     }
     if (is_array($rpc_request)) {
       $responses = $this->handler->batch($rpc_request);
@@ -86,8 +87,8 @@ class HttpController extends ControllerBase {
       $response = $this->handler->execute($rpc_request);
     }
     return empty($responses) && !isset($response)
-      ? Response::create(NULL, Response::HTTP_NO_CONTENT)
-      : JsonResponse::create(empty($responses) ? $response : $responses);
+      ? CacheableJsonResponse::create(NULL, Response::HTTP_NO_CONTENT)
+      : CacheableJsonResponse::create(empty($responses) ? $response : $responses);
   }
 
 }

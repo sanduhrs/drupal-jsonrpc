@@ -2,7 +2,9 @@
 
 namespace Drupal\jsonrpc\Annotation;
 
-use Drupal\Component\Annotation\Plugin;
+use Drupal\Component\Annotation\AnnotationBase;
+use Drupal\Component\Plugin\Definition\PluginDefinitionInterface;
+use Drupal\jsonrpc\ServiceInterface;
 
 /**
  * Defines a JsonRpcService plugin item annotation object.
@@ -12,7 +14,7 @@ use Drupal\Component\Annotation\Plugin;
  *
  * @Annotation
  */
-class JsonRpcService extends Plugin {
+class JsonRpcService extends AnnotationBase implements PluginDefinitionInterface, ServiceInterface {
 
   /**
    * The plugin ID.
@@ -33,16 +35,25 @@ class JsonRpcService extends Plugin {
    *
    * Required. Can be either a callable or an array of permissions.
    *
-   * @var string|string[]
+   * @var mixed
    */
   public $access;
 
   /**
    * How to use this service.
    *
-   * @var \Drupal\Core\StringTranslation\TranslatableMarkup
+   * @var \Drupal\Core\Annotation\Translation
+   *
+   * @ingroup plugin_translatable
    */
   public $usage;
+
+  /**
+   * {@inheritdoc}
+   */
+  public function id() {
+    return $this->id;
+  }
 
   /**
    * {@inheritdoc}
@@ -58,6 +69,10 @@ class JsonRpcService extends Plugin {
     return array_filter($this->getMethods(), function (JsonRpcMethod $method) use ($account) {
       return $method->access('execute', $account);
     });
+  }
+
+  public function get() {
+    return $this;
   }
 
 }

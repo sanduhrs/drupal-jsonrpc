@@ -2,6 +2,7 @@
 
 namespace Drupal\jsonrpc\Annotation;
 
+use Doctrine\Common\Annotations\Annotation\Target;
 use Drupal\Core\Access\AccessibleInterface;
 use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Session\AccountInterface;
@@ -21,6 +22,7 @@ class JsonRpcMethod implements MethodInterface {
   /**
    * The method name.
    *
+   *
    * @var string
    */
   public $name;
@@ -28,7 +30,9 @@ class JsonRpcMethod implements MethodInterface {
   /**
    * How to use this method.
    *
-   * @var \Drupal\Core\StringTranslation\TranslatableMarkup
+   * @var \Drupal\Core\Annotation\Translation
+   *
+   * @ingroup plugin_translatable
    */
   public $usage;
 

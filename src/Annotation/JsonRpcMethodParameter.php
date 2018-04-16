@@ -38,7 +38,9 @@ class JsonRpcMethodParameter implements MethodParameterInterface {
   /**
    * A description of the parameter.
    *
-   * @var \Drupal\Core\StringTranslation\TranslatableMarkup
+   * @var \Drupal\Core\Annotation\Translation
+   *
+   * @ingroup plugin_translatable
    */
   public $description;
 

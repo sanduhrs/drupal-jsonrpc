@@ -42,11 +42,10 @@ class RequestNormalizer implements DenormalizerInterface {
    * @throws \Drupal\jsonrpc\Exception\JsonRpcException
    */
   public function denormalize($data, $class, $format = NULL, array $context = []) {
-    $decoded = json_decode($data);
-    if (is_array($decoded)) {
+    if (is_array($data)) {
       return array_map(function ($item) use ($context) {
         return $this->denormalizeRequest($item, $context);
-      }, $decoded);
+      }, $data);
     }
     return $this->denormalizeRequest($data, $context);
   }

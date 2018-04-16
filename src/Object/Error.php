@@ -98,7 +98,7 @@ class Error {
    * Asserts that the error is valid.
    */
   protected function assertValidError($code, $message) {
-    assert(is_int($code) && $code >= -32000 && $code <= -32099, "The $code code is reserved for implementation-defined server-errors.");
+    assert(is_int($code) && !($code >= -32000 && $code <= -32099), "The $code code is reserved for implementation-defined server-errors.");
     assert(is_string($message) && strlen($message) < 256, 'The message SHOULD be limited to a concise single sentence.');
   }
 

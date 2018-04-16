@@ -43,8 +43,8 @@ class JsonRpcServiceManager extends DefaultPluginManager implements HandlerInter
     // The following two lines prevent other modules from implementing RPC
     // services. For now, all implementations should remain internal until the
     // plugin API is finalized.
-    $namespaces = new \ArrayIterator([$module_handler->getModule('jsonrpc')->getPath() => '\Drupal\jsonrpc']);
-    $this->alterInfo(FALSE);
+    //$namespaces = new \ArrayIterator([$module_handler->getModule('jsonrpc')->getPath() => '\Drupal\jsonrpc']);
+    //$this->alterInfo(FALSE);
     parent::__construct('Plugin/jsonrpc/Service', $namespaces, $module_handler, NULL, JsonRpcService::class);
     $this->setCacheBackend($cache_backend, 'jsonrpc_plugins');
   }
@@ -85,24 +85,51 @@ class JsonRpcServiceManager extends DefaultPluginManager implements HandlerInter
    * {@inheritdoc}
    */
   public function supportsMethod($name) {
-    foreach ($this->supportedMethods() as $method) {
-      if ($method->getName() === $name) {
-        return TRUE;
-      }
-    }
-    return FALSE;
+    return !is_null($this->getMethod($name));
   }
 
   /**
    * {@inheritdoc}
    */
   public function getMethod($name) {
-    foreach ($this->supportedMethods() as $method) {
-      if ($method->getName() === $name) {
+    list($service_id, $method_name) = explode('.', $name);
+    /* @var \Drupal\jsonrpc\ServiceInterface|null $service_definition */
+    $service_definition = $this->getDefinition($service_id);
+    if (!$service_definition) {
+      return NULL;
+    }
+    foreach ($service_definition->getMethods() as $method) {
+      if ($method->getName() === $method_name) {
         return $method;
       }
     }
     return NULL;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function alterDefinitions(&$definitions) {
+    if (PHP_MAJOR_VERSION >= 7 || assert_options(ASSERT_ACTIVE)) {
+      foreach ($definitions as $definition) {
+        $this->assertValidJsonRpcServicePlugin($definition);
+      }
+    }
+    parent::alterDefinitions($definitions);
+  }
+
+  /**
+   * Asserts that the plugin class is valid.
+   *
+   * @param \Drupal\Component\Plugin\Definition\PluginDefinitionInterface|\Drupal\jsonrpc\ServiceInterface $service
+   *   The JSON-RPC service definition.
+   */
+  protected function assertValidJsonRpcServicePlugin($service) {
+    $reflection = new \ReflectionClass($service->getClass());
+    foreach ($service->getMethods() as $method) {
+      $method_name = $method->getName();
+      assert($reflection->hasMethod($method->getName()), "JSON-RPC method names must match a public method name on the plugin class. Missing the '$method_name' method.");
+    }
   }
 
   /**
@@ -118,7 +145,7 @@ class JsonRpcServiceManager extends DefaultPluginManager implements HandlerInter
     list($service_id, $method) = explode('.', $request->getMethod());
     return $request->hasParams()
       ? $this->createInstance($service_id)->{$method}($request->getParams())
-      : $this->createInstance($service_id)->{$method};
+      : $this->createInstance($service_id)->{$method}();
   }
 
   /**
