@@ -32,6 +32,8 @@ class JsonRpcMethodParameter implements MethodParameterInterface {
    * TypedData data type name.
    *
    * @var array
+   *
+   * @todo enforce this requirement.
    */
   public $schema = NULL;
 
