@@ -30,6 +30,13 @@ class JsonRpcServiceManager extends DefaultPluginManager implements HandlerInter
   const SUPPORTED_VERSION = '2.0';
 
   /**
+   * The configuration array key for the JSON-RPC request object.
+   *
+   * @var string
+   */
+  const JSONRPC_REQUEST_KEY = 'jsonrpc_request';
+
+  /**
    * Constructs a new HookPluginManager object.
    *
    * @param \Traversable $namespaces
@@ -145,8 +152,8 @@ class JsonRpcServiceManager extends DefaultPluginManager implements HandlerInter
   protected function doExecution(Request $request) {
     list($service_id, $method) = explode('.', $request->getMethod());
     return $request->hasParams()
-      ? $this->createInstance($service_id)->{$method}($request->getParams())
-      : $this->createInstance($service_id)->{$method}();
+      ? $this->createInstance($service_id, [static::JSONRPC_REQUEST_KEY => $request])->{$method}($request->getParams())
+      : $this->createInstance($service_id, [static::JSONRPC_REQUEST_KEY => $request])->{$method}();
   }
 
   /**
