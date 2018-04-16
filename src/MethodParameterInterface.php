@@ -5,6 +5,14 @@ namespace Drupal\jsonrpc;
 interface MethodParameterInterface {
 
   /**
+   * Gets the parameter's TypedData data type if one was provided.
+   *
+   * @return string|null
+   *   The TypedData data type name. NULL if one was not provided.
+   */
+  public function getDataType();
+
+  /**
    * Gets the parameter description.
    *
    * @return \Drupal\Core\StringTranslation\TranslatableMarkup

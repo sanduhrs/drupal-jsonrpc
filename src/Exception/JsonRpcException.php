@@ -38,20 +38,47 @@ class JsonRpcException extends \Exception {
   /**
    * Constructs a JsonRpcException from an arbitrary exception.
    *
-   * @param \Exception
+   * @param \Exception $previous
    *   An arbitrary exception.
-   * @param mixed
+   * @param mixed $id
    *   The request ID, if available.
+   * @param string $version
+   *   (optional) The JSON-RPC version.
    *
    * @return static
    */
-  public static function fromPrevious(\Exception $previous, $id = FALSE) {
-    return new static(new Response(
-      \Drupal::service('jsonrpc.handler')->supportedVersion(),
-      $id ? $id : NULL,
-      NULL,
-      Error::internalError($previous->getMessage())
-    ), $previous);
+  public static function fromPrevious(\Exception $previous, $id = FALSE, $version = NULL) {
+    return new static(static::buildResponse(Error::internalError($previous->getMessage()), $id, $version), $previous);
+  }
+
+  /**
+   * Constructs a JsonRpcException from an arbitrary error object.
+   *
+   * @param \Drupal\jsonrpc\Object\Error $error
+   *   The error which caused the exception.
+   * @param mixed
+   *   The request ID, if available.
+   * @param string $version
+   *   (optional) The JSON-RPC version.
+   *
+   * @return static
+   */
+  public static function fromError(Error $error, $id = FALSE, $version = NULL) {
+    return new static(static::buildResponse($error, $id, $version));
+  }
+
+  /**
+   * Helper to build a JSON-RPC response object.
+   *
+   * @param \Drupal\jsonrpc\Object\Error $error
+   * @param mixed $id
+   * @param string $version
+   *
+   * @return \Drupal\jsonrpc\Object\Response
+   */
+  protected static function buildResponse(Error $error, $id = FALSE, $version = NULL) {
+    $supported_version = $version ?: \Drupal::service('jsonrpc.handler')->supportedVersion();
+    return new Response($supported_version, $id ? $id : NULL, NULL, $error);
   }
 
 }

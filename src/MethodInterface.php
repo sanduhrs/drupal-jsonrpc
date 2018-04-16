@@ -26,7 +26,8 @@ interface MethodInterface extends AccessibleInterface {
    * Can be a keyed array where the parameter names are the keys or an indexed
    * array for positional parameters.
    *
-   * @return \Drupal\jsonrpc\MethodParameterInterface[]
+   * @return \Drupal\jsonrpc\MethodParameterInterface[]|null
+   *   The method params or NULL if none are accepted.
    */
   public function getParams();
 

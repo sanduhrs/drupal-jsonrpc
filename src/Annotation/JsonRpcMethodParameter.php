@@ -15,15 +15,15 @@ use Drupal\jsonrpc\MethodParameterInterface;
 class JsonRpcMethodParameter implements MethodParameterInterface {
 
   /**
-   * The parameter type name.
+   * The parameter data type name.
    *
-   * Required if a schema is not provided or when the parameter should be
-   * upcasted. If a schema is not provided, the type name must match a TypedData
-   * data type name.
+   * Required if a schema is not provided. If a schema is not provided, the type
+   * name must match a TypedData data type name and the received parameter will
+   * be cast to an instance of that type.
    *
    * @var string
    */
-  public $type = NULL;
+  public $data_type = NULL;
 
   /**
    * The parameter schema.
@@ -50,9 +50,16 @@ class JsonRpcMethodParameter implements MethodParameterInterface {
    * If the parameter should be denormalized to an object, this class should be
    * provided.
    *
-   * @var string|FALSE
+   * @var string
    */
   public $denormalization_class = FALSE;
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getDataType() {
+    return $this->data_type;
+  }
 
   /**
    * {@inheritdoc}
