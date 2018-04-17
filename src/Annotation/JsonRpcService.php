@@ -16,6 +16,8 @@ use Drupal\jsonrpc\ServiceInterface;
  */
 class JsonRpcService extends AnnotationBase implements PluginDefinitionInterface, ServiceInterface {
 
+  use AccessibleTrait;
+
   /**
    * The plugin ID.
    *
@@ -29,15 +31,6 @@ class JsonRpcService extends AnnotationBase implements PluginDefinitionInterface
    * @var \Drupal\jsonrpc\Annotation\JsonRpcMethod[]
    */
   public $methods;
-
-  /**
-   * The access required to use this method.
-   *
-   * Required. Can be either a callable or an array of permissions.
-   *
-   * @var mixed
-   */
-  public $access;
 
   /**
    * How to use this service.
@@ -60,6 +53,18 @@ class JsonRpcService extends AnnotationBase implements PluginDefinitionInterface
    */
   public function getMethods() {
     return $this->methods;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getMethod($name) {
+    foreach ($this->methods as $method) {
+      if ($method->getName() === $name) {
+        return $method;
+      }
+    }
+    return NULL;
   }
 
   /**

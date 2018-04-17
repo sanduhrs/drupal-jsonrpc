@@ -2,6 +2,7 @@
 
 namespace Drupal\jsonrpc\Plugin;
 
+use Drupal\Core\Access\AccessResultReasonInterface;
 use Drupal\Core\Plugin\DefaultPluginManager;
 use Drupal\Core\Cache\CacheBackendInterface;
 use Drupal\Core\Extension\ModuleHandlerInterface;
@@ -158,6 +159,7 @@ class JsonRpcServiceManager extends DefaultPluginManager implements HandlerInter
    */
   protected function doExecution(Request $request) {
     list($service_id, $method) = explode('.', $request->getMethod());
+    $this->checkAccess($service_id, $method);
     $configuration = [
       static::JSONRPC_REQUEST_KEY => $request,
       static::JSONRPC_REQUEST_METHOD_KEY => $this->getMethod($request->getMethod()),
@@ -193,6 +195,32 @@ class JsonRpcServiceManager extends DefaultPluginManager implements HandlerInter
     }
     catch (\Exception $e) {
       throw JsonRpcException::fromPrevious($e, $request->isNotification() ? FALSE : $request->id());
+    }
+  }
+
+  /**
+   * Check execution access.
+   *
+   * @param string $service_id
+   *   The service ID.
+   * @param string $method_name
+   *   The method name.
+   *
+   * @throws \Drupal\jsonrpc\Exception\JsonRpcException
+   */
+  protected function checkAccess($service_id, $method_name) {
+    /* @var \Drupal\jsonrpc\ServiceInterface $service_definition */
+    $service_definition = $this->getDefinition($service_id);
+    $method_definition = $service_definition->getMethod($method_name);
+    $service_access_result = $service_definition->access('execute', NULL, TRUE);
+    $method_access_result = $method_definition->access('execute', NULL, TRUE);
+    $access_result = $service_access_result->andIf($method_access_result);
+    if (!$access_result->isAllowed()) {
+      $reason = 'Access Denied';
+      if ($access_result instanceof AccessResultReasonInterface && ($detail = $access_result->getReason())) {
+        $reason .= ': ' . $detail;
+      }
+      throw JsonRpcException::fromError(Error::invalidRequest($reason));
     }
   }
 

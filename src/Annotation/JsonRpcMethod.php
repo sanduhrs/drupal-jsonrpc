@@ -19,6 +19,8 @@ use Drupal\jsonrpc\MethodParameterInterface;
  */
 class JsonRpcMethod implements MethodInterface {
 
+  use AccessibleTrait;
+
   /**
    * The method name.
    *
@@ -45,16 +47,6 @@ class JsonRpcMethod implements MethodInterface {
    * @var \Drupal\jsonrpc\Annotation\JsonRpcMethodParameter[]
    */
   public $params;
-
-  /**
-   * The access required to use this method.
-   *
-   * Optional. Works in *addition* to the parent service's access controls.
-   * Can be either a callable or an array of permissions.
-   *
-   * @var string|string[]
-   */
-  public $access;
 
   /**
    * {@inheritdoc}
@@ -84,33 +76,6 @@ class JsonRpcMethod implements MethodInterface {
     return array_reduce(array_keys($this->getParams()), function ($positional, $key) {
       return $positional ? !is_string($key) : $positional;
     }, TRUE);
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function access($operation = 'execute', AccountInterface $account = NULL, $return_as_object = FALSE) {
-    $account = $account ?: \Drupal::currentUser();
-    switch ($operation) {
-      case 'execute':
-        if (is_callable($this->access)) {
-          return call_user_func_array($this->access, [$operation, $account, $return_as_object]);
-        }
-        $access_result = AccessResult::neutral();
-        foreach ($this->access as $permission) {
-          $access_result = $access_result->andIf(AccessResult::allowedIfHasPermission($account, $permission));
-        }
-        break;
-
-      case 'view':
-        $access_result = AccessResult::allowedIfHasPermission($account, 'use jsonrpc services');
-        break;
-
-      default:
-        $access_result = AccessResult::neutral();
-        break;
-    }
-    return $return_as_object ? $access_result : $access_result->isAllowed();
   }
 
   /**
