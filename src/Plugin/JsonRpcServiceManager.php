@@ -234,6 +234,9 @@ class JsonRpcServiceManager extends DefaultPluginManager implements HandlerInter
    * Until the API is finalized, sites need to specifically opt-in modules using
    * these experimental APIs to acknowledge the high risk of failure.
    *
+   * Contrib modules which are found to automatically add themselves to this
+   * list without site administrator approval will trigger warnings.
+   *
    * @param \Drupal\Core\Extension\ModuleHandlerInterface $module_handler
    *
    * @return \Traversable
