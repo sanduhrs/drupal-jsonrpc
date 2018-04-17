@@ -153,7 +153,7 @@ class RequestNormalizer implements DenormalizerInterface, SerializerAwareInterfa
       : $raw;
     if ($data_type = $definition->getDataType()) {
       $data_definition = $this->typedData->createDataDefinition($data_type);
-      $argument = $this->typedData->create($data_definition, $argument);
+      $argument = $this->typedData->create($data_definition, (array) $argument);
       if (($violations = $argument->validate()) && $violations->count()) {
         $error = Error::invalidParams(array_map(function (ConstraintViolationInterface $violation) {
           return $violation->getMessage();
