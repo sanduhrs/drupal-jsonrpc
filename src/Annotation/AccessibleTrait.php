@@ -33,7 +33,7 @@ trait AccessibleTrait {
         break;
 
       case 'view':
-        $access_result = AccessResult::allowedIfHasPermission($account, 'use jsonrpc services');
+        $access_result = $this->access('execute', $account, $return_as_object);
         break;
 
       default:
