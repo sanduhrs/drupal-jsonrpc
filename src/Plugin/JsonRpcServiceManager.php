@@ -57,8 +57,11 @@ class JsonRpcServiceManager extends DefaultPluginManager implements HandlerInter
     // The following two lines prevent other modules from implementing RPC
     // services. For now, all implementations should remain internal until the
     // plugin API is finalized.
-    //$namespaces = new \ArrayIterator([$module_handler->getModule('jsonrpc')->getPath() => '\Drupal\jsonrpc']);
-    //$this->alterInfo(FALSE);
+    $namespaces = $this->getWhitelistedNamespaces($module_handler);
+    $this->alterInfo(FALSE);
+    foreach ($namespaces as $key => $value) {
+      $foo = 'bar';
+    }
     parent::__construct('Plugin/jsonrpc/Service', $namespaces, $module_handler, NULL, JsonRpcService::class);
     $this->setCacheBackend($cache_backend, 'jsonrpc_plugins');
   }
@@ -222,6 +225,23 @@ class JsonRpcServiceManager extends DefaultPluginManager implements HandlerInter
       }
       throw JsonRpcException::fromError(Error::invalidRequest($reason));
     }
+  }
+
+  /**
+   * Gets an traversable list of namespaces to look for plugins.
+   *
+   * @param \Drupal\Core\Extension\ModuleHandlerInterface $module_handler
+   *
+   * @return \Traversable
+   */
+  protected function getWhitelistedNamespaces(ModuleHandlerInterface $module_handler) {
+    $modules_whitelist = ['jsonrpc_core'];
+    $namespaces = array_reduce($modules_whitelist, function ($whitelist, $module) use ($module_handler) {
+      $module_directory = $module_handler->getModule($module)->getPath();
+      $whitelist["Drupal\\$module"] = "$module_directory/src";
+      return $whitelist;
+    }, []);
+    return new \ArrayIterator($namespaces);
   }
 
 }
