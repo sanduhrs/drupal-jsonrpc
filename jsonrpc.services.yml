@@ -24,3 +24,8 @@ services:
     class: Drupal\jsonrpc\Normalizer\ResponseNormalizer
     tags:
       - { name: normalizer }
+
+  serializer.normalizer.jsonrpc_annotation:
+    class: Drupal\jsonrpc\Normalizer\AnnotationNormalizer
+    tags:
+      - { name: normalizer }

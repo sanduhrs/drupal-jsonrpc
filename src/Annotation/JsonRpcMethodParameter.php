@@ -2,6 +2,7 @@
 
 namespace Drupal\jsonrpc\Annotation;
 
+use Drupal\Component\Annotation\AnnotationBase;
 use Drupal\jsonrpc\MethodParameterInterface;
 
 /**
@@ -12,7 +13,7 @@ use Drupal\jsonrpc\MethodParameterInterface;
  *
  * @Annotation
  */
-class JsonRpcMethodParameter implements MethodParameterInterface {
+class JsonRpcMethodParameter extends AnnotationBase implements MethodParameterInterface {
 
   /**
    * The parameter data type name.
@@ -89,6 +90,13 @@ class JsonRpcMethodParameter implements MethodParameterInterface {
    */
   public function getDenormalizationClass() {
     return $this->shouldBeDenormalized() ? $this->denormalization_class : NULL;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function get() {
+    return $this;
   }
 
 }

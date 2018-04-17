@@ -2,9 +2,10 @@
 
 namespace Drupal\jsonrpc;
 
+use Drupal\Component\Plugin\Definition\PluginDefinitionInterface;
 use Drupal\Core\Access\AccessibleInterface;
 
-interface ServiceInterface extends AccessibleInterface {
+interface ServiceInterface extends PluginDefinitionInterface, AccessibleInterface {
 
   /**
    * The service methods.

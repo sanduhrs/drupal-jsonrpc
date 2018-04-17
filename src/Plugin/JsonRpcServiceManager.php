@@ -130,6 +130,10 @@ class JsonRpcServiceManager extends DefaultPluginManager implements HandlerInter
     if (PHP_MAJOR_VERSION >= 7 || assert_options(ASSERT_ACTIVE)) {
       foreach ($definitions as $definition) {
         $this->assertValidJsonRpcServicePlugin($definition);
+        /* @var \Drupal\jsonrpc\Annotation\JsonRpcService $definition */
+        foreach ($definition->methods as &$method) {
+          $method->addToService($definition);
+        }
       }
     }
     parent::alterDefinitions($definitions);

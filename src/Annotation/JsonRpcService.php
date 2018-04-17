@@ -14,7 +14,7 @@ use Drupal\jsonrpc\ServiceInterface;
  *
  * @Annotation
  */
-class JsonRpcService extends AnnotationBase implements PluginDefinitionInterface, ServiceInterface {
+class JsonRpcService extends AnnotationBase implements ServiceInterface {
 
   use AccessibleTrait;
 

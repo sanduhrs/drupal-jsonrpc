@@ -32,6 +32,13 @@ interface MethodInterface extends AccessibleInterface {
   public function getParams();
 
   /**
+   * List the service(s) to which this method belongs.
+   *
+   * @return \Drupal\jsonrpc\ServiceInterface[]
+   */
+  public function getServices();
+
+  /**
    * Whether the parameters are by-position.
    *
    * @return bool

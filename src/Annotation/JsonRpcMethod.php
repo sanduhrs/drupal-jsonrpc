@@ -3,11 +3,14 @@
 namespace Drupal\jsonrpc\Annotation;
 
 use Doctrine\Common\Annotations\Annotation\Target;
+use Drupal\Component\Annotation\AnnotationBase;
+use Drupal\Component\Annotation\AnnotationInterface;
 use Drupal\Core\Access\AccessibleInterface;
 use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\jsonrpc\MethodInterface;
 use Drupal\jsonrpc\MethodParameterInterface;
+use Drupal\jsonrpc\ServiceInterface;
 
 /**
  * Defines a JsonRpcMethodParameter annotation object.
@@ -17,7 +20,7 @@ use Drupal\jsonrpc\MethodParameterInterface;
  *
  * @Annotation
  */
-class JsonRpcMethod implements MethodInterface {
+class JsonRpcMethod extends AnnotationBase implements MethodInterface {
 
   use AccessibleTrait;
 
@@ -47,6 +50,20 @@ class JsonRpcMethod implements MethodInterface {
    * @var \Drupal\jsonrpc\Annotation\JsonRpcMethodParameter[]
    */
   public $params;
+
+  /**
+   * The service(s) to which this method belongs.
+   *
+   * @var \Drupal\jsonrpc\ServiceInterface[]
+   */
+  protected $services = [];
+
+  /**
+   * Gets the unique ID for this annotation.
+   */
+  public function id() {
+    return $this->name;
+  }
 
   /**
    * {@inheritdoc}
@@ -79,10 +96,38 @@ class JsonRpcMethod implements MethodInterface {
   }
 
   /**
+   * List the service(s) to which this method belongs.
+   *
+   * @return \Drupal\jsonrpc\ServiceInterface[]
+   */
+  public function getServices() {
+    return $this->services;
+  }
+
+  /**
    * {@inheritdoc}
    */
-  public function __toString() {
-    return $this->getName();
+  public function addToService(ServiceInterface $service) {
+    foreach ($this->services as $existing) {
+      if ($existing->id() === $service->id()) {
+        return;
+      }
+    }
+    $this->services[] = $service;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getId() {
+    return $this->name;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function get() {
+    return $this;
   }
 
 }
