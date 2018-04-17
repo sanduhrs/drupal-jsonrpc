@@ -156,6 +156,8 @@ class JsonRpcServiceManager extends DefaultPluginManager implements HandlerInter
    *
    * @return \Drupal\jsonrpc\Object\Response|null
    *   The JSON-RPC response.
+   *
+   * @throws \Drupal\jsonrpc\Exception\JsonRpcException
    */
   protected function doExecution(Request $request) {
     list($service_id, $method) = explode('.', $request->getMethod());
