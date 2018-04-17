@@ -22,6 +22,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  *       params = {
  *         "page" = @JsonRpcMethodParameter(
  *           description = @Translation("The pagination options for the listing. Fewer than `limit` permissions may be returned."),
+ *           data_type = "offset_limit_paginator",
  *           schema = {
  *             "title": "Pagination",
  *             "type": "object",
