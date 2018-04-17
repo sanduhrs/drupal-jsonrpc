@@ -229,14 +229,18 @@ class JsonRpcServiceManager extends DefaultPluginManager implements HandlerInter
   }
 
   /**
-   * Gets an traversable list of namespaces to look for plugins.
+   * Gets a traversable list of namespaces to look for plugins.
+   *
+   * Until the API is finalized, sites need to specifically opt-in modules using
+   * these experimental APIs to acknowledge the high risk of failure.
    *
    * @param \Drupal\Core\Extension\ModuleHandlerInterface $module_handler
    *
    * @return \Traversable
    */
   protected function getWhitelistedNamespaces(ModuleHandlerInterface $module_handler) {
-    $modules_whitelist = ['jsonrpc_core'];
+    $config = \Drupal::config('jsonrpc')->get('modules.whitelist') ?: [];
+    $modules_whitelist = ['jsonrpc_core'] + $config;
     $namespaces = array_reduce($modules_whitelist, function ($whitelist, $module) use ($module_handler) {
       $module_directory = $module_handler->getModule($module)->getPath();
       $whitelist["Drupal\\$module"] = "$module_directory/src";
