@@ -48,7 +48,12 @@ class JsonRpcException extends \Exception {
    * @return static
    */
   public static function fromPrevious(\Exception $previous, $id = FALSE, $version = NULL) {
-    return new static(static::buildResponse(Error::internalError($previous->getMessage()), $id, $version), $previous);
+    if ($previous instanceof JsonRpcException) {
+      return $previous;
+    }
+    $error = Error::internalError($previous->getMessage());
+    $response = static::buildResponse($error, $id, $version);
+    return new static($response, $previous);
   }
 
   /**

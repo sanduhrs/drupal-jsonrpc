@@ -8,6 +8,7 @@ use Drupal\jsonrpc\Annotation\JsonRpcMethod;
 use Drupal\jsonrpc\Annotation\JsonRpcMethodParameter;
 use Drupal\jsonrpc\Annotation\JsonRpcService;
 use Drupal\jsonrpc\Exception\JsonRpcException;
+use Drupal\jsonrpc\Object\Error;
 use Drupal\jsonrpc\Object\ParameterBag;
 use Drupal\jsonrpc\Plugin\JsonRpcServiceBase;
 use Drupal\jsonrpc\Plugin\JsonRpcServiceManager;
@@ -59,7 +60,7 @@ class Plugins extends JsonRpcServiceBase {
       $plugin_manager = $container->get($request->getParameter('service')->getValue());
     }
     catch (ServiceNotFoundException $e) {
-      throw JsonRpcException::fromPrevious($e, $request->id());
+      throw JsonRpcException::fromError(Error::invalidParams($e->getMessage()));
     }
     return new static($configuration, $plugin_id, $plugin_definition, $plugin_manager);
   }

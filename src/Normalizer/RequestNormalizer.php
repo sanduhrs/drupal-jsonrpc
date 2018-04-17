@@ -2,6 +2,8 @@
 
 namespace Drupal\jsonrpc\Normalizer;
 
+use Drupal\Core\TypedData\ComplexDataDefinitionBase;
+use Drupal\Core\TypedData\Plugin\DataType\Map;
 use Drupal\Core\TypedData\TypedDataManagerInterface;
 use Drupal\jsonrpc\Exception\JsonRpcException;
 use Drupal\jsonrpc\HandlerInterface;
@@ -153,7 +155,10 @@ class RequestNormalizer implements DenormalizerInterface, SerializerAwareInterfa
       : $raw;
     if ($data_type = $definition->getDataType()) {
       $data_definition = $this->typedData->createDataDefinition($data_type);
-      $argument = $this->typedData->create($data_definition, (array) $argument);
+      if (in_array(Map::class, class_parents($data_definition->getClass()))) {
+        $argument = (array) $argument;
+      }
+      $argument = $this->typedData->create($data_definition, $argument);
       if (($violations = $argument->validate()) && $violations->count()) {
         $error = Error::invalidParams(array_map(function (ConstraintViolationInterface $violation) {
           return $violation->getMessage();
