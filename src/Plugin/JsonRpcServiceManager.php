@@ -180,8 +180,6 @@ class JsonRpcServiceManager extends DefaultPluginManager implements HandlerInter
    *
    * @return \Drupal\jsonrpc\Object\Response|null
    *   The JSON-RPC response.
-   *
-   * @throws \Drupal\jsonrpc\Exception\JsonRpcException
    */
   protected function doRequest(Request $request) {
     try {
@@ -197,7 +195,10 @@ class JsonRpcServiceManager extends DefaultPluginManager implements HandlerInter
       }
     }
     catch (\Exception $e) {
-      throw JsonRpcException::fromPrevious($e, $request->isNotification() ? FALSE : $request->id());
+      if (!$e instanceof JsonRpcException) {
+        $e = JsonRpcException::fromPrevious($e, $request->isNotification() ? FALSE : $request->id());
+      }
+      return $e->getResponse();
     }
   }
 
