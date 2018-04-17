@@ -76,7 +76,7 @@ class Plugins extends JsonRpcServiceBase {
         throw JsonRpcException::fromError(Error::invalidParams('Object-based plugin definitions are not yet supported.'));
       }
     }
-    return array_slice($definitions, $paginator->offset->value, $paginator->limit->value);
+    return array_slice($definitions, $paginator->getOffset(), $paginator->getLimit());
   }
 
 }

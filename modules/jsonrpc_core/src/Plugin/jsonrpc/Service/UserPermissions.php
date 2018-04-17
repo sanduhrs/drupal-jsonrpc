@@ -20,18 +20,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  *     @JsonRpcMethod(
  *       name = "list",
  *       params = {
- *         "page" = @JsonRpcMethodParameter(
- *           description = @Translation("The pagination options for the listing. Fewer than `limit` permissions may be returned."),
- *           data_type = "offset_limit_paginator",
- *           schema = {
- *             "title": "Pagination",
- *             "type": "object",
- *             "properties": {
- *               "offset": {"type": "integer", "minimum": 0},
- *               "limit": {"type": "integer", "minimum": 0},
- *             },
- *           },
- *         ),
+ *         "page" = @JsonRpcMethodParameter(data_type = "offset_limit_paginator"),
  *       }
  *     )
  *   }
@@ -68,7 +57,7 @@ class UserPermissions extends JsonRpcServiceBase {
 
   public function list(ParameterBag $params) {
     $page = $params->get('page');
-    return array_slice($this->permissions->getPermissions(), $page->offset, $page->limit);
+    return array_slice($this->permissions->getPermissions(), $page->getOffset(), $page->getLimit());
   }
 
 }
