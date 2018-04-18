@@ -18,7 +18,7 @@ class ResponseNormalizer extends NormalizerBase {
 
   protected $supportedInterfaceOrClass = Response::class;
 
-  protected $format = 'rpc_json';
+  protected $format = 'json';
 
   public function normalize($object, $format = NULL, array $context = []) {
     /* @var \Drupal\jsonrpc\Object\Response $object */

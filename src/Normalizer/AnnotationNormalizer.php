@@ -23,7 +23,7 @@ class AnnotationNormalizer extends NormalizerBase {
   /**
    * {@inheritdoc}
    */
-  protected $format = 'rpc_json';
+  protected $format = 'json';
 
   /**
    * {@inheritdoc}

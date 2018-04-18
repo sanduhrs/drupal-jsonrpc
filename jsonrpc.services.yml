@@ -9,11 +9,6 @@ services:
     alias: plugin.manager.jsonrpc_service
     public: true
 
-  serializer.encoder.rpc_json:
-    class: Drupal\jsonrpc\Encoder\JsonRpcEncoder
-    tags:
-      - { name: encoder, format: rpc_json }
-
   serializer.normalizer.jsonrpc_request:
     class: Drupal\jsonrpc\Normalizer\RequestNormalizer
     arguments: ['@jsonrpc.handler', '@typed_data_manager']

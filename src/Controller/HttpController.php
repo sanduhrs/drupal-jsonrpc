@@ -72,18 +72,19 @@ class HttpController extends ControllerBase {
     // Execute the RPC request and get the RPC response.
     try {
       $rpc_response = $this->getRpcResponse($rpc_request);
-    } catch (JsonRpcException $e) {
+
+      // If no RPC response(s) were generated (happens if all of the request(s)
+      // were notifications), then return a 204 HTTP response.
+      if (is_null($rpc_response) || empty($rpc_response)) {
+        return CacheableJsonResponse::create(NULL, Response::HTTP_NO_CONTENT);
+      }
+
+      // Map the RPC response(s) to an HTTP response.
+      return $this->getHttpResponse($rpc_response);
+    }
+    catch (JsonRpcException $e) {
       return $this->exceptionResponse($e, Response::HTTP_INTERNAL_SERVER_ERROR);
     }
-
-    // If no RPC response(s) were generated (happens if all of the request(s)
-    // were notifications), then return a 204 HTTP response.
-    if (is_null($rpc_response) || empty($rpc_response)) {
-      return CacheableJsonResponse::create(NULL, Response::HTTP_NO_CONTENT);
-    }
-
-    // Map the RPC response(s) to an HTTP response.
-    return $this->getHttpResponse($rpc_response);
   }
 
   /**
@@ -102,13 +103,13 @@ class HttpController extends ControllerBase {
         'service_definition' => $this->handler,
       ];
       /* @var \Drupal\jsonrpc\Object\Request|\Drupal\jsonrpc\Object\Request[] $deserialized */
-      $deserialized = $this->serializer->deserialize($content, RpcRequest::class, 'rpc_json', $context);
+      $deserialized = $this->serializer->deserialize($content, RpcRequest::class, 'json', $context);
       return $deserialized;
     }
     catch (\Exception $e) {
       if (!$e instanceof JsonRpcException) {
         $id = (isset($content) && is_object($content) && isset($content->id)) ? $content->id : FALSE;
-        throw JsonRpcException::fromPrevious($e, $id);
+        $e = JsonRpcException::fromPrevious($e, $id);
       }
       throw $e;
     }
@@ -142,17 +143,28 @@ class HttpController extends ControllerBase {
    *
    * @return \Drupal\Core\Cache\CacheableResponseInterface
    *   The cacheable HTTP version of the RPC response(s).
+   *
+   * @throws \Drupal\jsonrpc\Exception\JsonRpcException
    */
   protected function getHttpResponse($rpc_response) {
-    $serialized = $this->serializeRpcResponse($rpc_response);
-    $http_response = CacheableJsonResponse::fromJsonString($serialized, Response::HTTP_OK);
-    // Adds the cacheability information of the RPC response(s) to the HTTP
-    // response.
-    return is_array($rpc_response)
-      ? array_reduce($rpc_response, function (CacheableResponseInterface $http_response, $response) {
-        return $http_response->addCacheableDependency($response);
-      }, $http_response)
-      : $http_response->addCacheableDependency($rpc_response);
+    try {
+      $serialized = $this->serializeRpcResponse($rpc_response);
+      $http_response = CacheableJsonResponse::fromJsonString($serialized, Response::HTTP_OK);
+      // Adds the cacheability information of the RPC response(s) to the HTTP
+      // response.
+      return is_array($rpc_response)
+        ? array_reduce($rpc_response, function (CacheableResponseInterface $http_response, $response) {
+          return $http_response->addCacheableDependency($response);
+        }, $http_response)
+        : $http_response->addCacheableDependency($rpc_response);
+    }
+    catch (\Exception $e) {
+      if (!$e instanceof JsonRpcException) {
+        $id = $rpc_response instanceof RpcResponse ? $rpc_response->id() : FALSE;
+        $e = JsonRpcException::fromPrevious($e, $id);
+      }
+      throw $e;
+    }
   }
 
   /**
@@ -168,7 +180,7 @@ class HttpController extends ControllerBase {
     // This following is needed to prevent the serializer from using array
     // indices as JSON object keys like {"0": "foo", "1": "bar"}.
     $data = is_array($rpc_response) ? array_values($rpc_response) : $rpc_response;
-    return $this->serializer->serialize($data, 'rpc_json', $context);
+    return $this->serializer->serialize($data, 'json', $context);
   }
 
   /**
@@ -181,7 +193,7 @@ class HttpController extends ControllerBase {
     $context = [
       ResponseNormalizer::RESPONSE_VERSION_KEY => $this->handler::supportedVersion(),
     ];
-    $serialized = $this->serializer->serialize($e->getResponse(), 'rpc_json', $context);
+    $serialized = $this->serializer->serialize($e->getResponse(), 'json', $context);
     $response = CacheableJsonResponse::fromJsonString($serialized, $status);
     return $response->addCacheableDependency($e->getResponse());
   }

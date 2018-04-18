@@ -47,7 +47,7 @@ class DiscoveryController extends ControllerBase {
   public function services() {
     $cacheability = new CacheableMetadata();
     $services = ['data' => $this->collectServices($cacheability)];
-    $serialized = $this->serializer->serialize($services, 'rpc_json', [AnnotationNormalizer::DEPTH_KEY => 0]);
+    $serialized = $this->serializer->serialize($services, 'json', [AnnotationNormalizer::DEPTH_KEY => 0]);
     return CacheableJsonResponse::fromJsonString($serialized)->addCacheableDependency($cacheability);
   }
 
@@ -58,7 +58,7 @@ class DiscoveryController extends ControllerBase {
     if (!isset($methods[$service_id])) {
       throw new CacheableNotFoundHttpException($cacheability);
     }
-    $serialized = $this->serializer->serialize($methods[$service_id], 'rpc_json');
+    $serialized = $this->serializer->serialize($methods[$service_id], 'json');
     return CacheableJsonResponse::fromJsonString($serialized)->addCacheableDependency($cacheability);
   }
 
