@@ -19,7 +19,7 @@ interface ParameterFactoryInterface {
    *
    * @param mixed $input
    *   A raw value to be converted to a parameter for a JSON-RPC request. The
-   *   raw value must conform to the schema returned by the schema method.
+   *   raw value will conform to the schema returned by the schema method.
    * @param \Drupal\jsonrpc\ParameterInterface $parameter
    *   A parameter definition for the method parameter being constructed.
    *

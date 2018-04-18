@@ -40,6 +40,24 @@ class TypedDataParameterFactory extends ParameterFactoryBase {
   /**
    * {@inheritdoc}
    */
+  public function convert($input, ParameterInterface $parameter) {
+    $data_definition = $this->typedData->createDataDefinition($this->getDataType());
+    if (in_array(Map::class, class_parents($data_definition->getClass()))) {
+      $input = (array) $input;
+    }
+    $converted = $this->typedData->create($data_definition, $input);
+    if (($violations = $converted->validate()) && $violations->count()) {
+      $error = Error::invalidParams(array_map(function (ConstraintViolationInterface $violation) {
+        return $violation->getMessage();
+      }, iterator_to_array($violations)));
+      throw JsonRpcException::fromError($error);
+    };
+    return $converted;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public static function schema(ParameterInterface $parameter) {
     // @todo: map TypedData data type from the param data_type to actual JSON Schema.
     return [
@@ -59,28 +77,6 @@ class TypedDataParameterFactory extends ParameterFactoryBase {
    */
   public function setDataType($data_type) {
     $this->dataType = $data_type;
-  }
-
-  /**
-   * @param mixed $input
-   * @param \Drupal\jsonrpc\ParameterInterface $parameter
-   *
-   * @return mixed
-   * @throws \Drupal\jsonrpc\Exception\JsonRpcException
-   */
-  protected function doConvert($input, ParameterInterface $parameter) {
-    $data_definition = $this->typedData->createDataDefinition($this->getDataType());
-    if (in_array(Map::class, class_parents($data_definition->getClass()))) {
-      $input = (array) $input;
-    }
-    $converted = $this->typedData->create($data_definition, $input);
-    if (($violations = $converted->validate()) && $violations->count()) {
-      $error = Error::invalidParams(array_map(function (ConstraintViolationInterface $violation) {
-        return $violation->getMessage();
-      }, iterator_to_array($violations)));
-      throw JsonRpcException::fromError($error);
-    };
-    return $converted;
   }
 
 }

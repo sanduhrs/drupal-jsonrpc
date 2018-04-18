@@ -153,6 +153,10 @@ class RequestNormalizer implements DenormalizerInterface, SerializerAwareInterfa
    * @throws \Drupal\jsonrpc\Exception\JsonRpcException
    */
   protected function denormalizeParam($argument, ParameterInterface $parameter) {
+    if (!static::doValidation($argument, $parameter->getSchema())) {
+      $message = "The {$parameter->getId()} parameter does not conform to the parameter schema.";
+      throw JsonRpcException::fromError(Error::invalidParams($message));
+    }
     if ($data_type = $parameter->getDataType()) {
       $factory_class = TypedDataParameterFactory::class;
     }
@@ -191,6 +195,23 @@ class RequestNormalizer implements DenormalizerInterface, SerializerAwareInterfa
       return TRUE;
     }
     throw JsonRpcException::fromError(Error::invalidRequest("Every request must include a 'jsonrpc' member with a value of $supported_version."));
+  }
+
+  /**
+   * Validate the input value using the declared schema.
+   *
+   * @param mixed $input
+   *   A raw value to be converted to a parameter for a JSON-RPC request. The
+   *   raw value must conform to the schema.
+   * @param array $schema
+   *   A parameter definition for the method parameter being constructed.
+   *
+   * @return bool
+   */
+  protected function doValidation($input, $schema) {
+    // @todo: actually do validation.
+    $valid = TRUE;
+    return $valid;
   }
 
   /**

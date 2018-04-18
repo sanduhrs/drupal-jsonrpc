@@ -45,13 +45,9 @@ class EntityParameterFactory extends ParameterFactoryBase {
   }
 
   /**
-   * @param mixed $input
-   * @param \Drupal\jsonrpc\ParameterInterface $parameter
-   *
-   * @return \Drupal\Core\Entity\EntityInterface|mixed|null
-   * @throws \Drupal\jsonrpc\Exception\JsonRpcException
+   * {@inheritdoc}
    */
-  protected function doConvert($input, ParameterInterface $parameter) {
+  public function convert($input, ParameterInterface $parameter) {
     try {
       if ($entity = $this->entityRepository->loadEntityByUuid($input['type'], $input['uuid'])) {
         return $entity;

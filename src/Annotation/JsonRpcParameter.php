@@ -42,8 +42,6 @@ class JsonRpcParameter implements ParameterInterface {
    * TypedData data type name.
    *
    * @var array
-   *
-   * @todo enforce this requirement.
    */
   public $schema = NULL;
 
@@ -88,7 +86,7 @@ class JsonRpcParameter implements ParameterInterface {
    * {@inheritdoc}
    */
   public function getSchema() {
-    if (!isset($this->schema)) {
+    if (!isset($this->schema) && isset($this->factory)) {
       $this->schema = $this->factory::schema($this);
     }
     return $this->schema;
