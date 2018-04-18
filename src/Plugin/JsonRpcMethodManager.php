@@ -77,7 +77,7 @@ class JsonRpcMethodManager extends DefaultPluginManager implements HandlerInterf
    * {@inheritdoc}
    */
   public function supportedMethods() {
-    $this->getDefinitions();
+    return $this->getDefinitions();
   }
 
   /**
@@ -230,7 +230,7 @@ class JsonRpcMethodManager extends DefaultPluginManager implements HandlerInterf
    * @return \Traversable
    */
   protected function getWhitelistedNamespaces(ModuleHandlerInterface $module_handler) {
-    $config = \Drupal::config('jsonrpc')->get('modules.whitelist') ?: [];
+    $config = \Drupal::config('jsonrpc')->get('experimental_modules.whitelist') ?: [];
     $modules_whitelist = ['jsonrpc_core'] + $config;
     $namespaces = array_reduce($modules_whitelist, function ($whitelist, $module) use ($module_handler) {
       $module_directory = $module_handler->getModule($module)->getPath();

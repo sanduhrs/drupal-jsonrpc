@@ -2,13 +2,11 @@
 
 namespace Drupal\jsonrpc\Normalizer;
 
-use Drupal\Component\Annotation\AnnotationBase;
 use Drupal\Component\Annotation\AnnotationInterface;
 use Drupal\Component\Assertion\Inspector;
-use Drupal\Component\Utility\NestedArray;
+use Drupal\Core\Url;
 use Drupal\jsonrpc\Annotation\JsonRpcMethod;
 use Drupal\jsonrpc\Annotation\JsonRpcMethodParameter;
-use Drupal\jsonrpc\Annotation\JsonRpcService;
 use Drupal\serialization\Normalizer\NormalizerBase;
 
 class AnnotationNormalizer extends NormalizerBase {
@@ -29,7 +27,6 @@ class AnnotationNormalizer extends NormalizerBase {
    * {@inheritdoc}
    */
   protected $supportedInterfaceOrClass = [
-    JsonRpcService::class,
     JsonRpcMethod::class,
     JsonRpcMethodParameter::class,
   ];
@@ -38,12 +35,11 @@ class AnnotationNormalizer extends NormalizerBase {
    * {@inheritdoc}
    */
   public function normalize($object, $format = NULL, array $context = []) {
-    $normalized = [];
+    $attributes = [];
     foreach ($object as $key => $value) {
       switch ($key) {
         case 'id':
-          break;
-
+        case 'call':
         case 'access':
           break;
 
@@ -55,21 +51,31 @@ class AnnotationNormalizer extends NormalizerBase {
             }
             $context[static::DEPTH_KEY] -= 1;
           }
-          $normalized[$key] = $this->serializer->normalize($child, $format, $context);
+          $attributes[$key] = $this->serializer->normalize($child, $format, $context);
       }
     }
-    return [
+    $normalized = [
       'type' => static::getAnnotationType($object),
       'id' => $object->getId(),
-      'attributes' => array_filter($normalized),
+      'attributes' => array_filter($attributes),
     ];
+    if ($object instanceof JsonRpcMethod) {
+      $self =  Url::fromRoute('jsonrpc.method_resource', [
+        'method_id' => $object->id()
+      ])->setAbsolute()->toString(TRUE);
+      $collection =  Url::fromRoute('jsonrpc.method_collection')->setAbsolute()->toString(TRUE);
+      $this->addCacheableDependency($context, $self);
+      $this->addCacheableDependency($context, $collection);
+      $normalized['links'] = [
+        'self' => $self->getGeneratedUrl(),
+        'collection' => $collection->getGeneratedUrl(),
+      ];
+    }
+    return $normalized;
   }
 
   protected static function getAnnotationType($annotation) {
     switch (get_class($annotation)) {
-      case JsonRpcService::class:
-        return 'JsonRpcService';
-
       case JsonRpcMethod::class:
         return 'JsonRpcMethod';
 

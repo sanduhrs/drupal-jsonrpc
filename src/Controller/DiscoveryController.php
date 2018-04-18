@@ -7,9 +7,11 @@ use Drupal\Core\Cache\CacheableMetadata;
 use Drupal\Core\Cache\RefinableCacheableDependencyInterface;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Http\Exception\CacheableNotFoundHttpException;
+use Drupal\Core\Url;
 use Drupal\jsonrpc\HandlerInterface;
 use Drupal\jsonrpc\MethodInterface;
 use Drupal\jsonrpc\Normalizer\AnnotationNormalizer;
+use Drupal\serialization\Normalizer\NormalizerBase;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Serializer\SerializerInterface;
 
@@ -44,69 +46,34 @@ class DiscoveryController extends ControllerBase {
     return new static($container->get('jsonrpc.handler'), $container->get('serializer'));
   }
 
-  public function services() {
+  public function methods() {
     $cacheability = new CacheableMetadata();
-    $services = ['data' => $this->collectServices($cacheability)];
-    $serialized = $this->serializer->serialize($services, 'json', [AnnotationNormalizer::DEPTH_KEY => 0]);
+    $self = Url::fromRoute('jsonrpc.method_collection')->setAbsolute()->toString(TRUE);
+    $cacheability->addCacheableDependency($self);
+    $methods = [
+      'data' => array_values($this->getAvailableMethods($cacheability)),
+      'links' => [
+        'self' => $self->getGeneratedUrl(),
+      ],
+    ];
+    $serialized = $this->serializer->serialize($methods, 'json', [
+      AnnotationNormalizer::DEPTH_KEY => 0,
+      NormalizerBase::SERIALIZATION_CONTEXT_CACHEABILITY => $cacheability,
+    ]);
     return CacheableJsonResponse::fromJsonString($serialized)->addCacheableDependency($cacheability);
   }
 
-  public function service($service_id) {
+  public function method($method_id) {
     $cacheability = new CacheableMetadata();
     $cacheability->addCacheContexts(['url.path']);
-    $methods = $this->groupByService($this->getAvailableMethods($cacheability), $cacheability);
-    if (!isset($methods[$service_id])) {
+    $methods = $this->getAvailableMethods($cacheability);
+    if (!isset($methods[$method_id])) {
       throw new CacheableNotFoundHttpException($cacheability);
     }
-    $serialized = $this->serializer->serialize($methods[$service_id], 'json');
+    $serialized = $this->serializer->serialize($methods[$method_id], 'json', [
+      NormalizerBase::SERIALIZATION_CONTEXT_CACHEABILITY => $cacheability,
+    ]);
     return CacheableJsonResponse::fromJsonString($serialized)->addCacheableDependency($cacheability);
-  }
-
-  /**
-   * Groups methods be their member service keys.
-   *
-   * @param \Drupal\Core\Cache\RefinableCacheableDependencyInterface $cacheability
-   *   The cacheability information for the current request.
-   *
-   * @return array
-   *   An array of methods, keyed by the service IDs to which they belong.
-   *   A method may appear more than once.
-   */
-  protected function groupByService(array $methods, RefinableCacheableDependencyInterface $cacheability) {
-    return array_reduce($this->getAvailableMethods($cacheability), function ($groups, MethodInterface $method) use ($cacheability) {
-      foreach ($method->getServices() as $service) {
-        $access_result = $service->access('view', NULL, TRUE);
-        $cacheability->addCacheableDependency($access_result);
-        if ($access_result->isAllowed()) {
-          $groups[$service->id()] = $method;
-        }
-      }
-      return $groups;
-    }, []);
-  }
-
-  /**
-   * Collect all the available services.
-   *
-   * @param \Drupal\Core\Cache\RefinableCacheableDependencyInterface $cacheability
-   *   The cacheability information for the current request.
-   *
-   * @return \Drupal\jsonrpc\ServiceInterface[]
-   *   An array of services, with accessible methods.
-   */
-  protected function collectServices(RefinableCacheableDependencyInterface $cacheability) {
-    return array_values(array_reduce($this->getAvailableMethods($cacheability), function ($services, MethodInterface $method) use ($cacheability) {
-      foreach ($method->getServices() as $service) {
-        if (!isset($services[$service->id()])) {
-          $access_result = $service->access('view', NULL, TRUE);
-          $cacheability->addCacheableDependency($access_result);
-          if ($access_result->isAllowed()) {
-            $services[$service->id()] = $service;
-          }
-        }
-      }
-      return $services;
-    }, []));
   }
 
   /**
