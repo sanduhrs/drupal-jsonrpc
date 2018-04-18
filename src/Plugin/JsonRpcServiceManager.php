@@ -133,6 +133,11 @@ class JsonRpcServiceManager extends DefaultPluginManager implements HandlerInter
         /* @var \Drupal\jsonrpc\Annotation\JsonRpcService $definition */
         foreach ($definition->methods as &$method) {
           $method->addToService($definition);
+          if (isset($method->params)) {
+            foreach ($method->params as $key => &$param) {
+              $param->id = $key;
+            }
+          }
         }
       }
     }
