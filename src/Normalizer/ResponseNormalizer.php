@@ -2,6 +2,7 @@
 
 namespace Drupal\jsonrpc\Normalizer;
 
+use Drupal\jsonrpc\Exception\JsonRpcException;
 use Drupal\jsonrpc\Object\Response;
 use Drupal\serialization\Normalizer\NormalizerBase;
 
@@ -21,6 +22,16 @@ class ResponseNormalizer extends NormalizerBase {
   protected $format = 'json';
 
   public function normalize($object, $format = NULL, array $context = []) {
+    /* @var \Drupal\jsonrpc\Object\Response $object */
+    try {
+      return $this->doNormalize($object, $format, $context);
+    }
+    catch (\Exception $e) {
+      return JsonRpcException::fromPrevious($e, $object->id(), $context[static::RESPONSE_VERSION_KEY]);
+    }
+  }
+
+  protected function doNormalize($object, $format, array $context) {
     /* @var \Drupal\jsonrpc\Object\Response $object */
     $normalized = [
       'jsonrpc' => $context[static::RESPONSE_VERSION_KEY],

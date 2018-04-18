@@ -7,6 +7,7 @@ use Drupal\Core\Cache\CacheableResponseInterface;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\jsonrpc\Exception\JsonRpcException;
 use Drupal\jsonrpc\HandlerInterface;
+use Drupal\jsonrpc\Normalizer\RequestNormalizer;
 use Drupal\jsonrpc\Normalizer\ResponseNormalizer;
 use Drupal\jsonrpc\Object\Error;
 use Drupal\jsonrpc\Object\Request as RpcRequest;
@@ -99,7 +100,7 @@ class HttpController extends ControllerBase {
     try {
       $content = $http_request->getContent(FALSE);
       $context = [
-        'jsonrpc' => $this->handler::supportedVersion(),
+        RequestNormalizer::REQUEST_VERSION_KEY => $this->handler::supportedVersion(),
         'service_definition' => $this->handler,
       ];
       /* @var \Drupal\jsonrpc\Object\Request|\Drupal\jsonrpc\Object\Request[] $deserialized */
@@ -107,11 +108,8 @@ class HttpController extends ControllerBase {
       return $deserialized;
     }
     catch (\Exception $e) {
-      if (!$e instanceof JsonRpcException) {
-        $id = (isset($content) && is_object($content) && isset($content->id)) ? $content->id : FALSE;
-        $e = JsonRpcException::fromPrevious($e, $id);
-      }
-      throw $e;
+      $id = (isset($content) && is_object($content) && isset($content->id)) ? $content->id : FALSE;
+      throw JsonRpcException::fromPrevious($e, $id, $this->handler::supportedVersion());
     }
   }
 
@@ -159,11 +157,8 @@ class HttpController extends ControllerBase {
         : $http_response->addCacheableDependency($rpc_response);
     }
     catch (\Exception $e) {
-      if (!$e instanceof JsonRpcException) {
-        $id = $rpc_response instanceof RpcResponse ? $rpc_response->id() : FALSE;
-        $e = JsonRpcException::fromPrevious($e, $id);
-      }
-      throw $e;
+      $id = $rpc_response instanceof RpcResponse ? $rpc_response->id() : FALSE;
+      throw JsonRpcException::fromPrevious($e, $id, $this->handler::supportedVersion());
     }
   }
 

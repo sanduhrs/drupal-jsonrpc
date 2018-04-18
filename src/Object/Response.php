@@ -68,6 +68,10 @@ class Response implements CacheableDependencyInterface {
     return $this->id;
   }
 
+  public function version() {
+    return $this->version;
+  }
+
   public function getResult() {
     return $this->result;
   }

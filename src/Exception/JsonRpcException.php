@@ -51,7 +51,8 @@ class JsonRpcException extends \Exception {
     if ($previous instanceof JsonRpcException) {
       // Ensures that the ID and version context information are set because it
       // might not have been set or accessible at a lower level.
-      return static::fromError($previous->getResponse()->getError(), $id, $version);
+      $response = $previous->getResponse();
+      return static::fromError($response->getError(), $response->id() ?: $id, $response->version());
     }
     $error = Error::internalError($previous->getMessage());
     $response = static::buildResponse($error, $id, $version);
