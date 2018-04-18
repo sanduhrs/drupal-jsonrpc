@@ -2,7 +2,12 @@
 
 namespace Drupal\jsonrpc\Object;
 
-class Error {
+use Drupal\Core\Cache\CacheableDependencyInterface;
+use Drupal\Core\Cache\CacheableDependencyTrait;
+
+class Error implements CacheableDependencyInterface {
+
+  use CacheableDependencyTrait;
 
   const PARSE_ERROR = -32700;
   const INVALID_REQUEST = -32600;
@@ -57,14 +62,17 @@ class Error {
    * @param mixed $data
    *   (optional) A primitive or structured value that contains additional
    *   information about the error. This may be omitted.
+   * @param CacheableDependencyInterface $cacheability
+   *   (optional) A cacheable dependency.
    */
-  public function __construct($code, $message, $data = NULL) {
+  public function __construct($code, $message, $data = NULL, CacheableDependencyInterface $cacheability = NULL) {
     $this->assertValidError($code, $message);
     $this->code = $code;
     $this->message = $message;
     if (!is_null($data)) {
       $this->data = $data;
     }
+    $this->setCacheability($cacheability);
   }
 
   /**
@@ -96,6 +104,9 @@ class Error {
 
   /**
    * Asserts that the error is valid.
+   *
+   * @param mixed $code
+   * @param mixed $message
    */
   protected function assertValidError($code, $message) {
     assert(is_int($code) && !($code >= -32000 && $code <= -32099), "The $code code is reserved for implementation-defined server-errors.");
@@ -103,7 +114,7 @@ class Error {
   }
 
   /**
-   * Construct a new parse error.
+   * Constructs a new parse error.
    *
    * @param mixed $data
    *   More specific information about the error.
@@ -115,7 +126,7 @@ class Error {
   }
 
   /**
-   * Construct a new invalid request error.
+   * Constructs a new invalid request error.
    *
    * @param mixed $data
    *   More specific information about the error.
@@ -127,39 +138,45 @@ class Error {
   }
 
   /**
-   * Construct a new method not found error.
+   * Constructs a new method not found error.
    *
    * @param mixed $data
    *   More specific information about the error.
+   * @param CacheableDependencyInterface $cacheability
+   *   (optional) A cacheable dependency.
    *
    * @return static
    */
-  public static function methodNotFound($data = NULL) {
-    return new static(static::METHOD_NOT_FOUND, static::$errorMessages[static::METHOD_NOT_FOUND], $data ?: static::$errorMeanings[static::METHOD_NOT_FOUND]);
+  public static function methodNotFound($data = NULL, CacheableDependencyInterface $cacheability = NULL) {
+    return new static(static::METHOD_NOT_FOUND, static::$errorMessages[static::METHOD_NOT_FOUND], $data ?: static::$errorMeanings[static::METHOD_NOT_FOUND], $cacheability);
   }
 
   /**
-   * Construct a new invalid params error.
+   * Constructs a new invalid params error.
    *
    * @param mixed $data
    *   More specific information about the error.
+   * @param CacheableDependencyInterface $cacheability
+   *   (optional) A cacheable dependency.
    *
    * @return static
    */
-  public static function invalidParams($data = NULL) {
-    return new static(static::INVALID_PARAMS, static::$errorMessages[static::INVALID_PARAMS], $data ?: static::$errorMeanings[static::INVALID_PARAMS]);
+  public static function invalidParams($data = NULL, CacheableDependencyInterface $cacheability = NULL) {
+    return new static(static::INVALID_PARAMS, static::$errorMessages[static::INVALID_PARAMS], $data ?: static::$errorMeanings[static::INVALID_PARAMS], $cacheability);
   }
 
   /**
-   * Construct a new internal error.
+   * Constructs a new internal error.
    *
    * @param mixed $data
    *   More specific information about the error.
+   * @param CacheableDependencyInterface $cacheability
+   *   (optional) A cacheable dependency.
    *
    * @return static
    */
-  public static function internalError($data = NULL) {
-    return new static(static::INTERNAL_ERROR, static::$errorMessages[static::INTERNAL_ERROR], $data ?: static::$errorMeanings[static::INTERNAL_ERROR]);
+  public static function internalError($data = NULL, CacheableDependencyInterface $cacheability = NULL) {
+    return new static(static::INTERNAL_ERROR, static::$errorMessages[static::INTERNAL_ERROR], $data ?: static::$errorMeanings[static::INTERNAL_ERROR], $cacheability);
   }
 
 }

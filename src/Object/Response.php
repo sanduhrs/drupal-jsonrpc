@@ -57,11 +57,12 @@ class Response implements CacheableDependencyInterface {
     $this->id = $id;
     if (!is_null($result)) {
       $this->result = $result;
+      $this->setCacheability(CacheableMetadata::createFromObject($result));
     }
     else {
       $this->error = $error;
+      $this->setCacheability($error);
     }
-    $this->setCacheability(CacheableMetadata::createFromObject($result));
   }
 
   public function id() {
