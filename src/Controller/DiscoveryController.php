@@ -68,7 +68,7 @@ class DiscoveryController extends ControllerBase {
     $cacheability->addCacheContexts(['url.path']);
     $methods = $this->getAvailableMethods($cacheability);
     if (!isset($methods[$method_id])) {
-      throw new CacheableNotFoundHttpException($cacheability, 'Method Not Found');
+      throw new CacheableNotFoundHttpException($cacheability, "The $method_id method is not available.");
     }
     $serialized = $this->serializer->serialize($methods[$method_id], 'json', [
       NormalizerBase::SERIALIZATION_CONTEXT_CACHEABILITY => $cacheability,
