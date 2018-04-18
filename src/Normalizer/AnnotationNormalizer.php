@@ -71,6 +71,9 @@ class AnnotationNormalizer extends NormalizerBase {
         'collection' => $collection->getGeneratedUrl(),
       ];
     }
+    if ($object instanceof JsonRpcParameter) {
+      $normalized['schema'] = $object->getSchema();
+    }
     return $normalized;
   }
 

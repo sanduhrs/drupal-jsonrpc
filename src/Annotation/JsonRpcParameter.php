@@ -3,7 +3,9 @@
 namespace Drupal\jsonrpc\Annotation;
 
 use Drupal\Component\Annotation\AnnotationBase;
-use Drupal\jsonrpc\MethodParameterInterface;
+use Drupal\jsonrpc\ParameterFactory\TypedDataParameterFactory;
+use Drupal\jsonrpc\ParameterFactoryInterface;
+use Drupal\jsonrpc\ParameterInterface;
 
 /**
  * Defines a JsonRpcParameter annotation object.
@@ -13,7 +15,14 @@ use Drupal\jsonrpc\MethodParameterInterface;
  *
  * @Annotation
  */
-class JsonRpcParameter extends AnnotationBase implements MethodParameterInterface {
+class JsonRpcParameter implements ParameterInterface {
+
+  /**
+   * The name of the parameter if the params are by-name, an offset otherwise.
+   *
+   * @var string|integer
+   */
+  protected $id;
 
   /**
    * The parameter data type name.
@@ -48,20 +57,24 @@ class JsonRpcParameter extends AnnotationBase implements MethodParameterInterfac
   public $description;
 
   /**
-   * A denormalization target class.
-   *
-   * If the parameter should be denormalized to an object, this class should be
-   * provided.
+   * The parameter factory.
    *
    * @var string
    */
-  public $denormalization_class = FALSE;
+  public $factory;
 
   /**
    * {@inheritdoc}
    */
   public function getDataType() {
     return $this->data_type;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getFactory() {
+    return $this->factory;
   }
 
   /**
@@ -75,21 +88,10 @@ class JsonRpcParameter extends AnnotationBase implements MethodParameterInterfac
    * {@inheritdoc}
    */
   public function getSchema() {
-    return $this->schema ?: [];
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function shouldBeDenormalized() {
-    return !($this->denormalization_class === FALSE);
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function getDenormalizationClass() {
-    return $this->shouldBeDenormalized() ? $this->denormalization_class : NULL;
+    if (!isset($this->schema)) {
+      $this->schema = $this->factory::schema($this);
+    }
+    return $this->schema;
   }
 
   /**
@@ -97,6 +99,23 @@ class JsonRpcParameter extends AnnotationBase implements MethodParameterInterfac
    */
   public function get() {
     return $this;
+  }
+
+  /**
+   * Sets the parameter ID.
+   *
+   * @param string|integer
+   *   The ID to set.
+   */
+  public function setId($id) {
+    $this->id = $id;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getId() {
+    return $this->id;
   }
 
 }

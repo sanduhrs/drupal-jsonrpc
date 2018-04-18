@@ -2,16 +2,10 @@
 
 namespace Drupal\jsonrpc\Annotation;
 
-use Doctrine\Common\Annotations\Annotation\Target;
 use Drupal\Component\Annotation\AnnotationBase;
-use Drupal\Component\Annotation\AnnotationInterface;
-use Drupal\Component\Plugin\Definition\PluginDefinition;
-use Drupal\Core\Access\AccessibleInterface;
 use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\jsonrpc\MethodInterface;
-use Drupal\jsonrpc\MethodParameterInterface;
-use Drupal\jsonrpc\ServiceInterface;
 
 /**
  * Defines a JsonRpcParameter annotation object.
@@ -38,7 +32,7 @@ class JsonRpcMethod extends AnnotationBase implements MethodInterface {
    *
    * @var string
    */
-  public $call = 'execute';
+  public $call;
 
   /**
    * How to use this method.
@@ -70,6 +64,15 @@ class JsonRpcMethod extends AnnotationBase implements MethodInterface {
    * {@inheritdoc}
    */
   public function call() {
+    if (!isset($this->call)) {
+      $parts = explode('.', $this->id());
+      if (count($parts) > 1) {
+        $this->call = end($parts);
+      }
+      else {
+        $this->call = 'execute';
+      }
+    }
     return $this->call;
   }
 

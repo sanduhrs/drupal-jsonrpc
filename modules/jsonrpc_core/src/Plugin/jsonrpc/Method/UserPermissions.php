@@ -3,22 +3,26 @@
 namespace Drupal\jsonrpc_core\Plugin\jsonrpc\Method;
 
 use Drupal\Core\Annotation\Translation;
+use Drupal\Core\Entity\EntityStorageException;
 use Drupal\jsonrpc\Annotation\JsonRpcMethod;
 use Drupal\jsonrpc\Annotation\JsonRpcParameter;
-use Drupal\jsonrpc\Annotation\JsonRpcService;
+use Drupal\jsonrpc\Exception\JsonRpcException;
+use Drupal\jsonrpc\Object\Error;
 use Drupal\jsonrpc\Object\ParameterBag;
 use Drupal\jsonrpc\Plugin\JsonRpcMethodBase;
 use Drupal\user\PermissionHandlerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\Validator\ConstraintViolationInterface;
 
 /**
  * @JsonRpcMethod(
- *   id = "user_permissions.list",
- *   call = "listing",
- *   usage = @Translation("List user permissions."),
+ *   id = "user_permissions.add_permission_to_role",
+ *   call = "addPermissionToRole",
+ *   usage = @Translation("Add the given permission to the specified role."),
  *   access = {"administer permissions"},
  *   params = {
- *     "page" = @JsonRpcParameter(data_type = "offset_limit_paginator"),
+ *     "permission" = @JsonRpcParameter(data_type = "string"),
+ *     "role" = @JsonRpcParameter(factory = "\Drupal\jsonrpc\ParameterFactory\EntityParameterFactory"),
  *   }
  * )
  */
@@ -54,6 +58,32 @@ class UserPermissions extends JsonRpcMethodBase {
   public function listing(ParameterBag $params) {
     $page = $params->get('page');
     return array_slice($this->permissions->getPermissions(), $page->getOffset(), $page->getLimit());
+  }
+
+  /**
+   * @param \Drupal\jsonrpc\Object\ParameterBag $params
+   *
+   * @throws \Drupal\jsonrpc\Exception\JsonRpcException
+   */
+  public function addPermissionToRole(ParameterBag $params) {
+    $permission = $params->get('permission')->getValue();
+    /* @var \Drupal\user\RoleInterface $role */
+    $role = $params->get('role');
+    try {
+      $role->grantPermission($permission);
+      $violations = $role->getTypedData()->validate();
+      if ($violations->count() !== 0) {
+        $error = Error::invalidParams(array_map(function (ConstraintViolationInterface $violation) {
+          return $violation->getMessage();
+        }, iterator_to_array($violations)));
+        throw JsonRpcException::fromError($error);
+      }
+      return $role->save();
+    }
+    catch (EntityStorageException $e) {
+      $error = Error::internalError('Unable to save the user role. Error: ' . $e->getMessage(), $role);
+      throw JsonRpcException::fromError($error);
+    }
   }
 
 }

@@ -2,19 +2,19 @@
 
 namespace Drupal\jsonrpc\Normalizer;
 
-use Drupal\Core\TypedData\ComplexDataDefinitionBase;
-use Drupal\Core\TypedData\Plugin\DataType\Map;
+use Drupal\Core\DependencyInjection\ContainerInjectionInterface;
 use Drupal\Core\TypedData\TypedDataManagerInterface;
 use Drupal\jsonrpc\Exception\JsonRpcException;
 use Drupal\jsonrpc\HandlerInterface;
-use Drupal\jsonrpc\MethodParameterInterface;
 use Drupal\jsonrpc\Object\Error;
 use Drupal\jsonrpc\Object\ParameterBag;
 use Drupal\jsonrpc\Object\Request;
+use Drupal\jsonrpc\ParameterFactory\TypedDataParameterFactory;
+use Drupal\jsonrpc\ParameterInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
 use Symfony\Component\Serializer\SerializerAwareInterface;
 use Symfony\Component\Serializer\SerializerAwareTrait;
-use Symfony\Component\Validator\ConstraintViolationInterface;
 
 class RequestNormalizer implements DenormalizerInterface, SerializerAwareInterface {
 
@@ -46,11 +46,17 @@ class RequestNormalizer implements DenormalizerInterface, SerializerAwareInterfa
   protected $typedData;
 
   /**
+   * @var \Symfony\Component\DependencyInjection\ContainerInterface
+   */
+  protected $container;
+
+  /**
    * {@inheritdoc}
    */
-  public function __construct(HandlerInterface $handler, TypedDataManagerInterface $typed_data_manager) {
+  public function __construct(HandlerInterface $handler, TypedDataManagerInterface $typed_data_manager, ContainerInterface $container) {
     $this->handler = $handler;
     $this->typedData = $typed_data_manager;
+    $this->container = $container;
   }
 
   /**
@@ -128,7 +134,7 @@ class RequestNormalizer implements DenormalizerInterface, SerializerAwareInterfa
       if (!isset($data['params'][$key])) {
         throw $this->newException(Error::invalidParams("Missing parameter: $key"), $context);
       }
-      $arguments[$key] = $this->denormalizeParam($data['params'][$key], $param, $context);
+      $arguments[$key] = $this->denormalizeParam($data['params'][$key], $param);
     }
     return new ParameterBag($arguments, $positional);
   }
@@ -136,36 +142,29 @@ class RequestNormalizer implements DenormalizerInterface, SerializerAwareInterfa
   /**
    * Denormalizes a single JSON-RPC request object parameter.
    *
-   * @param object $raw
+   * @param mixed $argument
    *   The decoded JSON-RPC request parameter to be denormalized.
-   * @param \Drupal\jsonrpc\MethodParameterInterface $definition
+   * @param \Drupal\jsonrpc\ParameterInterface $parameter
    *   The JSON-RPC request's parameter definition.
-   * @param array $context
-   *   The denormalized JSON-RPC request.
    *
    * @return mixed
    *   The denormalized parameter.
    *
    * @throws \Drupal\jsonrpc\Exception\JsonRpcException
    */
-  protected function denormalizeParam($raw, MethodParameterInterface $definition, array $context) {
-    $argument = $definition->shouldBeDenormalized()
-      ? $this->serializer->denormalize($raw, $definition->getDenormalizationClass(), 'json', $context)
-      : $raw;
-    if ($data_type = $definition->getDataType()) {
-      $data_definition = $this->typedData->createDataDefinition($data_type);
-      if (in_array(Map::class, class_parents($data_definition->getClass()))) {
-        $argument = (array) $argument;
-      }
-      $argument = $this->typedData->create($data_definition, $argument);
-      if (($violations = $argument->validate()) && $violations->count()) {
-        $error = Error::invalidParams(array_map(function (ConstraintViolationInterface $violation) {
-          return $violation->getMessage();
-        }, iterator_to_array($violations)));
-        throw $this->newException($error, $context);
-      };
+  protected function denormalizeParam($argument, ParameterInterface $parameter) {
+    if ($data_type = $parameter->getDataType()) {
+      $factory_class = TypedDataParameterFactory::class;
     }
-    return $argument;
+    else {
+      $factory_class = $parameter->getFactory();
+    }
+    $container_injection = in_array(ContainerInjectionInterface::class, class_implements($factory_class));
+    $factory = $container_injection ? $factory_class::create($this->container) : new $factory_class;
+    if ($factory instanceof TypedDataParameterFactory) {
+      $factory->setDataType($data_type);
+    }
+    return $factory->convert($argument, $parameter);
   }
 
   /**

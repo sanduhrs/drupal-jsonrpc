@@ -2,6 +2,7 @@
 
 namespace Drupal\jsonrpc\Plugin;
 
+use Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException;
 use Drupal\Core\Access\AccessResultReasonInterface;
 use Drupal\Core\Plugin\DefaultPluginManager;
 use Drupal\Core\Cache\CacheBackendInterface;
@@ -109,20 +110,12 @@ class JsonRpcMethodManager extends DefaultPluginManager implements HandlerInterf
    * {@inheritdoc}
    */
   public function alterDefinitions(&$definitions) {
-    if (PHP_MAJOR_VERSION >= 7 || assert_options(ASSERT_ACTIVE)) {
-      /* @var \Drupal\jsonrpc\Annotation\JsonRpcMethod $method */
-      foreach ($definitions as &$method) {
-        $this->assertValidJsonRpcMethodPlugin($method);
-        if ($method->call === 'execute') {
-          $parts = explode('.', $method->id());
-          if (count($parts) > 1) {
-            $method->call = end($parts);
-          }
-        }
-        if (isset($method->params)) {
-          foreach ($method->params as $key => &$param) {
-            $param->id = $key;
-          }
+    /* @var \Drupal\jsonrpc\Annotation\JsonRpcMethod $method */
+    foreach ($definitions as &$method) {
+      $this->assertValidJsonRpcMethodPlugin($method);
+      if (isset($method->params)) {
+        foreach ($method->params as $key => &$param) {
+          $param->setId($key);
         }
       }
     }
@@ -134,10 +127,19 @@ class JsonRpcMethodManager extends DefaultPluginManager implements HandlerInterf
    *
    * @param \Drupal\jsonrpc\Annotation\JsonRpcMethod $method
    *   The JSON-RPC method definition.
+   *
+   * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
    */
   protected function assertValidJsonRpcMethodPlugin($method) {
     $reflection = new \ReflectionClass($method->getClass());
-    assert($reflection->hasMethod($method->call()), "JSON-RPC method names must match a public method name on the plugin class. Missing the '$method_name' method.");
+    if (!$reflection->hasMethod($method->call())) {
+      throw new InvalidPluginDefinitionException($method->id(), "JSON-RPC method names must match a public method name on the plugin class. Missing the '{$method->call()}' method.");
+    }
+    foreach ($method->params as $param) {
+      if (!($param->factory xor $param->data_type)) {
+        throw new InvalidPluginDefinitionException($method->id(), "Every JsonRpcParameter must define either a factory_class or a data_type, but not both.");
+      }
+    }
   }
 
   /**

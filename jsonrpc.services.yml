@@ -11,7 +11,7 @@ services:
 
   serializer.normalizer.jsonrpc_request:
     class: Drupal\jsonrpc\Normalizer\RequestNormalizer
-    arguments: ['@jsonrpc.handler', '@typed_data_manager']
+    arguments: ['@jsonrpc.handler', '@typed_data_manager', '@service_container']
     tags:
       - { name: normalizer }
 

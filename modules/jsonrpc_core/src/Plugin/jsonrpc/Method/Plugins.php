@@ -19,7 +19,7 @@ use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
  * Lists the plugin definitions of a given type.
  *
  * @JsonRpcMethod(
- *   id = "plugins.list",
+ *   id = "plugins.listing",
  *   usage = @Translation("List defined plugins."),
  *   access = {"administer site configuration"},
  *   params = {
