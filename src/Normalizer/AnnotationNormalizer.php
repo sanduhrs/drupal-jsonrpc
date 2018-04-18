@@ -48,22 +48,37 @@ class AnnotationNormalizer extends NormalizerBase {
           break;
 
         default:
-          if ($value instanceof AnnotationInterface || (is_array($value)) && Inspector::assertAllObjects($value, AnnotationInterface::class)) {
-            if (isset($context[static::DEPTH_KEY]) && $context[static::DEPTH_KEY] > 0) {
-              $context[static::DEPTH_KEY] -= 1;
-              $normalized[$key] = $this->serializer->normalize($value->get(), $format, $context);
+          $child = $value instanceof AnnotationInterface ? $value->get() : $value;
+          if (isset($context[static::DEPTH_KEY]) && $child instanceof AnnotationInterface || (is_array($child)) && Inspector::assertAllObjects($child, AnnotationInterface::class)) {
+            if ($context[static::DEPTH_KEY] === 0) {
+              break;
             }
+            $context[static::DEPTH_KEY] -= 1;
           }
-          else {
-            $normalized[$key] = $this->serializer->normalize($value, $format, $context);
-          }
+          $normalized[$key] = $this->serializer->normalize($child, $format, $context);
       }
     }
     return [
-      'type' => get_class($object),
+      'type' => static::getAnnotationType($object),
       'id' => $object->getId(),
       'attributes' => array_filter($normalized),
     ];
+  }
+
+  protected static function getAnnotationType($annotation) {
+    switch (get_class($annotation)) {
+      case JsonRpcService::class:
+        return 'JsonRpcService';
+
+      case JsonRpcMethod::class:
+        return 'JsonRpcMethod';
+
+      case JsonRpcMethodParameter::class:
+        return 'JsonRpcParameter';
+
+      default:
+        return get_class($annotation);
+    }
   }
 
 }

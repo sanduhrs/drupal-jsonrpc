@@ -95,7 +95,7 @@ class DiscoveryController extends ControllerBase {
    *   An array of services, with accessible methods.
    */
   protected function collectServices(RefinableCacheableDependencyInterface $cacheability) {
-    return array_reduce($this->getAvailableMethods($cacheability), function ($services, MethodInterface $method) use ($cacheability) {
+    return array_values(array_reduce($this->getAvailableMethods($cacheability), function ($services, MethodInterface $method) use ($cacheability) {
       foreach ($method->getServices() as $service) {
         if (!isset($services[$service->id()])) {
           $access_result = $service->access('view', NULL, TRUE);
@@ -106,7 +106,7 @@ class DiscoveryController extends ControllerBase {
         }
       }
       return $services;
-    }, []);
+    }, []));
   }
 
   /**
