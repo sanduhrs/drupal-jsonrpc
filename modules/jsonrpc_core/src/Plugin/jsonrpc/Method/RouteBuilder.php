@@ -1,25 +1,22 @@
 <?php
 
-namespace Drupal\jsonrpc_core\Plugin\jsonrpc\Service;
+namespace Drupal\jsonrpc_core\Plugin\jsonrpc\Method;
 
 use Drupal\Core\Annotation\Translation;
 use Drupal\Core\Routing\RouteBuilderInterface;
 use Drupal\jsonrpc\Annotation\JsonRpcMethod;
 use Drupal\jsonrpc\Annotation\JsonRpcService;
-use Drupal\jsonrpc\Plugin\JsonRpcServiceBase;
+use Drupal\jsonrpc\Plugin\JsonRpcMethodBase;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
- * @JsonRpcService(
- *   id = "route_builder",
+ * @JsonRpcMethod(
+ *   id = "route_builder.rebuild",
  *   access = {"administer site configuration"},
- *   methods = {@JsonRpcMethod(
- *     name = "rebuild",
- *     usage = @Translation("Rebuilds the application's router. Result is TRUE if the rebuild succeeded, FALSE otherwise"),
- *   )}
+ *   usage = @Translation("Rebuilds the application's router. Result is TRUE if the rebuild succeeded, FALSE otherwise"),
  * )
  */
-class RouteBuilder extends JsonRpcServiceBase {
+class RouteBuilder extends JsonRpcMethodBase {
 
   /**
    * The route builder service.

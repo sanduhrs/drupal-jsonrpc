@@ -2,10 +2,14 @@
 
 namespace Drupal\jsonrpc\Exception;
 
+use Drupal\Core\Cache\CacheableDependencyInterface;
+use Drupal\Core\Cache\CacheableDependencyTrait;
 use Drupal\jsonrpc\Object\Error;
 use Drupal\jsonrpc\Object\Response;
 
-class JsonRpcException extends \Exception {
+class JsonRpcException extends \Exception implements CacheableDependencyInterface {
+
+  use CacheableDependencyTrait;
 
   /**
    * The JSON-RPC error response for the exception.
@@ -23,6 +27,7 @@ class JsonRpcException extends \Exception {
   public function __construct(Response $response, \Throwable $previous = NULL) {
     $this->response = $response;
     $error = $response->getError();
+    $this->setCacheability($response);
     parent::__construct($error->getMessage(), $error->getCode(), $previous);
   }
 

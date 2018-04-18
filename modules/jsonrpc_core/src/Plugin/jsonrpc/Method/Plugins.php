@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\jsonrpc_core\Plugin\jsonrpc\Service;
+namespace Drupal\jsonrpc_core\Plugin\jsonrpc\Method;
 
 use Drupal\Component\Plugin\PluginManagerInterface;
 use Drupal\Core\Annotation\Translation;
@@ -10,7 +10,7 @@ use Drupal\jsonrpc\Annotation\JsonRpcService;
 use Drupal\jsonrpc\Exception\JsonRpcException;
 use Drupal\jsonrpc\Object\Error;
 use Drupal\jsonrpc\Object\ParameterBag;
-use Drupal\jsonrpc\Plugin\JsonRpcServiceBase;
+use Drupal\jsonrpc\Plugin\JsonRpcMethodBase;
 use Drupal\jsonrpc\Plugin\JsonRpcServiceManager;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
@@ -18,21 +18,17 @@ use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
 /**
  * Lists the plugin definitions of a given type.
  *
- * @JsonRpcService(
- *   id = "plugins",
- *   usage = @Translation("Provides plugin definitions operations."),
+ * @JsonRpcMethod(
+ *   id = "plugins.list",
+ *   usage = @Translation("List defined plugins."),
  *   access = {"administer site configuration"},
- *   methods = {@JsonRpcMethod(
- *     name = "list",
- *     usage = @Translation("List defined plugins."),
- *     params = {
- *       "page" = @JsonRpcMethodParameter(data_type="offset_limit_paginator"),
- *       "service" = @JsonRpcMethodParameter(data_type="string"),
- *     }
- *   )}
+ *   params = {
+ *     "page" = @JsonRpcMethodParameter(data_type="offset_limit_paginator"),
+ *     "service" = @JsonRpcMethodParameter(data_type="string"),
+ *   }
  * )
  */
-class Plugins extends JsonRpcServiceBase {
+class Plugins extends JsonRpcMethodBase {
 
   /**
    * A plugin manager.
@@ -68,7 +64,7 @@ class Plugins extends JsonRpcServiceBase {
   /**
    * @throws \Drupal\jsonrpc\Exception\JsonRpcException
    */
-  public function list(ParameterBag $params) {
+  public function listing(ParameterBag $params) {
     $paginator = $params->get('page');
     $definitions = $this->pluginManager->getDefinitions();
     foreach ($definitions as $definition) {

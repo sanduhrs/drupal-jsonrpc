@@ -5,6 +5,7 @@ namespace Drupal\jsonrpc\Annotation;
 use Doctrine\Common\Annotations\Annotation\Target;
 use Drupal\Component\Annotation\AnnotationBase;
 use Drupal\Component\Annotation\AnnotationInterface;
+use Drupal\Component\Plugin\Definition\PluginDefinition;
 use Drupal\Core\Access\AccessibleInterface;
 use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Session\AccountInterface;
@@ -22,15 +23,22 @@ use Drupal\jsonrpc\ServiceInterface;
  */
 class JsonRpcMethod extends AnnotationBase implements MethodInterface {
 
-  use AccessibleTrait;
+  /**
+   * The access required to use this RPC method.
+   *
+   * @var mixed
+   */
+  public $access;
 
   /**
-   * The method name.
+   * The class method to call.
    *
+   * Optional. If the method ID is 'foo.bar', this defaults to 'bar'. If the
+   * method ID does not contain a dot (.), defaults to 'execute'.
    *
    * @var string
    */
-  public $name;
+  public $call = 'execute';
 
   /**
    * How to use this method.
@@ -52,24 +60,17 @@ class JsonRpcMethod extends AnnotationBase implements MethodInterface {
   public $params;
 
   /**
-   * The service(s) to which this method belongs.
-   *
-   * @var \Drupal\jsonrpc\ServiceInterface[]
-   */
-  protected $services = [];
-
-  /**
-   * Gets the unique ID for this annotation.
+   * {@inheritdoc}
    */
   public function id() {
-    return $this->name;
+    return $this->getId();
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getName() {
-    return $this->name;
+  public function call() {
+    return $this->call;
   }
 
   /**
@@ -96,38 +97,37 @@ class JsonRpcMethod extends AnnotationBase implements MethodInterface {
   }
 
   /**
-   * List the service(s) to which this method belongs.
-   *
-   * @return \Drupal\jsonrpc\ServiceInterface[]
-   */
-  public function getServices() {
-    return $this->services;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function addToService(ServiceInterface $service) {
-    foreach ($this->services as $existing) {
-      if ($existing->id() === $service->id()) {
-        return;
-      }
-    }
-    $this->services[] = $service;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function getId() {
-    return $this->name;
-  }
-
-  /**
    * {@inheritdoc}
    */
   public function get() {
     return $this;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function access($operation = 'execute', AccountInterface $account = NULL, $return_as_object = FALSE) {
+    $account = $account ?: \Drupal::currentUser();
+    switch ($operation) {
+      case 'execute':
+        if (is_callable($this->access)) {
+          return call_user_func_array($this->access, [$operation, $account, $return_as_object]);
+        }
+        $access_result = AccessResult::allowed();
+        foreach ($this->access as $permission) {
+          $access_result = $access_result->andIf(AccessResult::allowedIfHasPermission($account, $permission));
+        }
+        break;
+
+      case 'view':
+        $access_result = $this->access('execute', $account, $return_as_object);
+        break;
+
+      default:
+        $access_result = AccessResult::neutral();
+        break;
+    }
+    return $return_as_object ? $access_result : $access_result->isAllowed();
   }
 
 }

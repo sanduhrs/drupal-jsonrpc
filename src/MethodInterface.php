@@ -2,16 +2,17 @@
 
 namespace Drupal\jsonrpc;
 
+use Drupal\Component\Plugin\Definition\PluginDefinitionInterface;
 use Drupal\Core\Access\AccessibleInterface;
 
-interface MethodInterface extends AccessibleInterface {
+interface MethodInterface extends AccessibleInterface, PluginDefinitionInterface {
 
   /**
-   * The method name.
+   * The class method to call.
    *
    * @return string
    */
-  public function getName();
+  public function call();
 
   /**
    * How to use this method.
@@ -30,13 +31,6 @@ interface MethodInterface extends AccessibleInterface {
    *   The method params or NULL if none are accepted.
    */
   public function getParams();
-
-  /**
-   * List the service(s) to which this method belongs.
-   *
-   * @return \Drupal\jsonrpc\ServiceInterface[]
-   */
-  public function getServices();
 
   /**
    * Whether the parameters are by-position.

@@ -1,30 +1,25 @@
 <?php
 
-namespace Drupal\jsonrpc_core\Plugin\jsonrpc\Service;
+namespace Drupal\jsonrpc_core\Plugin\jsonrpc\Method;
 
 use Drupal\Core\Annotation\Translation;
 use Drupal\jsonrpc\Annotation\JsonRpcMethod;
 use Drupal\jsonrpc\Annotation\JsonRpcMethodParameter;
 use Drupal\jsonrpc\Annotation\JsonRpcService;
 use Drupal\jsonrpc\Plugin\JsonRpcPluginBase;
-use Drupal\jsonrpc\Plugin\JsonRpcServiceBase;
+use Drupal\jsonrpc\Plugin\JsonRpcMethodBase;
 
 /**
  * Class CacheService
  *
- * @JsonRpcService(
- *   id = "cache",
- *   usage = @Translation("Perform operations on the site cache system."),
+ * @JsonRpcMethod(
+ *   id = "cache.rebuild",
+ *   call = "rebuild",
+ *   usage = @Translation("Rebuilds the system cache."),
  *   access = {"administer site configuration"},
- *   methods = {
- *     @JsonRpcMethod(
- *       name = "rebuild",
- *       usage = @Translation("Rebuild the site cache."),
- *     ),
- *   },
- * )
+ * ),
  */
-class Cache extends JsonRpcServiceBase {
+class Cache extends JsonRpcMethodBase {
 
   public function rebuild() {
     drupal_flush_all_caches();

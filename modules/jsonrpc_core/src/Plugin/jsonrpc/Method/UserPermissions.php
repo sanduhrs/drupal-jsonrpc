@@ -1,32 +1,28 @@
 <?php
 
-namespace Drupal\jsonrpc_core\Plugin\jsonrpc\Service;
+namespace Drupal\jsonrpc_core\Plugin\jsonrpc\Method;
 
 use Drupal\Core\Annotation\Translation;
 use Drupal\jsonrpc\Annotation\JsonRpcMethod;
 use Drupal\jsonrpc\Annotation\JsonRpcMethodParameter;
 use Drupal\jsonrpc\Annotation\JsonRpcService;
 use Drupal\jsonrpc\Object\ParameterBag;
-use Drupal\jsonrpc\Plugin\JsonRpcServiceBase;
+use Drupal\jsonrpc\Plugin\JsonRpcMethodBase;
 use Drupal\user\PermissionHandlerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
- * @JsonRpcService(
- *   id = "user_permissions",
- *   usage = @Translation("Introspect and modify user permissions."),
+ * @JsonRpcMethod(
+ *   id = "user_permissions.list",
+ *   call = "list",
+ *   usage = @Translation("List user permissions."),
  *   access = {"administer permissions"},
- *   methods = {
- *     @JsonRpcMethod(
- *       name = "list",
- *       params = {
- *         "page" = @JsonRpcMethodParameter(data_type = "offset_limit_paginator"),
- *       }
- *     )
+ *   params = {
+ *     "page" = @JsonRpcMethodParameter(data_type = "offset_limit_paginator"),
  *   }
  * )
  */
-class UserPermissions extends JsonRpcServiceBase {
+class UserPermissions extends JsonRpcMethodBase {
 
   /**
    * The permissions handler service.

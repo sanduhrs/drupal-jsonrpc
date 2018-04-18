@@ -4,6 +4,7 @@ namespace Drupal\jsonrpc\Object;
 
 use Drupal\Core\Cache\CacheableDependencyInterface;
 use Drupal\Core\Cache\CacheableDependencyTrait;
+use Drupal\Core\Cache\CacheableMetadata;
 
 class Error implements CacheableDependencyInterface {
 
@@ -26,7 +27,7 @@ class Error implements CacheableDependencyInterface {
   public static $errorMeanings = [
     -32700 => 'Invalid JSON was received by the server. An error occurred on the server while parsing the JSON text.',
     -32600 => 'The JSON sent is not a valid Request object.',
-    -32601 => 'The method does not exist/is not available.',
+    -32601 => "The method '%s' does not exist/is not available.",
     -32602 => 'Invalid method parameter(s).',
     -32603 => 'Internal JSON-RPC error.',
   ];
@@ -72,7 +73,7 @@ class Error implements CacheableDependencyInterface {
     if (!is_null($data)) {
       $this->data = $data;
     }
-    $this->setCacheability($cacheability);
+    $this->setCacheability($cacheability ?: new CacheableMetadata());
   }
 
   /**
@@ -130,25 +131,28 @@ class Error implements CacheableDependencyInterface {
    *
    * @param mixed $data
    *   More specific information about the error.
-   *
-   * @return static
-   */
-  public static function invalidRequest($data = NULL) {
-    return new static(static::INVALID_REQUEST, static::$errorMessages[static::INVALID_REQUEST], $data ?: static::$errorMeanings[static::INVALID_REQUEST]);
-  }
-
-  /**
-   * Constructs a new method not found error.
-   *
-   * @param mixed $data
-   *   More specific information about the error.
    * @param CacheableDependencyInterface $cacheability
    *   (optional) A cacheable dependency.
    *
    * @return static
    */
-  public static function methodNotFound($data = NULL, CacheableDependencyInterface $cacheability = NULL) {
-    return new static(static::METHOD_NOT_FOUND, static::$errorMessages[static::METHOD_NOT_FOUND], $data ?: static::$errorMeanings[static::METHOD_NOT_FOUND], $cacheability);
+  public static function invalidRequest($data = NULL, CacheableDependencyInterface $cacheability = NULL) {
+    return new static(static::INVALID_REQUEST, static::$errorMessages[static::INVALID_REQUEST], $data ?: static::$errorMeanings[static::INVALID_REQUEST], $cacheability);
+  }
+
+  /**
+   * Constructs a new method not found error.
+   *
+   * @param string $method_name
+   *   The name of the missing method.
+   * @param CacheableDependencyInterface $cacheability
+   *   (optional) A cacheable dependency.
+   *
+   * @return static
+   */
+  public static function methodNotFound($method_name, CacheableDependencyInterface $cacheability = NULL) {
+    $data = sprintf(static::$errorMeanings[static::METHOD_NOT_FOUND], $method_name);
+    return new static(static::METHOD_NOT_FOUND, static::$errorMessages[static::METHOD_NOT_FOUND], $data, $cacheability);
   }
 
   /**

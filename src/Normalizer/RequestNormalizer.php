@@ -111,12 +111,12 @@ class RequestNormalizer implements DenormalizerInterface, SerializerAwareInterfa
    */
   protected function denormalizeParams($data, array $context) {
     if (!$this->handler->supportsMethod($data['method'])) {
-      throw $this->newException(Error::methodNotFound(), $context);
+      throw $this->newException(Error::methodNotFound($data['method']), $context);
     }
     $method = $this->handler->getMethod($data['method']);
     $params = $method->getParams();
     if (is_null($params)) {
-      if (isset($data->params)) {
+      if (isset($data['params'])) {
         $error = Error::invalidParams("The ${data['method']} method does not accept parameters.");
         throw $this->newException($error, $context);
       }
