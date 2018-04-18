@@ -4,7 +4,7 @@ namespace Drupal\jsonrpc_core\Plugin\jsonrpc\Method;
 
 use Drupal\Core\Annotation\Translation;
 use Drupal\jsonrpc\Annotation\JsonRpcMethod;
-use Drupal\jsonrpc\Annotation\JsonRpcMethodParameter;
+use Drupal\jsonrpc\Annotation\JsonRpcParameter;
 use Drupal\jsonrpc\Annotation\JsonRpcService;
 use Drupal\jsonrpc\Object\ParameterBag;
 use Drupal\jsonrpc\Plugin\JsonRpcMethodBase;
@@ -14,11 +14,11 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 /**
  * @JsonRpcMethod(
  *   id = "user_permissions.list",
- *   call = "list",
+ *   call = "listing",
  *   usage = @Translation("List user permissions."),
  *   access = {"administer permissions"},
  *   params = {
- *     "page" = @JsonRpcMethodParameter(data_type = "offset_limit_paginator"),
+ *     "page" = @JsonRpcParameter(data_type = "offset_limit_paginator"),
  *   }
  * )
  */
@@ -51,7 +51,7 @@ class UserPermissions extends JsonRpcMethodBase {
     );
   }
 
-  public function list(ParameterBag $params) {
+  public function listing(ParameterBag $params) {
     $page = $params->get('page');
     return array_slice($this->permissions->getPermissions(), $page->getOffset(), $page->getLimit());
   }

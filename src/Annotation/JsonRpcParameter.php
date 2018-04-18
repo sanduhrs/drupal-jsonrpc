@@ -6,14 +6,14 @@ use Drupal\Component\Annotation\AnnotationBase;
 use Drupal\jsonrpc\MethodParameterInterface;
 
 /**
- * Defines a JsonRpcMethodParameter annotation object.
+ * Defines a JsonRpcParameter annotation object.
  *
  * @see \Drupal\jsonrpc\Plugin\JsonRpcServiceManager
  * @see plugin_api
  *
  * @Annotation
  */
-class JsonRpcMethodParameter extends AnnotationBase implements MethodParameterInterface {
+class JsonRpcParameter extends AnnotationBase implements MethodParameterInterface {
 
   /**
    * The parameter data type name.

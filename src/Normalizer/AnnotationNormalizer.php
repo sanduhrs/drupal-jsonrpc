@@ -6,7 +6,7 @@ use Drupal\Component\Annotation\AnnotationInterface;
 use Drupal\Component\Assertion\Inspector;
 use Drupal\Core\Url;
 use Drupal\jsonrpc\Annotation\JsonRpcMethod;
-use Drupal\jsonrpc\Annotation\JsonRpcMethodParameter;
+use Drupal\jsonrpc\Annotation\JsonRpcParameter;
 use Drupal\serialization\Normalizer\NormalizerBase;
 
 class AnnotationNormalizer extends NormalizerBase {
@@ -28,7 +28,7 @@ class AnnotationNormalizer extends NormalizerBase {
    */
   protected $supportedInterfaceOrClass = [
     JsonRpcMethod::class,
-    JsonRpcMethodParameter::class,
+    JsonRpcParameter::class,
   ];
 
   /**
@@ -79,7 +79,7 @@ class AnnotationNormalizer extends NormalizerBase {
       case JsonRpcMethod::class:
         return 'JsonRpcMethod';
 
-      case JsonRpcMethodParameter::class:
+      case JsonRpcParameter::class:
         return 'JsonRpcParameter';
 
       default:

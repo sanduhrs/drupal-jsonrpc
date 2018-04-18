@@ -4,7 +4,7 @@ namespace Drupal\jsonrpc_core\Plugin\jsonrpc\Method;
 
 use Drupal\Core\Annotation\Translation;
 use Drupal\jsonrpc\Annotation\JsonRpcMethod;
-use Drupal\jsonrpc\Annotation\JsonRpcMethodParameter;
+use Drupal\jsonrpc\Annotation\JsonRpcParameter;
 use Drupal\jsonrpc\Annotation\JsonRpcService;
 use Drupal\jsonrpc\Plugin\JsonRpcPluginBase;
 use Drupal\jsonrpc\Plugin\JsonRpcMethodBase;
