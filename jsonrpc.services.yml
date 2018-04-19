@@ -5,7 +5,7 @@ services:
     public: false
 
   jsonrpc.handler:
-    class: Drupal\jsonrpc\JsonRpcHandler
+    class: Drupal\jsonrpc\Handler
     arguments: ['@plugin.manager.jsonrpc_method']
 
   serializer.normalizer.jsonrpc_request:

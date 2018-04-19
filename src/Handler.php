@@ -11,7 +11,7 @@ use Drupal\jsonrpc\Object\Error;
 use Drupal\jsonrpc\Object\Request;
 use Drupal\jsonrpc\Object\Response;
 
-class JsonRpcHandler implements HandlerInterface {
+class Handler implements HandlerInterface {
 
   /**
    * The support JSON-RPC version.
