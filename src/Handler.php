@@ -107,6 +107,14 @@ class Handler implements HandlerInterface {
           ? $result
           : new Response(static::SUPPORTED_VERSION, $request->id(), $result);
       }
+    // Catching Throwable allows us to recover from more kinds of exceptions
+    // that might occur in badly written 3rd party code.
+    } catch (\Throwable $e) {
+      if (!$e instanceof JsonRpcException) {
+        $e = JsonRpcException::fromPrevious($e, $request->isNotification() ? FALSE : $request->id());
+      }
+      return $e->getResponse();
+    // @TODO: Remove the following when PHP7 is the minimum supported version.
     } catch (\Exception $e) {
       if (!$e instanceof JsonRpcException) {
         $e = JsonRpcException::fromPrevious($e, $request->isNotification() ? FALSE : $request->id());
