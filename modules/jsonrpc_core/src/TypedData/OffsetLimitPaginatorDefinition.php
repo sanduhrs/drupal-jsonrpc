@@ -9,12 +9,6 @@ use Drupal\Core\TypedData\DataDefinition;
 
 /**
  * Provides a data type definition for defining pagination options.
- *
- * @DataType(
- *   id = "offset_limit_paginator",
- *   label = @Translation("Offset Limit Paginator"),
- *   description = @Translation("Defines pagination information."),
- * )
  */
 class OffsetLimitPaginatorDefinition extends ComplexDataDefinitionBase {
 

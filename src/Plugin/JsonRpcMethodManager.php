@@ -136,8 +136,8 @@ class JsonRpcMethodManager extends DefaultPluginManager implements HandlerInterf
       throw new InvalidPluginDefinitionException($method->id(), "JSON-RPC method names must match a public method name on the plugin class. Missing the '{$method->call()}' method.");
     }
     foreach ($method->params as $param) {
-      if (!($param->factory xor $param->data_type)) {
-        throw new InvalidPluginDefinitionException($method->id(), "Every JsonRpcParameter must define either a factory_class or a data_type, but not both.");
+      if (!$param->factory && !$param->data_type && !$param->schema) {
+        throw new InvalidPluginDefinitionException($method->id(), "Every JsonRpcParameter must define either a factory, data_type or schema.");
       }
     }
   }

@@ -9,6 +9,7 @@ use Drupal\jsonrpc\HandlerInterface;
 use Drupal\jsonrpc\Object\Error;
 use Drupal\jsonrpc\Object\ParameterBag;
 use Drupal\jsonrpc\Object\Request;
+use Drupal\jsonrpc\ParameterFactory\RawParameterFactory;
 use Drupal\jsonrpc\ParameterFactory\TypedDataParameterFactory;
 use Drupal\jsonrpc\ParameterInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -161,7 +162,7 @@ class RequestNormalizer implements DenormalizerInterface, SerializerAwareInterfa
       $factory_class = TypedDataParameterFactory::class;
     }
     else {
-      $factory_class = $parameter->getFactory();
+      $factory_class = $parameter->getFactory() ?: RawParameterFactory::class;
     }
     $container_injection = in_array(ContainerInjectionInterface::class, class_implements($factory_class));
     $factory = $container_injection ? $factory_class::create($this->container) : new $factory_class;

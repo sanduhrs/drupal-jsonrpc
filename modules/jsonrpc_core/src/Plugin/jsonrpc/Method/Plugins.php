@@ -6,12 +6,11 @@ use Drupal\Component\Plugin\PluginManagerInterface;
 use Drupal\Core\Annotation\Translation;
 use Drupal\jsonrpc\Annotation\JsonRpcMethod;
 use Drupal\jsonrpc\Annotation\JsonRpcParameter;
-use Drupal\jsonrpc\Annotation\JsonRpcService;
 use Drupal\jsonrpc\Exception\JsonRpcException;
+use Drupal\jsonrpc\HandlerInterface;
 use Drupal\jsonrpc\Object\Error;
 use Drupal\jsonrpc\Object\ParameterBag;
 use Drupal\jsonrpc\Plugin\JsonRpcMethodBase;
-use Drupal\jsonrpc\Plugin\JsonRpcServiceManager;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
 
@@ -19,12 +18,13 @@ use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
  * Lists the plugin definitions of a given type.
  *
  * @JsonRpcMethod(
- *   id = "plugins.listing",
+ *   id = "plugins.list",
+ *   call = "listing",
  *   usage = @Translation("List defined plugins."),
  *   access = {"administer site configuration"},
  *   params = {
  *     "page" = @JsonRpcParameter(data_type="offset_limit_paginator"),
- *     "service" = @JsonRpcParameter(data_type="string"),
+ *     "service" = @JsonRpcParameter(schema={"type"="string"}),
  *   }
  * )
  */
@@ -50,10 +50,10 @@ class Plugins extends JsonRpcMethodBase {
    */
   public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
     /* @var \Drupal\jsonrpc\Object\Request $request */
-    $request = $configuration[JsonRpcServiceManager::JSONRPC_REQUEST_KEY];
+    $request = $configuration[HandlerInterface::JSONRPC_REQUEST_KEY];
     /* @var \Drupal\Component\Plugin\PluginManagerInterface $plugin_manager */
     try {
-      $plugin_manager = $container->get($request->getParameter('service')->getValue());
+      $plugin_manager = $container->get($request->getParameter('service'));
     }
     catch (ServiceNotFoundException $e) {
       throw JsonRpcException::fromError(Error::invalidParams($e->getMessage()));

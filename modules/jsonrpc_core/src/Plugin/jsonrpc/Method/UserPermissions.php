@@ -61,8 +61,6 @@ class UserPermissions extends JsonRpcMethodBase {
   }
 
   /**
-   * @param \Drupal\jsonrpc\Object\ParameterBag $params
-   *
    * @throws \Drupal\jsonrpc\Exception\JsonRpcException
    */
   public function addPermissionToRole(ParameterBag $params) {
