@@ -70,13 +70,12 @@ class JsonRpcMethodManager extends DefaultPluginManager {
    * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
    */
   protected function assertValidJsonRpcMethodPlugin($method) {
-    $reflection = new \ReflectionClass($method->getClass());
-    if (!$reflection->hasMethod($method->call())) {
-      throw new InvalidPluginDefinitionException($method->id(), "JSON-RPC method names must match a public method name on the plugin class. Missing the '{$method->call()}' method.");
-    }
     foreach ($method->params as $param) {
-      if (!$param->factory && !$param->data_type && !$param->schema) {
-        throw new InvalidPluginDefinitionException($method->id(), "Every JsonRpcParameter must define either a factory, data_type or schema.");
+      if (!$param->factory && !$param->schema) {
+        throw new InvalidPluginDefinitionException($method->id(), "Every JsonRpcParameter must define either a factory or a schema.");
+      }
+      if ($param->factory && !is_subclass_of($param->factory, ParameterFactoryInterface::class)) {
+        throw new InvalidPluginDefinitionException($method->id(), "Parameter factories must implement ParameterFactoryInterface.");
       }
     }
   }

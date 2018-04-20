@@ -34,12 +34,4 @@ interface ParameterInterface {
    */
   public function getFactory();
 
-  /**
-   * Gets the parameter's TypedData data type if one was provided.
-   *
-   * @return string|null
-   *   The TypedData data type name. NULL if one was not provided.
-   */
-  public function getDataType();
-
 }
