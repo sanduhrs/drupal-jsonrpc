@@ -9,7 +9,6 @@ use Drupal\jsonrpc\Annotation\JsonRpcParameter;
 use Drupal\jsonrpc\Exception\JsonRpcException;
 use Drupal\jsonrpc\Object\Error;
 use Drupal\jsonrpc\Object\ParameterBag;
-use Drupal\jsonrpc\Plugin\JsonRpcMethodBase;
 use Drupal\user\PermissionHandlerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Validator\ConstraintViolationInterface;
