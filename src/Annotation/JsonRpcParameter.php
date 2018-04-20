@@ -69,7 +69,7 @@ class JsonRpcParameter implements ParameterInterface {
    */
   public function getSchema() {
     if (!isset($this->schema) && isset($this->factory)) {
-      $this->schema = $this->factory::schema($this);
+      $this->schema = $this->factory->schema($this);
     }
     return $this->schema;
   }

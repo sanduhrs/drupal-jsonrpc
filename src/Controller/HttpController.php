@@ -97,7 +97,7 @@ class HttpController extends ControllerBase {
     try {
       $content = $http_request->getContent(FALSE);
       $context = [
-        RequestNormalizer::REQUEST_VERSION_KEY => $this->handler::supportedVersion(),
+        RequestNormalizer::REQUEST_VERSION_KEY => $this->handler->supportedVersion(),
         'service_definition' => $this->handler,
       ];
       /* @var \Drupal\jsonrpc\Object\Request|\Drupal\jsonrpc\Object\Request[] $deserialized */
@@ -106,7 +106,7 @@ class HttpController extends ControllerBase {
     }
     catch (\Exception $e) {
       $id = (isset($content) && is_object($content) && isset($content->id)) ? $content->id : FALSE;
-      throw JsonRpcException::fromPrevious($e, $id, $this->handler::supportedVersion());
+      throw JsonRpcException::fromPrevious($e, $id, $this->handler->supportedVersion());
     }
   }
 
@@ -155,7 +155,7 @@ class HttpController extends ControllerBase {
     }
     catch (\Exception $e) {
       $id = $rpc_response instanceof RpcResponse ? $rpc_response->id() : FALSE;
-      throw JsonRpcException::fromPrevious($e, $id, $this->handler::supportedVersion());
+      throw JsonRpcException::fromPrevious($e, $id, $this->handler->supportedVersion());
     }
   }
 
@@ -167,7 +167,7 @@ class HttpController extends ControllerBase {
    */
   protected function serializeRpcResponse($rpc_response) {
     $context = [
-      ResponseNormalizer::RESPONSE_VERSION_KEY => $this->handler::supportedVersion(),
+      ResponseNormalizer::RESPONSE_VERSION_KEY => $this->handler->supportedVersion(),
     ];
     // This following is needed to prevent the serializer from using array
     // indices as JSON object keys like {"0": "foo", "1": "bar"}.
@@ -183,7 +183,7 @@ class HttpController extends ControllerBase {
    */
   protected function exceptionResponse(JsonRpcException $e, $status = Response::HTTP_INTERNAL_SERVER_ERROR) {
     $context = [
-      ResponseNormalizer::RESPONSE_VERSION_KEY => $this->handler::supportedVersion(),
+      ResponseNormalizer::RESPONSE_VERSION_KEY => $this->handler->supportedVersion(),
     ];
     $serialized = $this->serializer->serialize($e->getResponse(), 'json', $context);
     $response = CacheableJsonResponse::fromJsonString($serialized, $status);
