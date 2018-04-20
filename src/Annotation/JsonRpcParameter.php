@@ -25,17 +25,6 @@ class JsonRpcParameter implements ParameterInterface {
   protected $id;
 
   /**
-   * The parameter data type name.
-   *
-   * Required if a schema is not provided. If a schema is not provided, the type
-   * name must match a TypedData data type name and the received parameter will
-   * be cast to an instance of that type.
-   *
-   * @var string
-   */
-  public $data_type = NULL;
-
-  /**
    * The parameter schema.
    *
    * Required if a type name is not provided to the type name does not match a
@@ -60,13 +49,6 @@ class JsonRpcParameter implements ParameterInterface {
    * @var string
    */
   public $factory;
-
-  /**
-   * {@inheritdoc}
-   */
-  public function getDataType() {
-    return $this->data_type;
-  }
 
   /**
    * {@inheritdoc}

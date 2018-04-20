@@ -22,7 +22,7 @@ use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
  *   usage = @Translation("List defined plugins."),
  *   access = {"administer site configuration"},
  *   params = {
- *     "page" = @JsonRpcParameter(data_type="offset_limit_paginator"),
+ *     "page" = @JsonRpcParameter(factory = "\Drupal\jsonrpc\ParameterFactory\PaginationParameterFactory"),
  *     "service" = @JsonRpcParameter(schema={"type"="string"}),
  *   }
  * )
