@@ -4,12 +4,13 @@ namespace Drupal\jsonrpc\Plugin;
 
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Plugin\PluginBase;
+use Drupal\jsonrpc\ExecutableWithParamsInterface;
 use Drupal\jsonrpc\HandlerInterface;
 use Drupal\jsonrpc\MethodInterface;
 use Drupal\jsonrpc\ServiceInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
-class JsonRpcMethodBase extends PluginBase implements ContainerFactoryPluginInterface {
+abstract class JsonRpcMethodBase extends PluginBase implements ContainerFactoryPluginInterface, ExecutableWithParamsInterface {
 
   /**
    * The RPC request for the current invocation.
