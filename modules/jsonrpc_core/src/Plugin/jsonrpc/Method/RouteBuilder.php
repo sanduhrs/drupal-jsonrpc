@@ -5,6 +5,7 @@ namespace Drupal\jsonrpc_core\Plugin\jsonrpc\Method;
 use Drupal\Core\Annotation\Translation;
 use Drupal\Core\Routing\RouteBuilderInterface;
 use Drupal\jsonrpc\Annotation\JsonRpcMethod;
+use Drupal\jsonrpc\Object\ParameterBag;
 use Drupal\jsonrpc\Plugin\JsonRpcMethodBase;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -47,7 +48,7 @@ class RouteBuilder extends JsonRpcMethodBase {
   /**
    * {@inheritdoc}
    */
-  public function rebuild() {
+  public function execute(ParameterBag $params) {
     return $this->routeBuilder->rebuild();
   }
 

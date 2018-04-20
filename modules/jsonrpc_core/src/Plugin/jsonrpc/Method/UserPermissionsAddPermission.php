@@ -17,16 +17,15 @@ use Symfony\Component\Validator\ConstraintViolationInterface;
 /**
  * @JsonRpcMethod(
  *   id = "user_permissions.add_permission_to_role",
- *   call = "addPermissionToRole",
  *   usage = @Translation("Add the given permission to the specified role."),
  *   access = {"administer permissions"},
  *   params = {
- *     "permission" = @JsonRpcParameter(data_type = "string"),
+ *     "permission" = @JsonRpcParameter(schema = {"type": "string"}),
  *     "role" = @JsonRpcParameter(factory = "\Drupal\jsonrpc\ParameterFactory\EntityParameterFactory"),
  *   }
  * )
  */
-class UserPermissions extends JsonRpcMethodBase {
+class UserPermissionsAddPermission extends UserPermissionsBase {
 
   /**
    * The permissions handler service.
@@ -55,15 +54,12 @@ class UserPermissions extends JsonRpcMethodBase {
     );
   }
 
-  public function listing(ParameterBag $params) {
-    $page = $params->get('page');
-    return array_slice($this->permissions->getPermissions(), $page->getOffset(), $page->getLimit());
-  }
-
   /**
+   * {@inheritdoc}
+   *
    * @throws \Drupal\jsonrpc\Exception\JsonRpcException
    */
-  public function addPermissionToRole(ParameterBag $params) {
+  public function execute(ParameterBag $params) {
     $permission = $params->get('permission')->getValue();
     /* @var \Drupal\user\RoleInterface $role */
     $role = $params->get('role');

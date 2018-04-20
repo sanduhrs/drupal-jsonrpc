@@ -19,7 +19,6 @@ use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
  *
  * @JsonRpcMethod(
  *   id = "plugins.list",
- *   call = "listing",
  *   usage = @Translation("List defined plugins."),
  *   access = {"administer site configuration"},
  *   params = {
@@ -62,9 +61,13 @@ class Plugins extends JsonRpcMethodBase {
   }
 
   /**
+   */
+  /**
+   * {@inheritdoc}
+   *
    * @throws \Drupal\jsonrpc\Exception\JsonRpcException
    */
-  public function listing(ParameterBag $params) {
+  public function execute(ParameterBag $params) {
     $paginator = $params->get('page');
     $definitions = $this->pluginManager->getDefinitions();
     foreach ($definitions as $definition) {
