@@ -52,7 +52,7 @@ class FormatSetter implements HttpKernelInterface {
    *   The current request.
    *
    * @return bool
-   *   Whether the current request is a JSON API request.
+   *   Whether the current request is a JSON RPC request.
    */
   protected static function isJsonRpcRequest(Request $request) {
     return strpos($request->getPathInfo(), '/jsonrpc/') !== FALSE
