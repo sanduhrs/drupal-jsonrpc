@@ -1,7 +1,7 @@
 jsonrpc.method_collection:
   path: '/jsonrpc/methods'
   defaults:
-    _controller: '\Drupal\jsonrpc\Controller\DiscoveryController::methods'
+    _controller: '\Drupal\jsonrpc_discovery\Controller\DiscoveryController::methods'
   methods: [GET]
   requirements:
     _permission: 'use jsonrpc services'
@@ -11,7 +11,7 @@ jsonrpc.method_collection:
 jsonrpc.method_resource:
   path: '/jsonrpc/methods/{method_id}'
   defaults:
-    _controller: '\Drupal\jsonrpc\Controller\DiscoveryController::method'
+    _controller: '\Drupal\jsonrpc_discovery\Controller\DiscoveryController::method'
   methods: [GET]
   requirements:
     _permission: 'use jsonrpc services'
