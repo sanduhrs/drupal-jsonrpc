@@ -19,7 +19,6 @@ use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
  *
  * @JsonRpcMethod(
  *   id = "plugins.list",
- *   call = "listing",
  *   usage = @Translation("List defined plugins."),
  *   access = {"administer site configuration"},
  *   params = {
@@ -64,7 +63,7 @@ class Plugins extends JsonRpcMethodBase {
   /**
    * @throws \Drupal\jsonrpc\Exception\JsonRpcException
    */
-  public function listing(ParameterBag $params) {
+  public function execute(ParameterBag $params) {
     $paginator = $params->get('page');
     $definitions = $this->pluginManager->getDefinitions();
     foreach ($definitions as $definition) {
@@ -72,7 +71,7 @@ class Plugins extends JsonRpcMethodBase {
         throw JsonRpcException::fromError(Error::invalidParams('Object-based plugin definitions are not yet supported.'));
       }
     }
-    return array_slice($definitions, $paginator->getOffset(), $paginator->getLimit());
+    return array_slice($definitions, $paginator['offset'], $paginator['limit']);
   }
 
 }
