@@ -14,13 +14,5 @@ services:
     tags:
       - { name: normalizer }
 
-  jsonrpc.http_middleware.format_setter:
-    class: Drupal\jsonrpc\StackMiddleware\FormatSetter
-    arguments: ['@kernel']
-    tags:
-      # Set priority to 201 so it happens right before the page cache
-      # middleware (priority 200)has the opportunity to respond.
-      - { name: http_middleware, priority: 201 }
-
   jsonrpc.schema_validator:
     class: JsonSchema\Validator
