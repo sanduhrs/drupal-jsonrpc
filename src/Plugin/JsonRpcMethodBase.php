@@ -56,4 +56,13 @@ abstract class JsonRpcMethodBase extends PluginBase implements ContainerFactoryP
     return $this->getPluginDefinition();
   }
 
+  /**
+   * Provides the schema that describes the results of the RPC method.
+   *
+   * Use NULL if the method does not provide results (is a notification).
+   *
+   * @return null|array
+   */
+  abstract public static function outputSchema();
+
 }
