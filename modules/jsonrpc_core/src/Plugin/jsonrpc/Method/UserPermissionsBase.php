@@ -9,18 +9,6 @@ use Drupal\jsonrpc\Plugin\JsonRpcMethodBase;
 use Drupal\user\PermissionHandlerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
-/**
- * @JsonRpcMethod(
- *   id = "user_permissions.add_permission_to_role",
- *   call = "addPermissionToRole",
- *   usage = @Translation("Add the given permission to the specified role."),
- *   access = {"administer permissions"},
- *   params = {
- *     "permission" = @JsonRpcParameter(schema = {"type": "string"}),
- *     "role" = @JsonRpcParameter(factory = "\Drupal\jsonrpc\ParameterFactory\EntityParameterFactory"),
- *   }
- * )
- */
 abstract class UserPermissionsBase extends JsonRpcMethodBase {
 
   /**
