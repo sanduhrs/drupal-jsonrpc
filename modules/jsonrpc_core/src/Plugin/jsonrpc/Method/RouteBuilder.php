@@ -52,4 +52,11 @@ class RouteBuilder extends JsonRpcMethodBase {
     return $this->routeBuilder->rebuild();
   }
 
+  /**
+   * {@inheritdoc}
+   */
+  public static function outputSchema() {
+    return NULL;
+  }
+
 }

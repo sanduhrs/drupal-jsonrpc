@@ -35,4 +35,12 @@ class ListPermissions extends UserPermissionsBase {
     );
   }
 
+  /**
+   * {@inheritdoc}
+   */
+  public static function outputSchema() {
+    // TODO: Fix the schema.
+    return ['type' => 'foo'];
+  }
+
 }

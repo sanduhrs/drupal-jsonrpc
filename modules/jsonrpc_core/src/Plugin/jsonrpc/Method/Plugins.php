@@ -61,8 +61,6 @@ class Plugins extends JsonRpcMethodBase {
   }
 
   /**
-   */
-  /**
    * {@inheritdoc}
    *
    * @throws \Drupal\jsonrpc\Exception\JsonRpcException
@@ -76,6 +74,24 @@ class Plugins extends JsonRpcMethodBase {
       }
     }
     return array_slice($definitions, $paginator['offset'], $paginator['limit']);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function outputSchema() {
+    return [
+      'type' => 'object',
+      'patternProperties' => [
+        '.{1,}' => [
+          'class' => [ 'type' => 'string' ],
+          'uri' => [ 'type' => 'string' ],
+          'description' => [ 'type' => 'string' ],
+          'provider' => [ 'type' => 'string' ],
+          'id' => [ 'type' => 'string' ],
+        ],
+      ],
+    ];
   }
 
 }

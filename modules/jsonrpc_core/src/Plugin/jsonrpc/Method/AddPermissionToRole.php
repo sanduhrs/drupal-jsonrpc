@@ -51,4 +51,11 @@ class AddPermissionToRole extends UserPermissionsBase {
     }
   }
 
+  /**
+   * {@inheritdoc}
+   */
+  public static function outputSchema() {
+    return ['type' => 'number'];
+  }
+
 }

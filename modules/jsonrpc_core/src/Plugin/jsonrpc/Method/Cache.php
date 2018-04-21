@@ -23,4 +23,11 @@ class Cache extends JsonRpcMethodBase {
     return TRUE;
   }
 
+  /**
+   * {@inheritdoc}
+   */
+  public static function outputSchema() {
+    return NULL;
+  }
+
 }
