@@ -47,10 +47,10 @@ class RpcRequestFactory extends TransformationBase {
   /**
    * {@inheritdoc}
    */
-  public function __construct(HandlerInterface $handler, ContainerInterface $container) {
+  public function __construct(HandlerInterface $handler, ContainerInterface $container, Validator $validator) {
     $this->handler = $handler;
     $this->container = $container;
-    $this->validator = $container->get('jsonrpc.schema_validator');
+    $this->validator = $validator;
   }
 
   /**

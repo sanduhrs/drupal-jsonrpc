@@ -25,6 +25,13 @@ class HttpController extends ControllerBase {
   protected $handler;
 
   /**
+   * The JSON Schema validator service.
+   *
+   * @var \JsonSchema\Validator
+   */
+  protected $validator;
+
+  /**
    * @var \Symfony\Component\DependencyInjection\ContainerInterface
    */
   protected $container;
@@ -32,11 +39,11 @@ class HttpController extends ControllerBase {
   /**
    * HttpController constructor.
    *
-   * @param \Drupal\jsonrpc\HandlerInterface $handler
    * @param \Symfony\Component\DependencyInjection\ContainerInterface
    */
-  public function __construct(HandlerInterface $handler, ContainerInterface $container) {
-    $this->handler = $handler;
+  public function __construct(ContainerInterface $container) {
+    $this->handler = $container->get('jsonrpc.handler');
+    $this->validator = $container->get('jsonrpc.schema_validator');
     $this->container = $container;
   }
 
@@ -44,10 +51,7 @@ class HttpController extends ControllerBase {
    * {@inheritdoc}
    */
   public static function create(ContainerInterface $container) {
-    return new static(
-      $container->get('jsonrpc.handler'),
-      $container
-    );
+    return new static($container);
   }
 
   /**
@@ -101,7 +105,7 @@ class HttpController extends ControllerBase {
       $context = new Context([
         RpcRequestFactory::REQUEST_VERSION_KEY => $version,
       ]);
-      $factory = new RpcRequestFactory($this->handler, $this->container);
+      $factory = new RpcRequestFactory($this->handler, $this->container, $this->validator);
       return $factory->transform($content, $context);
     }
     catch (\Exception $e) {
