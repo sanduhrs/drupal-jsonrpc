@@ -8,19 +8,6 @@ services:
     class: Drupal\jsonrpc\Handler
     arguments: ['@plugin.manager.jsonrpc_method']
 
-  serializer.normalizer.jsonrpc_request:
-    class: Drupal\jsonrpc\Normalizer\RequestNormalizer
-    arguments: ['@jsonrpc.handler', '@service_container']
-    public: false
-    tags:
-      - { name: normalizer }
-
-  serializer.normalizer.jsonrpc_response:
-    class: Drupal\jsonrpc\Normalizer\ResponseNormalizer
-    public: false
-    tags:
-      - { name: normalizer }
-
   serializer.normalizer.jsonrpc_annotation:
     class: Drupal\jsonrpc\Normalizer\AnnotationNormalizer
     public: false
