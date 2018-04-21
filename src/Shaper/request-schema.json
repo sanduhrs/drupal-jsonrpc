@@ -7,7 +7,7 @@
   "properties": {
     "jsonrpc": { "type": "string", "enum": ["2.0"] },
     "method": { "type": "string" },
-    "id": { "type": "number" },
+    "id": { "type": ["number", "string"] },
     "params": { "type": ["array", "object"] }
   }
 }

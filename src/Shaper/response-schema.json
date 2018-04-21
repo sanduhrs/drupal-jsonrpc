@@ -1,0 +1,12 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "JSON-RPC Response",
+  "description": "A JSON-RPC 2.0 response.",
+  "type": "object",
+  "required": ["jsonrpc"],
+  "properties": {
+    "jsonrpc": { "type": "string", "enum": ["2.0"] },
+    "result": { "type": ["object", "array"] },
+    "id": { "type": ["number", "string", "null"] }
+  }
+}

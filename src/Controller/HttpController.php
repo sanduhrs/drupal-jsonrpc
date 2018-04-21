@@ -172,7 +172,7 @@ class HttpController extends ControllerBase {
     // This following is needed to prevent the serializer from using array
     // indices as JSON object keys like {"0": "foo", "1": "bar"}.
     $data = array_values($rpc_responses);
-    $normalizer = new RpcResponseNormalizer();
+    $normalizer = new RpcResponseNormalizer($this->validator);
     return Json::encode($normalizer->transform($data, $context));
   }
 
@@ -187,10 +187,11 @@ class HttpController extends ControllerBase {
       RpcResponseNormalizer::RESPONSE_VERSION_KEY => $this->handler->supportedVersion(),
       RpcRequestFactory::REQUEST_IS_BATCH_REQUEST => FALSE,
     ]);
-    $normalizer = new RpcResponseNormalizer();
-    $serialized = $normalizer->transform($e->getResponse(), $context);
+    $normalizer = new RpcResponseNormalizer($this->validator);
+    $rpc_response = $e->getResponse();
+    $serialized = $normalizer->transform($rpc_response, $context);
     $response = CacheableJsonResponse::fromJsonString($serialized, $status);
-    return $response->addCacheableDependency($e->getResponse());
+    return $response->addCacheableDependency($rpc_response);
   }
 
 }
