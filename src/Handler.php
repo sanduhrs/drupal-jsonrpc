@@ -42,13 +42,6 @@ class Handler implements HandlerInterface {
   /**
    * {@inheritdoc}
    */
-  public function execute(Request $request) {
-    return $this->doRequest($request);
-  }
-
-  /**
-   * {@inheritdoc}
-   */
   public function batch(array $requests) {
     return array_filter(array_map(function (Request $request) {
       return $this->doRequest($request);

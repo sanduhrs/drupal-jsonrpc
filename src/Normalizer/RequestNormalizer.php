@@ -30,6 +30,8 @@ class RequestNormalizer implements DenormalizerInterface, SerializerAwareInterfa
 
   const REQUEST_VERSION_KEY = 'jsonrpc_request_version';
 
+  const REQUEST_IS_BATCH_REQUEST = 'jsonrpc_request_is_batch_request';
+
   /**
    * The JSON-RPC handler.
    *
@@ -63,12 +65,12 @@ class RequestNormalizer implements DenormalizerInterface, SerializerAwareInterfa
    * @throws \Drupal\jsonrpc\Exception\JsonRpcException
    */
   public function denormalize($data, $class, $format = NULL, array $context = []) {
-    if ($this->isBatchRequest($data)) {
-      return array_map(function ($item) use ($context) {
-        return $this->denormalizeRequest($item, $context);
-      }, $data);
-    }
-    return $this->denormalizeRequest($data, $context);
+    $context[static::REQUEST_IS_BATCH_REQUEST] = $this->isBatchRequest($data);
+    // Treat everything as a batch of requests for uniformity.
+    $data = $this->isBatchRequest($data) ? $data : [$data];
+    return array_map(function ($item) use ($context) {
+      return $this->denormalizeRequest($item, $context);
+    }, $data);
   }
 
   /**
@@ -87,10 +89,10 @@ class RequestNormalizer implements DenormalizerInterface, SerializerAwareInterfa
   protected function denormalizeRequest($data, array $context) {
     $id = isset($data['id']) ? $data['id'] : FALSE;
     $context[static::REQUEST_ID_KEY] = $id;
-    $context[static::REQUEST_VERSION_KEY] = $this->handler::supportedVersion();
-    return ($params = $this->denormalizeParams($data, $context))
-      ? new Request($data['jsonrpc'], $data['method'], $id, $params)
-      : new Request($data['jsonrpc'], $data['method'], $id);
+    $context[static::REQUEST_VERSION_KEY] = $this->handler->supportedVersion();
+    $batch = $context[static::REQUEST_IS_BATCH_REQUEST];
+    $params = $this->denormalizeParams($data, $context);
+    return new Request($data['jsonrpc'], $data['method'], $batch, $id, $params);
   }
 
   /**

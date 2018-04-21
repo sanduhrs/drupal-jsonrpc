@@ -15,19 +15,6 @@ interface HandlerInterface {
   const JSONRPC_REQUEST_KEY = 'jsonrpc_request';
 
   /**
-   * Executes a remote procedure call.
-   *
-   * @param \Drupal\jsonrpc\Object\Request $request
-   *   The JSON-RPC request.
-   *
-   * @return array|NULL
-   *   The JSON-RPC response, if any. Notifications have no response.
-   *
-   * @throws \Drupal\jsonrpc\Exception\JsonRpcException
-   */
-  public function execute(Request $request);
-
-  /**
    * Executes a batch of remote procedure calls.
    *
    * @param \Drupal\jsonrpc\Object\Request[] $requests

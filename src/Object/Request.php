@@ -33,21 +33,31 @@ class Request {
   protected $id;
 
   /**
+   * Indicates if the request is part of a batch or not.
+   *
+   * @var bool
+   */
+  protected $inBatch;
+
+  /**
    * Request constructor.
    *
    * @param string $version
    *   The JSON-RPC version.
    * @param string $method
    *   The RPC service method id.
+   * @param bool $in_batch
+   *   Indicates if the request is part of a batch or not.
    * @param mixed|FALSE $id
    *   A string, number or NULL ID. FALSE for notification requests.
    * @param \Drupal\jsonrpc\Object\ParameterBag|null $params
    *   The request parameters, if any.
    */
-  public function __construct($version, $method, $id = FALSE, ParameterBag $params = NULL) {
+  public function __construct($version, $method, $in_batch = FALSE, $id = FALSE, ParameterBag $params = NULL) {
     $this->assertValidRequest($version, $method, $id);
     $this->version = $version;
     $this->method = $method;
+    $this->inBatch = $in_batch;
     $this->params = $params;
     $this->id = $id;
   }
@@ -62,6 +72,10 @@ class Request {
 
   public function getParams() {
     return $this->params;
+  }
+
+  public function isInBatch() {
+    return $this->inBatch;
   }
 
   public function getParameter($key) {

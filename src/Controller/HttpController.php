@@ -62,23 +62,24 @@ class HttpController extends ControllerBase {
   public function resolve(Request $http_request) {
     // Map the HTTP request to an RPC request.
     try {
-      $rpc_request = $this->getRpcRequest($http_request);
+      $rpc_requests = $this->getRpcRequests($http_request);
     } catch (JsonRpcException $e) {
       return $this->exceptionResponse($e, Response::HTTP_BAD_REQUEST);
     }
 
     // Execute the RPC request and get the RPC response.
     try {
-      $rpc_response = $this->getRpcResponse($rpc_request);
+      $rpc_responses = $this->getRpcResponses($rpc_requests);
 
       // If no RPC response(s) were generated (happens if all of the request(s)
       // were notifications), then return a 204 HTTP response.
-      if (is_null($rpc_response) || empty($rpc_response)) {
+      if (empty($rpc_responses)) {
         return CacheableJsonResponse::create(NULL, Response::HTTP_NO_CONTENT);
       }
 
       // Map the RPC response(s) to an HTTP response.
-      return $this->getHttpResponse($rpc_response);
+      $is_batched_response = count($rpc_requests) !== 1 || $rpc_requests[0]->isInBatch();
+      return $this->getHttpResponse($rpc_responses, $is_batched_response);
     }
     catch (JsonRpcException $e) {
       return $this->exceptionResponse($e, Response::HTTP_INTERNAL_SERVER_ERROR);
@@ -88,20 +89,20 @@ class HttpController extends ControllerBase {
   /**
    * @param \Symfony\Component\HttpFoundation\Request $http_request
    *
-   * @return \Drupal\jsonrpc\Object\Request|\Drupal\jsonrpc\Object\Request[]
+   * @return \Drupal\jsonrpc\Object\Request[]
    *   The JSON-RPC request or requests.
    *
    * @throws \Drupal\jsonrpc\Exception\JsonRpcException
    */
-  protected function getRpcRequest(Request $http_request) {
+  protected function getRpcRequests(Request $http_request) {
     try {
       $content = $http_request->getContent(FALSE);
       $context = [
         RequestNormalizer::REQUEST_VERSION_KEY => $this->handler->supportedVersion(),
         'service_definition' => $this->handler,
       ];
-      /* @var \Drupal\jsonrpc\Object\Request|\Drupal\jsonrpc\Object\Request[] $deserialized */
-      $deserialized = $this->serializer->deserialize($content, RpcRequest::class, 'json', $context);
+      /* @var \Drupal\jsonrpc\Object\Request[] $deserialized */
+      return $this->serializer->deserialize($content, RpcRequest::class, 'json', $context);
       return $deserialized;
     }
     catch (\Exception $e) {
@@ -112,66 +113,61 @@ class HttpController extends ControllerBase {
 
 
   /**
-   * @param \Drupal\jsonrpc\Object\Request $rpc_request
+   * @param \Drupal\jsonrpc\Object\Request[] $rpc_requests
    *
-   * @return \Drupal\jsonrpc\Object\Response|\Drupal\jsonrpc\Object\Response[]|null $rpc_response
+   * @return \Drupal\jsonrpc\Object\Response[]|null
    *   The JSON-RPC response(s). NULL when the RPC request contains only
    *   notifications.
    *
    * @throws \Drupal\jsonrpc\Exception\JsonRpcException
    */
-  protected function getRpcResponse($rpc_request) {
-    if (is_array($rpc_request)) {
-      return ($rpc_responses = $this->handler->batch($rpc_request)) && !empty($rpc_responses)
-        ? $rpc_responses
-        : NULL;
-    }
-    return ($rpc_response = $this->handler->execute($rpc_request))
-      ? $rpc_response
-      : NULL;
+  protected function getRpcResponses($rpc_requests) {
+    $rpc_responses = $this->handler->batch($rpc_requests);
+    return empty($rpc_responses)
+      ? NULL
+      : $rpc_responses;
   }
 
   /**
    * Map RPC response(s) to an HTTP response.
    *
-   * @param \Drupal\jsonrpc\Object\Response|\Drupal\jsonrpc\Object\Response[] $rpc_response
+   * @param \Drupal\jsonrpc\Object\Response[] $rpc_responses
+   * @param bool $is_batched_response
    *
    * @return \Drupal\Core\Cache\CacheableResponseInterface
    *   The cacheable HTTP version of the RPC response(s).
    *
    * @throws \Drupal\jsonrpc\Exception\JsonRpcException
    */
-  protected function getHttpResponse($rpc_response) {
+  protected function getHttpResponse($rpc_responses, $is_batched_response) {
     try {
-      $serialized = $this->serializeRpcResponse($rpc_response);
+      $serialized = $this->serializeRpcResponse($rpc_responses, $is_batched_response);
       $http_response = CacheableJsonResponse::fromJsonString($serialized, Response::HTTP_OK);
       // Adds the cacheability information of the RPC response(s) to the HTTP
       // response.
-      return is_array($rpc_response)
-        ? array_reduce($rpc_response, function (CacheableResponseInterface $http_response, $response) {
-          return $http_response->addCacheableDependency($response);
-        }, $http_response)
-        : $http_response->addCacheableDependency($rpc_response);
+      return array_reduce($rpc_responses, function (CacheableResponseInterface $http_response, $response) {
+        return $http_response->addCacheableDependency($response);
+      }, $http_response);
     }
     catch (\Exception $e) {
-      $id = $rpc_response instanceof RpcResponse ? $rpc_response->id() : FALSE;
-      throw JsonRpcException::fromPrevious($e, $id, $this->handler->supportedVersion());
+      throw JsonRpcException::fromPrevious($e, FALSE, $this->handler->supportedVersion());
     }
   }
 
   /**
-   * @param \Drupal\jsonrpc\Object\Response|\Drupal\jsonrpc\Object\Response[] $rpc_response
+   * @param \Drupal\jsonrpc\Object\Response[] $rpc_responses
+   * @param bool $is_batched_response
    *
    * @return string
    *   The serialized JSON-RPC response body.
    */
-  protected function serializeRpcResponse($rpc_response) {
+  protected function serializeRpcResponse($rpc_responses, $is_batched_response) {
     $context = [
       ResponseNormalizer::RESPONSE_VERSION_KEY => $this->handler->supportedVersion(),
     ];
     // This following is needed to prevent the serializer from using array
     // indices as JSON object keys like {"0": "foo", "1": "bar"}.
-    $data = is_array($rpc_response) ? array_values($rpc_response) : $rpc_response;
+    $data = $is_batched_response ? array_values($rpc_responses) : $rpc_responses[0];
     return $this->serializer->serialize($data, 'json', $context);
   }
 
