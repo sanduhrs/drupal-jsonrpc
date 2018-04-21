@@ -32,6 +32,13 @@ class Response implements CacheableDependencyInterface {
   protected $result;
 
   /**
+   * The schema for the result.
+   *
+   * @var null|array
+   */
+  protected $resultSchema;
+
+  /**
    * The error.
    *
    * @var \Drupal\jsonrpc\Object\Error
@@ -93,6 +100,20 @@ class Response implements CacheableDependencyInterface {
     assert(!is_null($result) xor !is_null($error), 'Either the result member or error member MUST be included, but both members MUST NOT be included.');
     assert($version === "2.0", 'A String specifying the version of the JSON-RPC protocol. MUST be exactly "2.0".');
     assert(is_string($id) || is_numeric($id) || is_null($id), 'An identifier established by the Client that MUST contain a String, Number, or NULL value if included.');
+  }
+
+  /**
+   * @return array|null
+   */
+  public function getResultSchema() {
+    return $this->resultSchema;
+  }
+
+  /**
+   * @param array|null $resultSchema
+   */
+  public function setResultSchema($result_schema) {
+    $this->resultSchema = $result_schema;
   }
 
 }
