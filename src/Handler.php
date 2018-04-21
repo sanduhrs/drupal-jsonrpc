@@ -8,6 +8,7 @@ use Drupal\Core\Access\AccessResultReasonInterface;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\jsonrpc\Exception\JsonRpcException;
 use Drupal\jsonrpc\Object\Error;
+use Drupal\jsonrpc\Object\ParameterBag;
 use Drupal\jsonrpc\Object\Request;
 use Drupal\jsonrpc\Object\Response;
 
@@ -97,19 +98,20 @@ class Handler implements HandlerInterface {
    */
   protected function doRequest(Request $request) {
     try {
+      $result = $this->doExecution($request);
       if ($request->isNotification()) {
-        $this->doExecution($request);
         return NULL;
       }
       else {
-        $result = $this->doExecution($request);
         return $result instanceof Response
           ? $result
           : new Response(static::SUPPORTED_VERSION, $request->id(), $result);
       }
-    } catch (\Exception $e) {
+    }
+    catch (\Exception $e) {
       if (!$e instanceof JsonRpcException) {
-        $e = JsonRpcException::fromPrevious($e, $request->isNotification() ? FALSE : $request->id());
+        $id = $request->isNotification() ? FALSE : $request->id();
+        $e = JsonRpcException::fromPrevious($e, $id);
       }
       return $e->getResponse();
     }
@@ -132,8 +134,8 @@ class Handler implements HandlerInterface {
       $configuration = [HandlerInterface::JSONRPC_REQUEST_KEY => $request];
       $executable = $this->getExecutable($method, $configuration);
       return $request->hasParams()
-        ? $executable->{$method->call()}($request->getParams())
-        : $executable->{$method->call()}();
+        ? $executable->execute($request->getParams())
+        : $executable->execute(new ParameterBag([]));
     }
     else {
       throw JsonRpcException::fromError(Error::methodNotFound($method->id()));
@@ -171,6 +173,7 @@ class Handler implements HandlerInterface {
    * @throws \Drupal\jsonrpc\Exception\JsonRpcException
    */
   protected function checkAccess($method) {
+    // TODO: Add cacheability metadata here.
     /* @var \Drupal\jsonrpc\MethodInterface $method_definition */
     $access_result = $method->access('execute', NULL, TRUE);
     if (!$access_result->isAllowed()) {
