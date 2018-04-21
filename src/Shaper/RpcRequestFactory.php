@@ -11,6 +11,7 @@ use Drupal\jsonrpc\Object\ParameterBag;
 use Drupal\jsonrpc\Object\Request;
 use Drupal\jsonrpc\ParameterFactory\RawParameterFactory;
 use Drupal\jsonrpc\ParameterInterface;
+use JsonSchema\Constraints\Constraint;
 use JsonSchema\Validator;
 use Shaper\Transformation\TransformationBase;
 use Shaper\Util\Context;
@@ -57,13 +58,8 @@ class RpcRequestFactory extends TransformationBase {
    * {@inheritdoc}
    */
   public function getInputValidator() {
-    $schema = Json::decode(file_get_contents('./request-schema.json'));
-    $schema_validator = new JsonSchemaValidator([
-      'type' => 'array',
-      'items' => $schema,
-    ]);
-    $schema_validator->setValidator($this->validator);
-    return $schema_validator;
+    $schema = Json::decode(file_get_contents(__DIR__ . '/request-schema.json'));
+    return new JsonSchemaValidator($schema, $this->validator, Constraint::CHECK_MODE_TYPE_CAST);
   }
 
   /**
