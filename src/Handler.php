@@ -95,11 +95,13 @@ class Handler implements HandlerInterface {
       if ($request->isNotification()) {
         return NULL;
       }
-      else {
-        return $result instanceof Response
-          ? $result
-          : new Response(static::SUPPORTED_VERSION, $request->id(), $result);
-      }
+      $rpc_response = $result instanceof Response
+        ? $result
+        : new Response(static::SUPPORTED_VERSION, $request->id(), $result);
+      $methodPluginClass = $this->getMethod($request->getMethod())->getClass();
+      $result_schema = call_user_func([$methodPluginClass, 'outputSchema']);
+      $rpc_response->setResultSchema($result_schema);
+      return $rpc_response;
     }
     catch (\Exception $e) {
       if (!$e instanceof JsonRpcException) {
