@@ -4,6 +4,7 @@ namespace Drupal\jsonrpc_core\Plugin\jsonrpc\Method;
 
 use Drupal\Core\Annotation\Translation;
 use Drupal\jsonrpc\Annotation\JsonRpcMethod;
+use Drupal\jsonrpc\Object\ParameterBag;
 use Drupal\jsonrpc\Plugin\JsonRpcMethodBase;
 
 /**
@@ -11,14 +12,13 @@ use Drupal\jsonrpc\Plugin\JsonRpcMethodBase;
  *
  * @JsonRpcMethod(
  *   id = "cache.rebuild",
- *   call = "rebuild",
  *   usage = @Translation("Rebuilds the system cache."),
  *   access = {"administer site configuration"},
  * ),
  */
 class Cache extends JsonRpcMethodBase {
 
-  public function rebuild() {
+  public function execute(ParameterBag $params) {
     drupal_flush_all_caches();
     return TRUE;
   }
