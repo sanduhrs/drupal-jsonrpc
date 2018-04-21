@@ -8,13 +8,12 @@ use Drupal\Core\Cache\CacheableResponseInterface;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\jsonrpc\Exception\JsonRpcException;
 use Drupal\jsonrpc\HandlerInterface;
-use Drupal\jsonrpc\Normalizer\ResponseNormalizer;
 use Drupal\jsonrpc\Shaper\RpcRequestFactory;
+use Drupal\jsonrpc\Shaper\RpcResponseNormalizer;
 use Shaper\Util\Context;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Serializer\SerializerInterface;
 
 class HttpController extends ControllerBase {
 
@@ -31,22 +30,14 @@ class HttpController extends ControllerBase {
   protected $container;
 
   /**
-   * The serializer.
-   *
-   * @var \Symfony\Component\Serializer\SerializerInterface
-   */
-  protected $serializer;
-
-  /**
    * HttpController constructor.
    *
    * @param \Drupal\jsonrpc\HandlerInterface $handler
-   * @param \Symfony\Component\Serializer\SerializerInterface $serializer
+   * @param \Symfony\Component\DependencyInjection\ContainerInterface
    */
-  public function __construct(HandlerInterface $handler, ContainerInterface $container, SerializerInterface $serializer) {
+  public function __construct(HandlerInterface $handler, ContainerInterface $container) {
     $this->handler = $handler;
     $this->container = $container;
-    $this->serializer = $serializer;
   }
 
   /**
@@ -55,8 +46,7 @@ class HttpController extends ControllerBase {
   public static function create(ContainerInterface $container) {
     return new static(
       $container->get('jsonrpc.handler'),
-      $container,
-      $container->get('serializer')
+      $container
     );
   }
 
@@ -171,13 +161,15 @@ class HttpController extends ControllerBase {
    *   The serialized JSON-RPC response body.
    */
   protected function serializeRpcResponse($rpc_responses, $is_batched_response) {
-    $context = [
-      ResponseNormalizer::RESPONSE_VERSION_KEY => $this->handler->supportedVersion(),
-    ];
+    $context = new Context([
+      RpcResponseNormalizer::RESPONSE_VERSION_KEY => $this->handler->supportedVersion(),
+      RpcRequestFactory::REQUEST_IS_BATCH_REQUEST => $is_batched_response,
+    ]);
     // This following is needed to prevent the serializer from using array
     // indices as JSON object keys like {"0": "foo", "1": "bar"}.
-    $data = $is_batched_response ? array_values($rpc_responses) : $rpc_responses[0];
-    return $this->serializer->serialize($data, 'json', $context);
+    $data = array_values($rpc_responses);
+    $normalizer = new RpcResponseNormalizer();
+    return Json::encode($normalizer->transform($data, $context));
   }
 
   /**
@@ -187,10 +179,12 @@ class HttpController extends ControllerBase {
    * @return \Drupal\Core\Cache\CacheableResponseInterface
    */
   protected function exceptionResponse(JsonRpcException $e, $status = Response::HTTP_INTERNAL_SERVER_ERROR) {
-    $context = [
-      ResponseNormalizer::RESPONSE_VERSION_KEY => $this->handler->supportedVersion(),
-    ];
-    $serialized = $this->serializer->serialize($e->getResponse(), 'json', $context);
+    $context = new Context([
+      RpcResponseNormalizer::RESPONSE_VERSION_KEY => $this->handler->supportedVersion(),
+      RpcRequestFactory::REQUEST_IS_BATCH_REQUEST => FALSE,
+    ]);
+    $normalizer = new RpcResponseNormalizer();
+    $serialized = $normalizer->transform($e->getResponse(), $context);
     $response = CacheableJsonResponse::fromJsonString($serialized, $status);
     return $response->addCacheableDependency($e->getResponse());
   }
