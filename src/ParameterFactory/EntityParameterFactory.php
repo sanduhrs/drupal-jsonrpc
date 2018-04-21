@@ -35,7 +35,6 @@ class EntityParameterFactory extends ParameterFactoryBase {
   }
 
   public static function schema(ParameterInterface $parameter) {
-    // @todo: derive JSON Schema from the TypedData data type on the parameter.
     return [
       'type' => 'object',
       'properties' => [

@@ -3,14 +3,12 @@
 namespace Drupal\jsonrpc\Normalizer;
 
 use Drupal\Core\DependencyInjection\ContainerInjectionInterface;
-use Drupal\Core\TypedData\TypedDataManagerInterface;
 use Drupal\jsonrpc\Exception\JsonRpcException;
 use Drupal\jsonrpc\HandlerInterface;
 use Drupal\jsonrpc\Object\Error;
 use Drupal\jsonrpc\Object\ParameterBag;
 use Drupal\jsonrpc\Object\Request;
 use Drupal\jsonrpc\ParameterFactory\RawParameterFactory;
-use Drupal\jsonrpc\ParameterFactory\TypedDataParameterFactory;
 use Drupal\jsonrpc\ParameterInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
@@ -40,13 +38,6 @@ class RequestNormalizer implements DenormalizerInterface, SerializerAwareInterfa
   protected $handler;
 
   /**
-   * The TypedData manager.
-   *
-   * @var \Drupal\Core\TypedData\TypedDataManagerInterface
-   */
-  protected $typedData;
-
-  /**
    * @var \Symfony\Component\DependencyInjection\ContainerInterface
    */
   protected $container;
@@ -54,9 +45,8 @@ class RequestNormalizer implements DenormalizerInterface, SerializerAwareInterfa
   /**
    * {@inheritdoc}
    */
-  public function __construct(HandlerInterface $handler, TypedDataManagerInterface $typed_data_manager, ContainerInterface $container) {
+  public function __construct(HandlerInterface $handler, ContainerInterface $container) {
     $this->handler = $handler;
-    $this->typedData = $typed_data_manager;
     $this->container = $container;
   }
 
@@ -154,20 +144,14 @@ class RequestNormalizer implements DenormalizerInterface, SerializerAwareInterfa
    * @throws \Drupal\jsonrpc\Exception\JsonRpcException
    */
   protected function denormalizeParam($argument, ParameterInterface $parameter) {
-    if (!static::doValidation($argument, $parameter->getSchema())) {
+    $factory_class = $parameter->getFactory() ?: RawParameterFactory::class;
+    $container_injection = in_array(ContainerInjectionInterface::class, class_implements($factory_class));
+    $factory = $container_injection
+      ? call_user_func_array([$factory_class, 'create'], [$this->container])
+      : new $factory_class();
+    if (!static::doValidation($argument, $factory->schema($parameter))) {
       $message = "The {$parameter->getId()} parameter does not conform to the parameter schema.";
       throw JsonRpcException::fromError(Error::invalidParams($message));
-    }
-    if ($data_type = $parameter->getDataType()) {
-      $factory_class = TypedDataParameterFactory::class;
-    }
-    else {
-      $factory_class = $parameter->getFactory() ?: RawParameterFactory::class;
-    }
-    $container_injection = in_array(ContainerInjectionInterface::class, class_implements($factory_class));
-    $factory = $container_injection ? $factory_class::create($this->container) : new $factory_class;
-    if ($factory instanceof TypedDataParameterFactory) {
-      $factory->setDataType($data_type);
     }
     return $factory->convert($argument, $parameter);
   }
@@ -188,7 +172,7 @@ class RequestNormalizer implements DenormalizerInterface, SerializerAwareInterfa
     if (isset($data['jsonrpc'])) {
       return FALSE;
     }
-    $supported_version = $this->handler::supportedVersion();
+    $supported_version = $this->handler->supportedVersion();
     $filter = function ($version) use ($supported_version) {
       return $version === $supported_version;
     };

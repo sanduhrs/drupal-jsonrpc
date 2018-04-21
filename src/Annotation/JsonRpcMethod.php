@@ -65,13 +65,7 @@ class JsonRpcMethod extends AnnotationBase implements MethodInterface {
    */
   public function call() {
     if (!isset($this->call)) {
-      $parts = explode('.', $this->id());
-      if (count($parts) > 1) {
-        $this->call = end($parts);
-      }
-      else {
-        $this->call = 'execute';
-      }
+      $this->call = 'execute';
     }
     return $this->call;
   }

@@ -18,9 +18,6 @@ use Drupal\jsonrpc\Plugin\JsonRpcMethodBase;
  */
 class Cache extends JsonRpcMethodBase {
 
-  /**
-   * {@inheritdoc}
-   */
   public function execute(ParameterBag $params) {
     drupal_flush_all_caches();
     return TRUE;
