@@ -50,8 +50,7 @@ class RpcRequestFactory extends TransformationBase {
   public function __construct(HandlerInterface $handler, ContainerInterface $container) {
     $this->handler = $handler;
     $this->container = $container;
-    // TODO: Create a validator service and inject it from HttpController.
-    $this->validator = new Validator();
+    $this->validator = $container->get('jsonrpc.schema_validator');
   }
 
   /**
