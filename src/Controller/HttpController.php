@@ -2,15 +2,15 @@
 
 namespace Drupal\jsonrpc\Controller;
 
+use Drupal\Component\Serialization\Json;
 use Drupal\Core\Cache\CacheableJsonResponse;
 use Drupal\Core\Cache\CacheableResponseInterface;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\jsonrpc\Exception\JsonRpcException;
 use Drupal\jsonrpc\HandlerInterface;
-use Drupal\jsonrpc\Normalizer\RequestNormalizer;
 use Drupal\jsonrpc\Normalizer\ResponseNormalizer;
-use Drupal\jsonrpc\Object\Request as RpcRequest;
-use Drupal\jsonrpc\Object\Response as RpcResponse;
+use Drupal\jsonrpc\Shaper\RpcRequestFactory;
+use Shaper\Util\Context;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -26,6 +26,11 @@ class HttpController extends ControllerBase {
   protected $handler;
 
   /**
+   * @var \Symfony\Component\DependencyInjection\ContainerInterface
+   */
+  protected $container;
+
+  /**
    * The serializer.
    *
    * @var \Symfony\Component\Serializer\SerializerInterface
@@ -38,8 +43,9 @@ class HttpController extends ControllerBase {
    * @param \Drupal\jsonrpc\HandlerInterface $handler
    * @param \Symfony\Component\Serializer\SerializerInterface $serializer
    */
-  public function __construct(HandlerInterface $handler, SerializerInterface $serializer) {
+  public function __construct(HandlerInterface $handler, ContainerInterface $container, SerializerInterface $serializer) {
     $this->handler = $handler;
+    $this->container = $container;
     $this->serializer = $serializer;
   }
 
@@ -47,7 +53,11 @@ class HttpController extends ControllerBase {
    * {@inheritdoc}
    */
   public static function create(ContainerInterface $container) {
-    return new static($container->get('jsonrpc.handler'), $container->get('serializer'));
+    return new static(
+      $container->get('jsonrpc.handler'),
+      $container,
+      $container->get('serializer')
+    );
   }
 
   /**
@@ -95,19 +105,18 @@ class HttpController extends ControllerBase {
    * @throws \Drupal\jsonrpc\Exception\JsonRpcException
    */
   protected function getRpcRequests(Request $http_request) {
+    $version = $this->handler->supportedVersion();
     try {
-      $content = $http_request->getContent(FALSE);
-      $context = [
-        RequestNormalizer::REQUEST_VERSION_KEY => $this->handler->supportedVersion(),
-        'service_definition' => $this->handler,
-      ];
-      /* @var \Drupal\jsonrpc\Object\Request[] $deserialized */
-      return $this->serializer->deserialize($content, RpcRequest::class, 'json', $context);
-      return $deserialized;
+      $content = Json::decode($http_request->getContent(FALSE));
+      $context = new Context([
+        RpcRequestFactory::REQUEST_VERSION_KEY => $version,
+      ]);
+      $factory = new RpcRequestFactory($this->handler, $this->container);
+      return $factory->transform($content, $context);
     }
     catch (\Exception $e) {
       $id = (isset($content) && is_object($content) && isset($content->id)) ? $content->id : FALSE;
-      throw JsonRpcException::fromPrevious($e, $id, $this->handler->supportedVersion());
+      throw JsonRpcException::fromPrevious($e, $id, $version);
     }
   }
 
