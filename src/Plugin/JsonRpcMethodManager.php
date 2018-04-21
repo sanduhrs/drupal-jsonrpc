@@ -15,6 +15,7 @@ use Drupal\jsonrpc\MethodInterface;
 use Drupal\jsonrpc\Object\Error;
 use Drupal\jsonrpc\Object\Request;
 use Drupal\jsonrpc\Object\Response;
+use Drupal\jsonrpc\ParameterFactoryInterface;
 
 /**
  * Provides the JsonRpcMethod plugin plugin manager.
