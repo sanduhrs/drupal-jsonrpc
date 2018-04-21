@@ -2,9 +2,6 @@
 
 namespace Drupal\jsonrpc\Annotation;
 
-use Drupal\Component\Annotation\AnnotationBase;
-use Drupal\jsonrpc\ParameterFactory\TypedDataParameterFactory;
-use Drupal\jsonrpc\ParameterFactoryInterface;
 use Drupal\jsonrpc\ParameterInterface;
 
 /**
@@ -26,9 +23,6 @@ class JsonRpcParameter implements ParameterInterface {
 
   /**
    * The parameter schema.
-   *
-   * Required if a type name is not provided to the type name does not match a
-   * TypedData data type name.
    *
    * @var array
    */
