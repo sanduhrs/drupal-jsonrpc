@@ -3,16 +3,11 @@
 namespace Drupal\jsonrpc_core\Plugin\jsonrpc\Method;
 
 use Drupal\Core\Annotation\Translation;
-use Drupal\Core\Entity\EntityStorageException;
 use Drupal\jsonrpc\Annotation\JsonRpcMethod;
 use Drupal\jsonrpc\Annotation\JsonRpcParameter;
-use Drupal\jsonrpc\Exception\JsonRpcException;
-use Drupal\jsonrpc\Object\Error;
-use Drupal\jsonrpc\Object\ParameterBag;
 use Drupal\jsonrpc\Plugin\JsonRpcMethodBase;
 use Drupal\user\PermissionHandlerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Symfony\Component\Validator\ConstraintViolationInterface;
 
 /**
  * @JsonRpcMethod(
