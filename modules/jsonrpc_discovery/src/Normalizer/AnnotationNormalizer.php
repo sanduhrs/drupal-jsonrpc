@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\jsonrpc\Normalizer;
+namespace Drupal\jsonrpc_discovery\Normalizer;
 
 use Drupal\Component\Annotation\AnnotationInterface;
 use Drupal\Component\Assertion\Inspector;

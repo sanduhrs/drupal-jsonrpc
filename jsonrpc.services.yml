@@ -8,11 +8,5 @@ services:
     class: Drupal\jsonrpc\Handler
     arguments: ['@plugin.manager.jsonrpc_method']
 
-  serializer.normalizer.jsonrpc_annotation:
-    class: Drupal\jsonrpc\Normalizer\AnnotationNormalizer
-    public: false
-    tags:
-      - { name: normalizer }
-
   jsonrpc.schema_validator:
     class: JsonSchema\Validator

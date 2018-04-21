@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\jsonrpc\Controller;
+namespace Drupal\jsonrpc_discovery\Controller;
 
 use Drupal\Core\Cache\CacheableJsonResponse;
 use Drupal\Core\Cache\CacheableMetadata;
@@ -10,7 +10,7 @@ use Drupal\Core\Http\Exception\CacheableNotFoundHttpException;
 use Drupal\Core\Url;
 use Drupal\jsonrpc\HandlerInterface;
 use Drupal\jsonrpc\MethodInterface;
-use Drupal\jsonrpc\Normalizer\AnnotationNormalizer;
+use Drupal\jsonrpc_discovery\Normalizer\AnnotationNormalizer;
 use Drupal\serialization\Normalizer\NormalizerBase;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Serializer\SerializerInterface;
