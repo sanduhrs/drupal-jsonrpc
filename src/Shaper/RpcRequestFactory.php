@@ -1,7 +1,8 @@
 <?php
 
-namespace Drupal\jsonrpc\Normalizer;
+namespace Drupal\jsonrpc\Shaper;
 
+use Drupal\Component\Serialization\Json;
 use Drupal\Core\DependencyInjection\ContainerInjectionInterface;
 use Drupal\jsonrpc\Exception\JsonRpcException;
 use Drupal\jsonrpc\HandlerInterface;
@@ -10,21 +11,15 @@ use Drupal\jsonrpc\Object\ParameterBag;
 use Drupal\jsonrpc\Object\Request;
 use Drupal\jsonrpc\ParameterFactory\RawParameterFactory;
 use Drupal\jsonrpc\ParameterInterface;
+use JsonSchema\Validator;
+use Shaper\Transformation\TransformationBase;
+use Shaper\Util\Context;
+use Shaper\Validator\CollectionOfValidators;
+use Shaper\Validator\InstanceofValidator;
+use Shaper\Validator\JsonSchemaValidator;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
-use Symfony\Component\Serializer\SerializerAwareInterface;
-use Symfony\Component\Serializer\SerializerAwareTrait;
 
-class RequestNormalizer implements DenormalizerInterface, SerializerAwareInterface {
-
-  use SerializerAwareTrait;
-
-  /**
-   * The parent serializer.
-   *
-   * @var \Symfony\Component\Serializer\SerializerInterface|\Symfony\Component\Serializer\Normalizer\DenormalizerInterface
-   */
-  protected $serializer;
+class RpcRequestFactory extends TransformationBase {
 
   const REQUEST_ID_KEY = 'jsonrpc_request_id';
 
@@ -45,18 +40,38 @@ class RequestNormalizer implements DenormalizerInterface, SerializerAwareInterfa
   protected $container;
 
   /**
+   * @var \JsonSchema\Validator
+   */
+  protected $validator;
+
+  /**
    * {@inheritdoc}
    */
   public function __construct(HandlerInterface $handler, ContainerInterface $container) {
     $this->handler = $handler;
     $this->container = $container;
+    // TODO: Create a validator service and inject it from HttpController.
+    $this->validator = new Validator();
   }
 
   /**
    * {@inheritdoc}
    */
-  public function supportsDenormalization($data, $type, $format = NULL) {
-    return $type === Request::class && $format === 'json';
+  public function getInputValidator() {
+    $schema = Json::decode(file_get_contents('./request-schema.json'));
+    $schema_validator = new JsonSchemaValidator([
+      'type' => 'array',
+      'items' => $schema,
+    ]);
+    $schema_validator->setValidator($this->validator);
+    return $schema_validator;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getOutputValidator() {
+    return new CollectionOfValidators(new InstanceofValidator(Request::class));
   }
 
   /**
@@ -64,7 +79,7 @@ class RequestNormalizer implements DenormalizerInterface, SerializerAwareInterfa
    *
    * @throws \Drupal\jsonrpc\Exception\JsonRpcException
    */
-  public function denormalize($data, $class, $format = NULL, array $context = []) {
+  protected function doTransform($data, Context $context) {
     $context[static::REQUEST_IS_BATCH_REQUEST] = $this->isBatchRequest($data);
     // Treat everything as a batch of requests for uniformity.
     $data = $this->isBatchRequest($data) ? $data : [$data];
@@ -78,7 +93,7 @@ class RequestNormalizer implements DenormalizerInterface, SerializerAwareInterfa
    *
    * @param object $data
    *   The decoded JSON-RPC request to be denormalized.
-   * @param array $context
+   * @param \Shaper\Util\Context $context
    *   The denormalized JSON-RPC request.
    *
    * @return \Drupal\jsonrpc\Object\Request
@@ -86,7 +101,7 @@ class RequestNormalizer implements DenormalizerInterface, SerializerAwareInterfa
    *
    * @throws \Drupal\jsonrpc\Exception\JsonRpcException
    */
-  protected function denormalizeRequest($data, array $context) {
+  protected function denormalizeRequest($data, Context $context) {
     $id = isset($data['id']) ? $data['id'] : FALSE;
     $context[static::REQUEST_ID_KEY] = $id;
     $context[static::REQUEST_VERSION_KEY] = $this->handler->supportedVersion();
@@ -100,7 +115,7 @@ class RequestNormalizer implements DenormalizerInterface, SerializerAwareInterfa
    *
    * @param object $data
    *   The decoded JSON-RPC request to be denormalized.
-   * @param array $context
+   * @param \Shaper\Util\Context $context
    *   The denormalized JSON-RPC request.
    *
    * @return \Drupal\jsonrpc\Object\ParameterBag|null
@@ -108,7 +123,7 @@ class RequestNormalizer implements DenormalizerInterface, SerializerAwareInterfa
    *
    * @throws \Drupal\jsonrpc\Exception\JsonRpcException
    */
-  protected function denormalizeParams($data, array $context) {
+  protected function denormalizeParams($data, Context $context) {
     if (!$this->handler->supportsMethod($data['method'])) {
       throw $this->newException(Error::methodNotFound($data['method']), $context);
     }
@@ -151,11 +166,28 @@ class RequestNormalizer implements DenormalizerInterface, SerializerAwareInterfa
     $factory = $container_injection
       ? call_user_func_array([$factory_class, 'create'], [$this->container])
       : new $factory_class();
-    if (!static::doValidation($argument, $factory->schema($parameter))) {
+    // TODO: Refactor the parameter factory as Shaper transformations. Remove this doValidation method.
+    if (!$this->doValidation($argument, $factory->schema($parameter))) {
       $message = "The {$parameter->getId()} parameter does not conform to the parameter schema.";
       throw JsonRpcException::fromError(Error::invalidParams($message));
     }
     return $factory->convert($argument, $parameter);
+  }
+
+  /**
+   * Validate the input value using the declared schema.
+   *
+   * @param mixed $input
+   *   A raw value to be converted to a parameter for a JSON-RPC request. The
+   *   raw value must conform to the schema.
+   * @param array $schema
+   *   A parameter definition for the method parameter being constructed.
+   *
+   * @return bool
+   */
+  protected function doValidation($input, $schema) {
+    $valid = TRUE;
+    return $valid;
   }
 
   /**
@@ -185,33 +217,16 @@ class RequestNormalizer implements DenormalizerInterface, SerializerAwareInterfa
   }
 
   /**
-   * Validate the input value using the declared schema.
-   *
-   * @param mixed $input
-   *   A raw value to be converted to a parameter for a JSON-RPC request. The
-   *   raw value must conform to the schema.
-   * @param array $schema
-   *   A parameter definition for the method parameter being constructed.
-   *
-   * @return bool
-   */
-  protected function doValidation($input, $schema) {
-    // @todo: actually do validation.
-    $valid = TRUE;
-    return $valid;
-  }
-
-  /**
    * Helper for creating an error RPC response exception.
    *
    * @param \Drupal\jsonrpc\Object\Error $error
    *   The JSON-RPC Error.
-   * @param array $context
+   * @param \Shaper\Util\Context $context
    *   The JSON-RPC request context.
    *
    * @return \Drupal\jsonrpc\Exception\JsonRpcException
    */
-  protected function newException(Error $error, array $context) {
+  protected function newException(Error $error, Context $context) {
     return JsonRpcException::fromError($error, $context[static::REQUEST_ID_KEY], $context[static::REQUEST_VERSION_KEY]);
   }
 
