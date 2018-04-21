@@ -90,6 +90,14 @@ class Handler implements HandlerInterface {
    *   The JSON-RPC response.
    */
   protected function doRequest(Request $request) {
+    // Helper closure to handle eventual exceptions.
+    $handle_exception = function ($e, Request $request) {
+      if (!$e instanceof JsonRpcException) {
+        $id = $request->isNotification() ? FALSE : $request->id();
+        $e = JsonRpcException::fromPrevious($e, $id);
+      }
+      return $e->getResponse();
+    };
     try {
       $result = $this->doExecution($request);
       if ($request->isNotification()) {
@@ -102,13 +110,13 @@ class Handler implements HandlerInterface {
       $result_schema = call_user_func([$methodPluginClass, 'outputSchema']);
       $rpc_response->setResultSchema($result_schema);
       return $rpc_response;
-    }
-    catch (\Exception $e) {
-      if (!$e instanceof JsonRpcException) {
-        $id = $request->isNotification() ? FALSE : $request->id();
-        $e = JsonRpcException::fromPrevious($e, $id);
-      }
-      return $e->getResponse();
+    // Catching Throwable allows us to recover from more kinds of exceptions
+    // that might occur in badly written 3rd party code.
+    } catch (\Throwable $e) {
+      $handle_exception($e, $request);
+    // @TODO: Remove the following when PHP7 is the minimum supported version.
+    } catch (\Exception $e) {
+      $handle_exception($e, $request);
     }
   }
 

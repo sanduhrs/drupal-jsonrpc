@@ -43,7 +43,7 @@ class JsonRpcException extends \Exception implements CacheableDependencyInterfac
   /**
    * Constructs a JsonRpcException from an arbitrary exception.
    *
-   * @param \Exception $previous
+   * @param \Throwable|\Exception $previous
    *   An arbitrary exception.
    * @param mixed $id
    *   The request ID, if available.
@@ -52,7 +52,7 @@ class JsonRpcException extends \Exception implements CacheableDependencyInterfac
    *
    * @return static
    */
-  public static function fromPrevious(\Exception $previous, $id = FALSE, $version = NULL) {
+  public static function fromPrevious($previous, $id = FALSE, $version = NULL) {
     if ($previous instanceof JsonRpcException) {
       // Ensures that the ID and version context information are set because it
       // might not have been set or accessible at a lower level.
