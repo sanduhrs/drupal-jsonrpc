@@ -2,17 +2,17 @@
 
 namespace Drupal\jsonrpc\Annotation;
 
-use Drupal\jsonrpc\ParameterInterface;
+use Drupal\jsonrpc\ParameterDefinitionInterface;
 
 /**
- * Defines a JsonRpcParameter annotation object.
+ * Defines a JsonRpcParameterDefinition annotation object.
  *
  * @see \Drupal\jsonrpc\Plugin\JsonRpcServiceManager
  * @see plugin_api
  *
  * @Annotation
  */
-class JsonRpcParameter implements ParameterInterface {
+class JsonRpcParameterDefinition implements ParameterDefinitionInterface {
 
   /**
    * The name of the parameter if the params are by-name, an offset otherwise.

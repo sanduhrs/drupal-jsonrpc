@@ -2,7 +2,8 @@
 
 namespace Drupal\jsonrpc\ParameterFactory;
 
-use Drupal\jsonrpc\ParameterInterface;
+use Drupal\jsonrpc\ParameterDefinitionInterface;
+use Shaper\Util\Context;
 
 /**
  * Class RawParameterFactory just returns the raw parameter.
@@ -11,12 +12,23 @@ use Drupal\jsonrpc\ParameterInterface;
  */
 class RawParameterFactory extends ParameterFactoryBase {
 
-  public static function schema(ParameterInterface $parameter) {
-    return $parameter->getSchema();
+  public static function schema(ParameterDefinitionInterface $parameter_definition) {
+    return $parameter_definition->getSchema();
   }
 
-  public function convert($input, ParameterInterface $parameter) {
-    return $input;
+  /**
+   * {@inheritdoc}
+   */
+  public function getOutputValidator() {
+    // The input is the same as the output.
+    return $this->getInputValidator();
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function doTransform($data, Context $context = NULL) {
+    return $data;
   }
 
 }

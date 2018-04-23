@@ -2,14 +2,15 @@
 
 namespace Drupal\jsonrpc\ParameterFactory;
 
-use Drupal\jsonrpc\ParameterInterface;
+use Drupal\jsonrpc\ParameterDefinitionInterface;
+use Shaper\Util\Context;
 
 class PaginationParameterFactory extends ParameterFactoryBase {
 
   /**
    * {@inheritdoc}
    */
-  public static function schema(ParameterInterface $parameter) {
+  public static function schema(ParameterDefinitionInterface $parameter_definition) {
     return [
       'type' => 'object',
       'properties' => [

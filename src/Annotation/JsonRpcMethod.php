@@ -8,7 +8,7 @@ use Drupal\Core\Session\AccountInterface;
 use Drupal\jsonrpc\MethodInterface;
 
 /**
- * Defines a JsonRpcParameter annotation object.
+ * Defines a JsonRpcParameterDefinition annotation object.
  *
  * @see \Drupal\jsonrpc\Plugin\JsonRpcServiceManager
  * @see plugin_api
@@ -49,7 +49,7 @@ class JsonRpcMethod extends AnnotationBase implements MethodInterface {
    * Can be a keyed array where the parameter names are the keys or an indexed
    * array for positional parameters.
    *
-   * @var \Drupal\jsonrpc\Annotation\JsonRpcParameter[]
+   * @var \Drupal\jsonrpc\Annotation\JsonRpcParameterDefinition[]
    */
   public $params;
 

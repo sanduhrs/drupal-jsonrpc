@@ -2,7 +2,7 @@
 
 namespace Drupal\jsonrpc;
 
-interface ParameterInterface {
+interface ParameterDefinitionInterface {
 
   /**
    * The name of the parameter if the params are by-name, an offset otherwise.

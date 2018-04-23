@@ -73,7 +73,7 @@ class JsonRpcMethodManager extends DefaultPluginManager {
   protected function assertValidJsonRpcMethodPlugin($method) {
     foreach ($method->params as $param) {
       if (!$param->factory && !$param->schema) {
-        throw new InvalidPluginDefinitionException($method->id(), "Every JsonRpcParameter must define either a factory or a schema.");
+        throw new InvalidPluginDefinitionException($method->id(), "Every JsonRpcParameterDefinition must define either a factory or a schema.");
       }
       if ($param->factory && !is_subclass_of($param->factory, ParameterFactoryInterface::class)) {
         throw new InvalidPluginDefinitionException($method->id(), "Parameter factories must implement ParameterFactoryInterface.");

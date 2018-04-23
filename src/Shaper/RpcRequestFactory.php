@@ -10,7 +10,7 @@ use Drupal\jsonrpc\Object\Error;
 use Drupal\jsonrpc\Object\ParameterBag;
 use Drupal\jsonrpc\Object\Request;
 use Drupal\jsonrpc\ParameterFactory\RawParameterFactory;
-use Drupal\jsonrpc\ParameterInterface;
+use Drupal\jsonrpc\ParameterDefinitionInterface;
 use JsonSchema\Constraints\Constraint;
 use JsonSchema\Validator;
 use Shaper\Transformation\TransformationBase;
@@ -147,7 +147,7 @@ class RpcRequestFactory extends TransformationBase {
    *
    * @param mixed $argument
    *   The decoded JSON-RPC request parameter to be denormalized.
-   * @param \Drupal\jsonrpc\ParameterInterface $parameter
+   * @param \Drupal\jsonrpc\ParameterDefinitionInterface $parameter_definition
    *   The JSON-RPC request's parameter definition.
    *
    * @return mixed
