@@ -29,8 +29,16 @@ class PaginationParameterFactory extends ParameterFactoryBase {
   /**
    * {@inheritdoc}
    */
-  public function convert($input, ParameterInterface $parameter) {
-    return $input;
+  public function getOutputValidator() {
+    // The input is the same as the output.
+    return $this->getInputValidator();
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function doTransform($data, Context $context = NULL) {
+    return $data;
   }
 
 }

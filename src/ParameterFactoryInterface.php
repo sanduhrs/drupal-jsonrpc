@@ -2,31 +2,33 @@
 
 namespace Drupal\jsonrpc;
 
+use Symfony\Component\DependencyInjection\ContainerInterface;
+
 interface ParameterFactoryInterface {
 
   /**
    * An array representing the JSON Schema for acceptable input to the factory.
    *
-   * @param \Drupal\jsonrpc\ParameterInterface $parameter
+   * @param \Drupal\jsonrpc\ParameterDefinitionInterface $parameter_definition
    *   A parameter definition for the method parameter being constructed.
    *
    * @return array
    */
-  public static function schema(ParameterInterface $parameter);
+  public static function schema(ParameterDefinitionInterface $parameter_definition);
 
   /**
-   * Returns an object to be passed to the JSON-RPC method in place of raw data.
+   * Instantiates a new instance of this class.
    *
-   * @param mixed $input
-   *   A raw value to be converted to a parameter for a JSON-RPC request. The
-   *   raw value will conform to the schema returned by the schema method.
-   * @param \Drupal\jsonrpc\ParameterInterface $parameter
-   *   A parameter definition for the method parameter being constructed.
+   * This is a factory method that returns a new instance of this class. The
+   * factory should pass any needed dependencies into the constructor of this
+   * class, but not the container itself. Every call to this method must return
+   * a new instance of this class; that is, it may not implement a singleton.
    *
-   * @return mixed
-   *
-   * @throws \Drupal\jsonrpc\Exception\JsonRpcException
+   * @param \Drupal\jsonrpc\ParameterDefinitionInterface $definition
+   *   The parameter definition for parameters of this type.
+   * @param \Symfony\Component\DependencyInjection\ContainerInterface $container
+   *   The service container this instance should use.
    */
-  public function convert($input, ParameterInterface $parameter);
+  public static function create(ParameterDefinitionInterface $definition, ContainerInterface $container);
 
 }

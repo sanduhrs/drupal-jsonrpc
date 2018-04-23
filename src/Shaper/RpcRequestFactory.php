@@ -134,6 +134,7 @@ class RpcRequestFactory extends TransformationBase {
     $arguments = [];
     $positional = $method->areParamsPositional();
     foreach ($params as $key => $param) {
+      // TODO: Only force the presence of required parameters.
       if (!isset($data['params'][$key])) {
         throw $this->newException(Error::invalidParams("Missing parameter: $key"), $context);
       }
@@ -155,18 +156,20 @@ class RpcRequestFactory extends TransformationBase {
    *
    * @throws \Drupal\jsonrpc\Exception\JsonRpcException
    */
-  protected function denormalizeParam($argument, ParameterInterface $parameter) {
-    $factory_class = $parameter->getFactory() ?: RawParameterFactory::class;
-    $container_injection = in_array(ContainerInjectionInterface::class, class_implements($factory_class));
-    $factory = $container_injection
-      ? call_user_func_array([$factory_class, 'create'], [$this->container])
-      : new $factory_class();
-    // TODO: Refactor the parameter factory as Shaper transformations. Remove this doValidation method.
-    if (!$this->doValidation($argument, $factory->schema($parameter))) {
-      $message = "The {$parameter->getId()} parameter does not conform to the parameter schema.";
+  protected function denormalizeParam($argument, ParameterDefinitionInterface $parameter_definition) {
+    $factory_class = $parameter_definition->getFactory() ?: RawParameterFactory::class;
+    $factory = call_user_func_array([$factory_class, 'create'], [$parameter_definition, $this->container]);
+    $context = new Context([
+      ParameterDefinitionInterface::class => $parameter_definition,
+    ]);
+    try {
+      // TODO: Wrap other shaper transformations in a similar way for nicer error outputs.
+      return $factory->transform($argument, $context);
+    }
+    catch (\TypeError $exception) {
+      $message = "The {$parameter_definition->getId()} parameter does not conform to the parameter schema. {$exception->getMessage()}";
       throw JsonRpcException::fromError(Error::invalidParams($message));
     }
-    return $factory->convert($argument, $parameter);
   }
 
   /**

@@ -63,7 +63,7 @@ class JsonRpcParameterDefinition implements ParameterDefinitionInterface {
    */
   public function getSchema() {
     if (!isset($this->schema) && isset($this->factory)) {
-      $this->schema = $this->factory->schema($this);
+      $this->schema = call_user_func_array([$this->factory, 'schema'], [$this]);
     }
     return $this->schema;
   }

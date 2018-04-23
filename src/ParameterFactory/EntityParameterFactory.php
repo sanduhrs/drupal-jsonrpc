@@ -2,11 +2,15 @@
 
 namespace Drupal\jsonrpc\ParameterFactory;
 
+use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityRepositoryInterface;
 use Drupal\Core\Entity\EntityStorageException;
 use Drupal\jsonrpc\Exception\JsonRpcException;
 use Drupal\jsonrpc\Object\Error;
-use Drupal\jsonrpc\ParameterInterface;
+use Drupal\jsonrpc\ParameterDefinitionInterface;
+use JsonSchema\Validator;
+use Shaper\Util\Context;
+use Shaper\Validator\InstanceofValidator;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 class EntityParameterFactory extends ParameterFactoryBase {
@@ -21,20 +25,29 @@ class EntityParameterFactory extends ParameterFactoryBase {
   /**
    * EntityParameterFactory constructor.
    *
+   * @param \JsonSchema\Validator $validator
    * @param \Drupal\Core\Entity\EntityRepositoryInterface $entity_repository
    */
-  public function __construct(EntityRepositoryInterface $entity_repository) {
+  public function __construct(Validator $validator, EntityRepositoryInterface $entity_repository) {
+    parent::__construct($validator);
     $this->entityRepository = $entity_repository;
   }
 
   /**
    * {@inheritdoc}
    */
-  public static function create(ContainerInterface $container) {
-    return new static($container->get('entity.repository'));
+  public static function create(ParameterDefinitionInterface $definition, ContainerInterface $container) {
+    return new static(
+      $definition,
+      $container->get('jsonrpc.schema_validator'),
+      $container->get('entity.repository')
+    );
   }
 
-  public static function schema(ParameterInterface $parameter) {
+  /**
+   * {@inheritdoc}
+   */
+  public static function schema(ParameterDefinitionInterface $parameter_definition = NULL) {
     return [
       'type' => 'object',
       'properties' => [
@@ -47,9 +60,16 @@ class EntityParameterFactory extends ParameterFactoryBase {
   /**
    * {@inheritdoc}
    */
-  public function convert($input, ParameterInterface $parameter) {
+  public function getOutputValidator() {
+    return new InstanceofValidator(EntityInterface::class);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function doTransform($data, Context $context = NULL) {
     try {
-      if ($entity = $this->entityRepository->loadEntityByUuid($input['type'], $input['uuid'])) {
+      if ($entity = $this->entityRepository->loadEntityByUuid($data['type'], $data['uuid'])) {
         return $entity;
       }
       throw JsonRpcException::fromError(Error::invalidParams('The requested entity could not be found.'));
