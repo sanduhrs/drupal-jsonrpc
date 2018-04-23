@@ -5,7 +5,7 @@ namespace Drupal\jsonrpc_core\Plugin\jsonrpc\Method;
 use Drupal\Core\Annotation\Translation;
 use Drupal\Core\Entity\EntityStorageException;
 use Drupal\jsonrpc\Annotation\JsonRpcMethod;
-use Drupal\jsonrpc\Annotation\JsonRpcParameter;
+use Drupal\jsonrpc\Annotation\JsonRpcParameterDefinition;
 use Drupal\jsonrpc\Exception\JsonRpcException;
 use Drupal\jsonrpc\Object\Error;
 use Drupal\jsonrpc\Object\ParameterBag;
@@ -20,7 +20,7 @@ use Symfony\Component\Validator\ConstraintViolationInterface;
  *   usage = @Translation("List all the permissions available in the site."),
  *   access = {"administer permissions"},
  *   params = {
- *     "page" = @JsonRpcParameter(factory = "\Drupal\jsonrpc\ParameterFactory\PaginationParameterFactory"),
+ *     "page" = @JsonRpcParameterDefinition(factory = "\Drupal\jsonrpc\ParameterFactory\PaginationParameterFactory"),
  *   }
  * )
  */

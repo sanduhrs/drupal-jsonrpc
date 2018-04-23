@@ -5,13 +5,10 @@ namespace Drupal\jsonrpc_core\Plugin\jsonrpc\Method;
 use Drupal\Core\Annotation\Translation;
 use Drupal\Core\Entity\EntityStorageException;
 use Drupal\jsonrpc\Annotation\JsonRpcMethod;
-use Drupal\jsonrpc\Annotation\JsonRpcParameter;
+use Drupal\jsonrpc\Annotation\JsonRpcParameterDefinition;
 use Drupal\jsonrpc\Exception\JsonRpcException;
 use Drupal\jsonrpc\Object\Error;
 use Drupal\jsonrpc\Object\ParameterBag;
-use Drupal\jsonrpc\Plugin\JsonRpcMethodBase;
-use Drupal\user\PermissionHandlerInterface;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Validator\ConstraintViolationInterface;
 
 /**
@@ -20,8 +17,8 @@ use Symfony\Component\Validator\ConstraintViolationInterface;
  *   usage = @Translation("Add the given permission to the specified role."),
  *   access = {"administer permissions"},
  *   params = {
- *     "permission" = @JsonRpcParameter(schema = {"type": "string"}),
- *     "role" = @JsonRpcParameter(factory = "\Drupal\jsonrpc\ParameterFactory\EntityParameterFactory"),
+ *     "permission" = @JsonRpcParameterDefinition(schema = {"type": "string"}),
+ *     "role" = @JsonRpcParameterDefinition(factory = "\Drupal\jsonrpc\ParameterFactory\EntityParameterFactory"),
  *   }
  * )
  */

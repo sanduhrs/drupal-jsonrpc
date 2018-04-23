@@ -5,7 +5,6 @@ namespace Drupal\jsonrpc_core\Plugin\jsonrpc\Method;
 use Drupal\Component\Plugin\PluginManagerInterface;
 use Drupal\Core\Annotation\Translation;
 use Drupal\jsonrpc\Annotation\JsonRpcMethod;
-use Drupal\jsonrpc\Annotation\JsonRpcParameter;
 use Drupal\jsonrpc\Exception\JsonRpcException;
 use Drupal\jsonrpc\HandlerInterface;
 use Drupal\jsonrpc\Object\Error;
@@ -22,8 +21,8 @@ use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
  *   usage = @Translation("List defined plugins."),
  *   access = {"administer site configuration"},
  *   params = {
- *     "page" = @JsonRpcParameter(factory = "\Drupal\jsonrpc\ParameterFactory\PaginationParameterFactory"),
- *     "service" = @JsonRpcParameter(schema={"type"="string"}),
+ *     "page" = @JsonRpcParameterDefinition(factory = "\Drupal\jsonrpc\ParameterFactory\PaginationParameterFactory"),
+ *     "service" = @JsonRpcParameterDefinition(schema={"type"="string"}),
  *   }
  * )
  */

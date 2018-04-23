@@ -6,7 +6,7 @@ use Drupal\Component\Annotation\AnnotationInterface;
 use Drupal\Component\Assertion\Inspector;
 use Drupal\Core\Url;
 use Drupal\jsonrpc\Annotation\JsonRpcMethod;
-use Drupal\jsonrpc\Annotation\JsonRpcParameter;
+use Drupal\jsonrpc\Annotation\JsonRpcParameterDefinition;
 use Drupal\serialization\Normalizer\NormalizerBase;
 
 class AnnotationNormalizer extends NormalizerBase {
@@ -28,7 +28,7 @@ class AnnotationNormalizer extends NormalizerBase {
    */
   protected $supportedInterfaceOrClass = [
     JsonRpcMethod::class,
-    JsonRpcParameter::class,
+    JsonRpcParameterDefinition::class,
   ];
 
   /**
@@ -71,7 +71,7 @@ class AnnotationNormalizer extends NormalizerBase {
         'collection' => $collection->getGeneratedUrl(),
       ];
     }
-    if ($object instanceof JsonRpcParameter) {
+    if ($object instanceof JsonRpcParameterDefinition) {
       $normalized['schema'] = $object->getSchema();
     }
     return $normalized;
@@ -82,8 +82,8 @@ class AnnotationNormalizer extends NormalizerBase {
       case JsonRpcMethod::class:
         return 'JsonRpcMethod';
 
-      case JsonRpcParameter::class:
-        return 'JsonRpcParameter';
+      case JsonRpcParameterDefinition::class:
+        return 'JsonRpcParameterDefinition';
 
       default:
         return get_class($annotation);
