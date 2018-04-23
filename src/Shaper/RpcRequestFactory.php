@@ -173,22 +173,6 @@ class RpcRequestFactory extends TransformationBase {
   }
 
   /**
-   * Validate the input value using the declared schema.
-   *
-   * @param mixed $input
-   *   A raw value to be converted to a parameter for a JSON-RPC request. The
-   *   raw value must conform to the schema.
-   * @param array $schema
-   *   A parameter definition for the method parameter being constructed.
-   *
-   * @return bool
-   */
-  protected function doValidation($input, $schema) {
-    $valid = TRUE;
-    return $valid;
-  }
-
-  /**
    * Determine if the request is a batch request.
    *
    * @param array $data

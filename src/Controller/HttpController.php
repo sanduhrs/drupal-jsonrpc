@@ -189,7 +189,7 @@ class HttpController extends ControllerBase {
     ]);
     $normalizer = new RpcResponseNormalizer($this->validator);
     $rpc_response = $e->getResponse();
-    $serialized = $normalizer->transform($rpc_response, $context);
+    $serialized = Json::encode($normalizer->transform([$rpc_response], $context));
     $response = CacheableJsonResponse::fromJsonString($serialized, $status);
     return $response->addCacheableDependency($rpc_response);
   }

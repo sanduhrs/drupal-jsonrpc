@@ -7,6 +7,15 @@
   "properties": {
     "jsonrpc": { "type": "string", "enum": ["2.0"] },
     "result": { "type": ["object", "array"] },
+    "error": {
+      "type": "object",
+      "required": ["code", "message"],
+      "properties": {
+        "code": { "type": "number" },
+        "message": { "type": "string" },
+        "data": { "type": ["string", "number", "boolean", "null", "array", "object"] }
+      }
+    },
     "id": { "type": ["number", "string", "null"] }
   }
 }
