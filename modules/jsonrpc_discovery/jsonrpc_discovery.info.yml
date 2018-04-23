@@ -4,4 +4,5 @@ description: JSON-RPC 2.0 discovery features.
 core: 8.x
 package: Web services
 dependencies:
+  - serialization:serialization
   - jsonrpc:jsonrpc
