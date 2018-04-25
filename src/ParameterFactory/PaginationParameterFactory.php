@@ -37,7 +37,7 @@ class PaginationParameterFactory extends ParameterFactoryBase {
   /**
    * {@inheritdoc}
    */
-  public function doTransform($data, Context $context = NULL) {
+  protected function doTransform($data, Context $context = NULL) {
     return $data;
   }
 

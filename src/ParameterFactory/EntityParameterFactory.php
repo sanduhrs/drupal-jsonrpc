@@ -67,7 +67,7 @@ class EntityParameterFactory extends ParameterFactoryBase {
   /**
    * {@inheritdoc}
    */
-  public function doTransform($data, Context $context = NULL) {
+  protected function doTransform($data, Context $context = NULL) {
     try {
       if ($entity = $this->entityRepository->loadEntityByUuid($data['type'], $data['uuid'])) {
         return $entity;
