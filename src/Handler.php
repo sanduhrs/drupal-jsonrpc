@@ -110,13 +110,15 @@ class Handler implements HandlerInterface {
       $result_schema = call_user_func([$methodPluginClass, 'outputSchema']);
       $rpc_response->setResultSchema($result_schema);
       return $rpc_response;
+    }
     // Catching Throwable allows us to recover from more kinds of exceptions
     // that might occur in badly written 3rd party code.
-    } catch (\Throwable $e) {
-      $handle_exception($e, $request);
+    catch (\Throwable $e) {
+      return $handle_exception($e, $request);
+    }
     // @TODO: Remove the following when PHP7 is the minimum supported version.
-    } catch (\Exception $e) {
-      $handle_exception($e, $request);
+    catch (\Exception $e) {
+      return $handle_exception($e, $request);
     }
   }
 
