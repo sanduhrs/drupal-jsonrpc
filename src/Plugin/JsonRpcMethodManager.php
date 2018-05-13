@@ -36,10 +36,6 @@ class JsonRpcMethodManager extends DefaultPluginManager {
    *   The module handler to invoke the alter hook with.
    */
   public function __construct(\Traversable $namespaces, CacheBackendInterface $cache_backend, ModuleHandlerInterface $module_handler) {
-    // The following two lines prevent other modules from implementing RPC
-    // methods. For now, all implementations should remain internal until the
-    // plugin API is finalized.
-    $namespaces = $this->getWhitelistedNamespaces($module_handler);
     $this->alterInfo(FALSE);
     parent::__construct('Plugin/jsonrpc/Method', $namespaces, $module_handler, NULL, JsonRpcMethod::class);
     $this->setCacheBackend($cache_backend, 'jsonrpc_plugins');
@@ -79,34 +75,6 @@ class JsonRpcMethodManager extends DefaultPluginManager {
         throw new InvalidPluginDefinitionException($method->id(), "Parameter factories must implement ParameterFactoryInterface.");
       }
     }
-  }
-
-
-  /**
-   * Gets a traversable list of namespaces to look for plugins.
-   *
-   * Until the API is finalized, sites need to specifically opt-in modules using
-   * these experimental APIs to acknowledge the high risk of failure.
-   *
-   * Contrib modules which are found to automatically add themselves to this
-   * list without site administrator approval will trigger warnings.
-   *
-   * @param \Drupal\Core\Extension\ModuleHandlerInterface $module_handler
-   *
-   * @return \Traversable
-   */
-  protected function getWhitelistedNamespaces(ModuleHandlerInterface $module_handler) {
-    $config = \Drupal::config('jsonrpc')->get('experimental_modules.whitelist') ?: [];
-    $modules_whitelist = ['jsonrpc_core'] + $config;
-    $namespaces = array_reduce($modules_whitelist, function ($whitelist, $module) use ($module_handler) {
-      if (!$module_handler->moduleExists($module)) {
-        return $whitelist;
-      }
-      $module_directory = $module_handler->getModule($module)->getPath();
-      $whitelist["Drupal\\$module"] = "$module_directory/src";
-      return $whitelist;
-    }, []);
-    return new \ArrayIterator($namespaces);
   }
 
 }
