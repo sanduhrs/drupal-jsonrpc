@@ -99,6 +99,9 @@ class JsonRpcMethodManager extends DefaultPluginManager {
     $config = \Drupal::config('jsonrpc')->get('experimental_modules.whitelist') ?: [];
     $modules_whitelist = ['jsonrpc_core'] + $config;
     $namespaces = array_reduce($modules_whitelist, function ($whitelist, $module) use ($module_handler) {
+      if (!$module_handler->moduleExists($module)) {
+        return $whitelist;
+      }
       $module_directory = $module_handler->getModule($module)->getPath();
       $whitelist["Drupal\\$module"] = "$module_directory/src";
       return $whitelist;
