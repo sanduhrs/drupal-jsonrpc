@@ -101,7 +101,12 @@ class HttpController extends ControllerBase {
   protected function getRpcRequests(Request $http_request) {
     $version = $this->handler->supportedVersion();
     try {
-      $content = Json::decode($http_request->getContent(FALSE));
+      if ($http_request->getMethod() === Request::METHOD_POST) {
+        $content = Json::decode($http_request->getContent(FALSE));
+      }
+      else if ($http_request->getMethod() === Request::METHOD_GET) {
+        $content = Json::decode($http_request->query->get('query'));
+      }
       $context = new Context([
         RpcRequestFactory::REQUEST_VERSION_KEY => $version,
       ]);

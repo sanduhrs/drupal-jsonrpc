@@ -3,12 +3,12 @@
 namespace Drupal\jsonrpc\Object;
 
 use Drupal\Core\Cache\CacheableDependencyInterface;
-use Drupal\Core\Cache\CacheableDependencyTrait;
 use Drupal\Core\Cache\CacheableMetadata;
+use Drupal\Core\Cache\RefinableCacheableDependencyTrait;
 
 class Response implements CacheableDependencyInterface {
 
-  use CacheableDependencyTrait;
+  use RefinableCacheableDependencyTrait;
 
   /**
    * The JSON-RPC version.
@@ -64,7 +64,6 @@ class Response implements CacheableDependencyInterface {
     $this->id = $id;
     if (!is_null($result)) {
       $this->result = $result;
-      $this->setCacheability(CacheableMetadata::createFromObject($result));
     }
     else {
       $this->error = $error;
