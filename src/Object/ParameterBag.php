@@ -46,7 +46,7 @@ class ParameterBag {
    */
   public function get($key) {
     $this->ensure($key);
-    return $this->parameters[$key];
+    return isset($this->parameters[$key]) ? $this->parameters[$key] : NULL;
   }
 
   /**
@@ -80,9 +80,7 @@ class ParameterBag {
    *   When the parameter is not present in the bag.
    */
   protected function ensure($key) {
-    if (!$this->has($key)) {
-      throw new \InvalidArgumentException('The parameter does not exist.');
-    }
+    $this->checkKeyIsValid($key);
   }
 
   /**

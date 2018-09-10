@@ -24,6 +24,14 @@ interface ParameterDefinitionInterface {
   public function getDescription();
 
   /**
+   * Whether the parameter is required.
+   *
+   * @return bool
+   *   True if this is a required parameter.
+   */
+  public function isRequired();
+
+  /**
    * Gets the parameter schema.
    *
    * Can be derived from the type when the schema property is not defined.

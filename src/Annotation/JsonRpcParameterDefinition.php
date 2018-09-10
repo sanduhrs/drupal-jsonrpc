@@ -45,6 +45,13 @@ class JsonRpcParameterDefinition implements ParameterDefinitionInterface {
   public $factory;
 
   /**
+   * Whether the parameter is required.
+   *
+   * @var bool
+   */
+  public $required;
+
+  /**
    * {@inheritdoc}
    */
   public function getFactory() {
@@ -56,6 +63,13 @@ class JsonRpcParameterDefinition implements ParameterDefinitionInterface {
    */
   public function getDescription() {
     return $this->description;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function isRequired() {
+    return isset($this->required) ? $this->required : FALSE;
   }
 
   /**

@@ -115,8 +115,8 @@ class Request {
    *   The parameter.
    */
   public function getParameter($key) {
-    if ($this->hasParams() && $this->params->has($key)) {
-      return $this->params->get($key);
+    if ($this->hasParams() && ($param_value = $this->getParams()->get($key))) {
+      return $param_value;
     }
     return NULL;
   }

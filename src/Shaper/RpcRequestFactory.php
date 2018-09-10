@@ -140,11 +140,13 @@ class RpcRequestFactory extends TransformationBase {
     $arguments = [];
     $positional = $method->areParamsPositional();
     foreach ($params as $key => $param) {
-      // TODO: Only force the presence of required parameters.
-      if (!isset($data['params'][$key])) {
-        throw $this->newException(Error::invalidParams("Missing parameter: $key"), $context);
+      if (isset($data['params'][$key])) {
+        $arguments[$key] = $this->denormalizeParam($data['params'][$key], $param);
       }
-      $arguments[$key] = $this->denormalizeParam($data['params'][$key], $param);
+      // Only force the presence of required parameters.
+      elseif ($param->isRequired()) {
+        throw $this->newException(Error::invalidParams("Missing required parameter: $key"), $context);
+      }
     }
     return new ParameterBag($arguments, $positional);
   }

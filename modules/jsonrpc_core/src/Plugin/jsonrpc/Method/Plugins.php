@@ -20,7 +20,10 @@ use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
  *   access = {"administer site configuration"},
  *   params = {
  *     "page" = @JsonRpcParameterDefinition(factory = "\Drupal\jsonrpc\ParameterFactory\PaginationParameterFactory"),
- *     "service" = @JsonRpcParameterDefinition(schema={"type"="string"}),
+ *     "service" = @JsonRpcParameterDefinition(
+ *       schema={"type"="string"},
+ *       required=true
+ *     ),
  *   }
  * )
  */
