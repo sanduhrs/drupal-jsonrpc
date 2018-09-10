@@ -11,6 +11,7 @@ interface ParameterDefinitionInterface {
    * The name of the parameter if the params are by-name, an offset otherwise.
    *
    * @return string|int
+   *   The ID.
    */
   public function getId();
 
@@ -18,6 +19,7 @@ interface ParameterDefinitionInterface {
    * The description of the parameter for the method.
    *
    * @return \Drupal\Core\StringTranslation\TranslatableMarkup
+   *   The description.
    */
   public function getDescription();
 
@@ -27,6 +29,7 @@ interface ParameterDefinitionInterface {
    * Can be derived from the type when the schema property is not defined.
    *
    * @return array
+   *   The schema.
    */
   public function getSchema();
 
@@ -34,6 +37,7 @@ interface ParameterDefinitionInterface {
    * Get the parameter factory class.
    *
    * @return string
+   *   The parameter factory.
    */
   public function getFactory();
 

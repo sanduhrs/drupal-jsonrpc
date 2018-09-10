@@ -7,6 +7,7 @@ use Drupal\Core\Plugin\DefaultPluginManager;
 use Drupal\Core\Cache\CacheBackendInterface;
 use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\jsonrpc\Annotation\JsonRpcMethod;
+use Drupal\jsonrpc\MethodInterface;
 use Drupal\jsonrpc\ParameterFactoryInterface;
 
 /**
@@ -52,12 +53,12 @@ class JsonRpcMethodManager extends DefaultPluginManager {
   /**
    * Asserts that the plugin class is valid.
    *
-   * @param \Drupal\jsonrpc\Annotation\JsonRpcMethod $method
+   * @param \Drupal\jsonrpc\MethodInterface $method
    *   The JSON-RPC method definition.
    *
    * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
    */
-  protected function assertValidJsonRpcMethodPlugin($method) {
+  protected function assertValidJsonRpcMethodPlugin(MethodInterface $method) {
     foreach ($method->params as $param) {
       if (!$param->factory && !$param->schema) {
         throw new InvalidPluginDefinitionException($method->id(), "Every JsonRpcParameterDefinition must define either a factory or a schema.");

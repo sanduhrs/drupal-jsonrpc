@@ -5,6 +5,8 @@ namespace Drupal\jsonrpc_core\Plugin\jsonrpc\Method;
 use Drupal\jsonrpc\Object\ParameterBag;
 
 /**
+ * RPC method to list all the permissions.
+ *
  * @JsonRpcMethod(
  *   id = "user_permissions.list",
  *   usage = @Translation("List all the permissions available in the site."),

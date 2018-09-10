@@ -38,11 +38,15 @@ class RpcRequestFactory extends TransformationBase {
   protected $handler;
 
   /**
+   * The service container.
+   *
    * @var \Symfony\Component\DependencyInjection\ContainerInterface
    */
   protected $container;
 
   /**
+   * The JSON Schema validator instance.
+   *
    * @var \JsonSchema\Validator
    */
   protected $validator;
@@ -160,12 +164,16 @@ class RpcRequestFactory extends TransformationBase {
    */
   protected function denormalizeParam($argument, ParameterDefinitionInterface $parameter_definition) {
     $factory_class = $parameter_definition->getFactory() ?: RawParameterFactory::class;
-    $factory = call_user_func_array([$factory_class, 'create'], [$parameter_definition, $this->container]);
+    $factory = call_user_func_array(
+      [$factory_class, 'create'],
+      [$parameter_definition, $this->container]
+    );
     $context = new Context([
       ParameterDefinitionInterface::class => $parameter_definition,
     ]);
     try {
-      // TODO: Wrap other shaper transformations in a similar way for nicer error outputs.
+      // TODO: Wrap other shaper transformations in a similar way for nicer
+      // error outputs.
       return $factory->transform($argument, $context);
     }
     catch (\TypeError $exception) {
@@ -209,6 +217,7 @@ class RpcRequestFactory extends TransformationBase {
    *   The JSON-RPC request context.
    *
    * @return \Drupal\jsonrpc\Exception\JsonRpcException
+   *   The new exception object.
    */
   protected function newException(Error $error, Context $context) {
     return JsonRpcException::fromError($error, $context[static::REQUEST_ID_KEY], $context[static::REQUEST_VERSION_KEY]);

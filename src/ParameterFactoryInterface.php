@@ -16,6 +16,7 @@ interface ParameterFactoryInterface {
    *   A parameter definition for the method parameter being constructed.
    *
    * @return array
+   *   The JSON Schema.
    */
   public static function schema(ParameterDefinitionInterface $parameter_definition);
 

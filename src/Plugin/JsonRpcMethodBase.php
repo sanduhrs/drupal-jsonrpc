@@ -22,11 +22,7 @@ abstract class JsonRpcMethodBase extends PluginBase implements ContainerFactoryP
   private $rpcRequest;
 
   /**
-   * JsonRpcPluginBase constructor.
-   *
-   * @param array $configuration
-   * @param string $plugin_id
-   * @param mixed $plugin_definition
+   * {@inheritdoc}
    */
   public function __construct(array $configuration, string $plugin_id, MethodInterface $plugin_definition) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
@@ -44,6 +40,7 @@ abstract class JsonRpcMethodBase extends PluginBase implements ContainerFactoryP
    * The RPC request for the current invocation.
    *
    * @return \Drupal\jsonrpc\Object\Request
+   *   The request object.
    */
   protected function currentRequest() {
     return $this->rpcRequest;
@@ -53,6 +50,7 @@ abstract class JsonRpcMethodBase extends PluginBase implements ContainerFactoryP
    * The RPC method definition for the current invocation.
    *
    * @return \Drupal\jsonrpc\MethodInterface
+   *   The method definitionm.
    */
   protected function methodDefinition() {
     return $this->getPluginDefinition();
@@ -64,6 +62,7 @@ abstract class JsonRpcMethodBase extends PluginBase implements ContainerFactoryP
    * Use NULL if the method does not provide results (is a notification).
    *
    * @return null|array
+   *   The JSON Schema or a null in case of a notification.
    */
   abstract public static function outputSchema();
 

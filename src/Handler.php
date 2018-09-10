@@ -72,9 +72,7 @@ class Handler implements HandlerInterface {
   }
 
   /**
-   * @param \Drupal\Core\Session\AccountInterface|null $account
-   *
-   * @return \Drupal\jsonrpc\MethodInterface[]
+   * {@inheritdoc}
    */
   public function availableMethods(AccountInterface $account = NULL) {
     return array_filter($this->supportedMethods(), function (MethodInterface $method) {
@@ -168,8 +166,9 @@ class Handler implements HandlerInterface {
    *   The executable method.
    *
    * @throws \Drupal\jsonrpc\Exception\JsonRpcException
+   *   In case of error.
    */
-  protected function getExecutable(MethodInterface $method, $configuration) {
+  protected function getExecutable(MethodInterface $method, array $configuration) {
     try {
       return $this->methodManager->createInstance($method->id(), $configuration);
     }
@@ -186,7 +185,7 @@ class Handler implements HandlerInterface {
    *
    * @throws \Drupal\jsonrpc\Exception\JsonRpcException
    */
-  protected function checkAccess($method) {
+  protected function checkAccess(MethodInterface $method) {
     // TODO: Add cacheability metadata here.
     /* @var \Drupal\jsonrpc\MethodInterface $method_definition */
     $access_result = $method->access('execute', NULL, TRUE);

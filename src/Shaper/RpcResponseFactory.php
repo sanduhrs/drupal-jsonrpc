@@ -23,17 +23,24 @@ class RpcResponseFactory extends TransformationBase {
   const REQUEST_IS_BATCH_REQUEST = RpcRequestFactory::REQUEST_IS_BATCH_REQUEST;
 
   /**
+   * The JSON Schema validator.
+   *
    * @var \JsonSchema\Validator
    */
   protected $validator;
 
   /**
+   * The output validator, based on the JSON Schema.
+   *
    * @var \Shaper\Validator\ValidateableInterface
    */
   protected $outputValidator;
 
   /**
-   * RpcResponseNormalizer constructor.
+   * RpcResponseFactory constructor.
+   *
+   * @param \JsonSchema\Validator $validator
+   *   The JSON Schema validator.
    */
   public function __construct(Validator $validator) {
     $this->validator = $validator;
@@ -61,7 +68,7 @@ class RpcResponseFactory extends TransformationBase {
    * @param array $result_schema
    *   The array of the response.
    */
-  public function setOutputSchema($result_schema) {
+  public function setOutputSchema(array $result_schema) {
     $schema = Json::decode(file_get_contents(__DIR__ . '/response-schema.json'));
     $schema['properties']['result'] = $result_schema;
     $this->outputValidator = new JsonSchemaValidator(

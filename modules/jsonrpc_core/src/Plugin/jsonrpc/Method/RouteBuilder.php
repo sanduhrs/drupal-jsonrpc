@@ -8,6 +8,8 @@ use Drupal\jsonrpc\Plugin\JsonRpcMethodBase;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
+ * RPC method to rebuild the routes.
+ *
  * @JsonRpcMethod(
  *   id = "route_builder.rebuild",
  *   access = {"administer site configuration"},

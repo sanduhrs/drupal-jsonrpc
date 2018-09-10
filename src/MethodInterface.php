@@ -14,6 +14,7 @@ interface MethodInterface extends AccessibleInterface, PluginDefinitionInterface
    * The class method to call.
    *
    * @return string
+   *   The PHP method on the RPC method object to call. Defaults to: execute.
    */
   public function call();
 
@@ -21,6 +22,7 @@ interface MethodInterface extends AccessibleInterface, PluginDefinitionInterface
    * How to use this method.
    *
    * @return \Drupal\Core\StringTranslation\TranslatableMarkup
+   *   The usage text for the method.
    */
   public function getUsage();
 
@@ -39,6 +41,7 @@ interface MethodInterface extends AccessibleInterface, PluginDefinitionInterface
    * Whether the parameters are by-position.
    *
    * @return bool
+   *   True if the parameters are positional.
    */
   public function areParamsPositional();
 

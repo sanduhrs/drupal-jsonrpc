@@ -36,6 +36,8 @@ class HttpController extends ControllerBase {
   protected $validator;
 
   /**
+   * The service container.
+   *
    * @var \Symfony\Component\DependencyInjection\ContainerInterface
    */
   protected $container;
@@ -43,7 +45,8 @@ class HttpController extends ControllerBase {
   /**
    * HttpController constructor.
    *
-   * @param \Symfony\Component\DependencyInjection\ContainerInterface
+   * @param \Symfony\Component\DependencyInjection\ContainerInterface $container
+   *   The service container.
    */
   public function __construct(ContainerInterface $container) {
     $this->handler = $container->get('jsonrpc.handler');
@@ -96,7 +99,10 @@ class HttpController extends ControllerBase {
   }
 
   /**
+   * Get the JSON RPC request objects for the given Request object.
+   *
    * @param \Symfony\Component\HttpFoundation\Request $http_request
+   *   The HTTP request.
    *
    * @return \Drupal\jsonrpc\Object\Request[]
    *   The JSON-RPC request or requests.
@@ -126,7 +132,10 @@ class HttpController extends ControllerBase {
   }
 
   /**
+   * Get the JSON RPC request objects for the given JSON RPC request objects.
+   *
    * @param \Drupal\jsonrpc\Object\Request[] $rpc_requests
+   *   The RPC request objects.
    *
    * @return \Drupal\jsonrpc\Object\Response[]|null
    *   The JSON-RPC response(s). NULL when the RPC request contains only
@@ -134,7 +143,7 @@ class HttpController extends ControllerBase {
    *
    * @throws \Drupal\jsonrpc\Exception\JsonRpcException
    */
-  protected function getRpcResponses($rpc_requests) {
+  protected function getRpcResponses(array $rpc_requests) {
     $rpc_responses = $this->handler->batch($rpc_requests);
     return empty($rpc_responses)
       ? NULL
@@ -145,14 +154,16 @@ class HttpController extends ControllerBase {
    * Map RPC response(s) to an HTTP response.
    *
    * @param \Drupal\jsonrpc\Object\Response[] $rpc_responses
+   *   The RPC responses.
    * @param bool $is_batched_response
+   *   True if the response is batched.
    *
    * @return \Drupal\Core\Cache\CacheableResponseInterface
    *   The cacheable HTTP version of the RPC response(s).
    *
    * @throws \Drupal\jsonrpc\Exception\JsonRpcException
    */
-  protected function getHttpResponse($rpc_responses, $is_batched_response) {
+  protected function getHttpResponse(array $rpc_responses, $is_batched_response) {
     try {
       $serialized = $this->serializeRpcResponse($rpc_responses, $is_batched_response);
       $http_response = CacheableJsonResponse::fromJsonString($serialized, Response::HTTP_OK);
@@ -168,13 +179,17 @@ class HttpController extends ControllerBase {
   }
 
   /**
+   * Serializes the RPC response object into JSON.
+   *
    * @param \Drupal\jsonrpc\Object\Response[] $rpc_responses
+   *   The response objects.
    * @param bool $is_batched_response
+   *   True if this is a batched response.
    *
    * @return string
    *   The serialized JSON-RPC response body.
    */
-  protected function serializeRpcResponse($rpc_responses, $is_batched_response) {
+  protected function serializeRpcResponse(array $rpc_responses, $is_batched_response) {
     $context = new Context([
       RpcResponseFactory::RESPONSE_VERSION_KEY => $this->handler->supportedVersion(),
       RpcRequestFactory::REQUEST_IS_BATCH_REQUEST => $is_batched_response,
@@ -187,10 +202,15 @@ class HttpController extends ControllerBase {
   }
 
   /**
+   * Generates the expected response for a given exception.
+   *
    * @param \Drupal\jsonrpc\Exception\JsonRpcException $e
+   *   The exception that generates the error response.
    * @param int $status
+   *   The response HTTP status.
    *
    * @return \Drupal\Core\Cache\CacheableResponseInterface
+   *   The response object.
    */
   protected function exceptionResponse(JsonRpcException $e, $status = Response::HTTP_INTERNAL_SERVER_ERROR) {
     $context = new Context([

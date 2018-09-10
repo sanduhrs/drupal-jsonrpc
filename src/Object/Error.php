@@ -83,6 +83,7 @@ class Error implements CacheableDependencyInterface {
    * Get the error's type code.
    *
    * @return int
+   *   The error code.
    */
   public function getCode() {
     return $this->code;
@@ -92,6 +93,7 @@ class Error implements CacheableDependencyInterface {
    * Get the error's short description.
    *
    * @return string
+   *   The error message.
    */
   public function getMessage() {
     return $this->message;
@@ -101,6 +103,7 @@ class Error implements CacheableDependencyInterface {
    * Get additional information about the error.
    *
    * @return mixed
+   *   The additional data about the error.
    */
   public function getData() {
     return $this->data;
@@ -110,7 +113,9 @@ class Error implements CacheableDependencyInterface {
    * Asserts that the error is valid.
    *
    * @param mixed $code
+   *   The HTTP code.
    * @param mixed $message
+   *   The output message.
    */
   protected function assertValidError($code, $message) {
     assert(is_int($code) && !($code >= -32000 && $code <= -32099), "The $code code is reserved for implementation-defined server-errors.");

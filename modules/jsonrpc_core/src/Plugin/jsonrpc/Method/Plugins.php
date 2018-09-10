@@ -42,7 +42,19 @@ class Plugins extends JsonRpcMethodBase {
   }
 
   /**
-   * @throws \Drupal\jsonrpc\Exception\JsonRpcException
+   * Creates a new Plugin.
+   *
+   * @param \Symfony\Component\DependencyInjection\ContainerInterface $container
+   *   The service container.
+   * @param array $configuration
+   *   The configuration.
+   * @param string $plugin_id
+   *   The plugin ID.
+   * @param mixed $plugin_definition
+   *   The plugin definition.
+   *
+   * @return \Drupal\jsonrpc_core\Plugin\jsonrpc\Method\Plugins
+   *   The plugin method.
    */
   public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
     /* @var \Drupal\jsonrpc\Object\Request $request */

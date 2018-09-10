@@ -18,6 +18,7 @@ class ParameterBag {
    * The parameters in the bag.
    *
    * @var mixed[]
+   *   The parameters.
    */
   protected $parameters;
 
@@ -27,6 +28,7 @@ class ParameterBag {
    * @param array $parameters
    *   The parameters.
    * @param bool $positional
+   *   True if the parameters are positional.
    */
   public function __construct(array $parameters, $positional = FALSE) {
     $this->positional = $positional;
@@ -67,7 +69,7 @@ class ParameterBag {
    * @return bool
    *   True if the bag is empty.
    */
-  public function _empty() {
+  public function isEmpty() {
     return empty($this->parameters);
   }
 

@@ -78,7 +78,7 @@ class JsonRpcParameterDefinition implements ParameterDefinitionInterface {
   /**
    * Sets the parameter ID.
    *
-   * @param string|integer
+   * @param string|int $id
    *   The ID to set.
    */
   public function setId($id) {

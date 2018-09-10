@@ -97,7 +97,8 @@ class DiscoveryController extends ControllerBase {
    * @param \Drupal\Core\Cache\RefinableCacheableDependencyInterface $cacheability
    *   The cacheability information for the current request.
    *
-   * @return \Drupal\jsonrpc\MethodInterface[] $methods
+   * @return \Drupal\jsonrpc\MethodInterface[]
+   *   The methods.
    */
   protected function getAvailableMethods(RefinableCacheableDependencyInterface $cacheability) {
     return array_filter($this->handler->supportedMethods(), function (MethodInterface $method) use ($cacheability) {

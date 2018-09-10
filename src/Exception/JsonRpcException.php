@@ -17,7 +17,8 @@ class JsonRpcException extends \Exception implements CacheableDependencyInterfac
   /**
    * The JSON-RPC error response for the exception.
    *
-   * @param \Drupal\jsonrpc\Object\Response $response
+   * @var \Drupal\jsonrpc\Object\Response
+   *   The RPC response object.
    */
   protected $response;
 
@@ -26,6 +27,8 @@ class JsonRpcException extends \Exception implements CacheableDependencyInterfac
    *
    * @param \Drupal\jsonrpc\Object\Response $response
    *   The JSON-RPC error response object for the exception.
+   * @param \Throwable $previous
+   *   The previous exception.
    */
   public function __construct(Response $response, \Throwable $previous = NULL) {
     $this->response = $response;
@@ -37,7 +40,8 @@ class JsonRpcException extends \Exception implements CacheableDependencyInterfac
   /**
    * The appropriate JSON-RPC error response for the exception.
    *
-   * @return \Drupal\jsonrpc\Object\Response $response
+   * @return \Drupal\jsonrpc\Object\Response
+   *   The RPC response object.
    */
   public function getResponse() {
     return $this->response;
@@ -72,7 +76,7 @@ class JsonRpcException extends \Exception implements CacheableDependencyInterfac
    *
    * @param \Drupal\jsonrpc\Object\Error $error
    *   The error which caused the exception.
-   * @param mixed
+   * @param mixed $id
    *   The request ID, if available.
    * @param string $version
    *   (optional) The JSON-RPC version.
@@ -87,10 +91,14 @@ class JsonRpcException extends \Exception implements CacheableDependencyInterfac
    * Helper to build a JSON-RPC response object.
    *
    * @param \Drupal\jsonrpc\Object\Error $error
+   *   The error object.
    * @param mixed $id
+   *   The request ID.
    * @param string $version
+   *   The information version.
    *
    * @return \Drupal\jsonrpc\Object\Response
+   *   The RPC response object.
    */
   protected static function buildResponse(Error $error, $id = FALSE, $version = NULL) {
     $supported_version = $version ?: \Drupal::service('jsonrpc.handler')->supportedVersion();

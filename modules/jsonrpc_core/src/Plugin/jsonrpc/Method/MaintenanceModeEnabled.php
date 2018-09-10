@@ -9,7 +9,7 @@ use Drupal\jsonrpc\Plugin\JsonRpcMethodBase;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
- * Class MaintenanceModeEnabled.
+ * RPC method to enable or disable maintenance mode.
  *
  * @JsonRpcMethod(
  *   id = "maintenance_mode.isEnabled",
@@ -34,9 +34,9 @@ class MaintenanceModeEnabled extends JsonRpcMethodBase {
    *
    * @param array $configuration
    *   The configuration.
-   * @param \Drupal\jsonrpc_core\Plugin\jsonrpc\Method\string $plugin_id
+   * @param string $plugin_id
    *   The ID of the plugin.
-   * @param mixed $plugin_definition
+   * @param \Drupal\jsonrpc\MethodInterface $plugin_definition
    *   The plugin definition.
    * @param \Drupal\Core\State\StateInterface $state
    *   The state API service.
@@ -53,9 +53,9 @@ class MaintenanceModeEnabled extends JsonRpcMethodBase {
    *   The DI container.
    * @param array $configuration
    *   The configuration.
-   * @param \Drupal\jsonrpc_core\Plugin\jsonrpc\Method\string $plugin_id
+   * @param string $plugin_id
    *   The ID of the plugin.
-   * @param \Drupal\jsonrpc\MethodInterface $plugin_definition
+   * @param mixed $plugin_definition
    *   The plugin definition.
    *
    * @return \Drupal\jsonrpc_core\Plugin\jsonrpc\Method\MaintenanceModeEnabled

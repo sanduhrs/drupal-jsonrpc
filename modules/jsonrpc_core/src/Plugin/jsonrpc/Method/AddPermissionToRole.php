@@ -9,6 +9,8 @@ use Drupal\jsonrpc\Object\ParameterBag;
 use Symfony\Component\Validator\ConstraintViolationInterface;
 
 /**
+ * A method to add permissions to a role.
+ *
  * @JsonRpcMethod(
  *   id = "user_permissions.add_permission_to_role",
  *   usage = @Translation("Add the given permission to the specified role."),
@@ -22,7 +24,10 @@ use Symfony\Component\Validator\ConstraintViolationInterface;
 class AddPermissionToRole extends UserPermissionsBase {
 
   /**
+   * {@inheritdoc}
+   *
    * @throws \Drupal\jsonrpc\Exception\JsonRpcException
+   *   In case of error.
    */
   public function execute(ParameterBag $params) {
     $permission = $params->get('permission')->getValue();

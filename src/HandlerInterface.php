@@ -48,6 +48,7 @@ interface HandlerInterface {
    *   the current user.
    *
    * @return \Drupal\jsonrpc\MethodInterface[]
+   *   The methods.
    */
   public function availableMethods(AccountInterface $account = NULL);
 
@@ -55,6 +56,7 @@ interface HandlerInterface {
    * The methods supported by the handler.
    *
    * @return \Drupal\jsonrpc\MethodInterface[]
+   *   The methods.
    */
   public function supportedMethods();
 
@@ -73,6 +75,7 @@ interface HandlerInterface {
    * The supported JSON-RPC version.
    *
    * @return string
+   *   The version.
    */
   public static function supportedVersion();
 
