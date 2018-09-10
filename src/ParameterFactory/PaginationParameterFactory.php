@@ -5,6 +5,9 @@ namespace Drupal\jsonrpc\ParameterFactory;
 use Drupal\jsonrpc\ParameterDefinitionInterface;
 use Shaper\Util\Context;
 
+/**
+ * A parameter factory to handle paginated responses.
+ */
 class PaginationParameterFactory extends ParameterFactoryBase {
 
   /**

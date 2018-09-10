@@ -4,6 +4,9 @@ namespace Drupal\jsonrpc;
 
 use Drupal\jsonrpc\Object\ParameterBag;
 
+/**
+ * Add to methods that can be executed with params.
+ */
 interface ExecutableWithParamsInterface {
 
   /**

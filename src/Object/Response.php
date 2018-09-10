@@ -3,9 +3,11 @@
 namespace Drupal\jsonrpc\Object;
 
 use Drupal\Core\Cache\CacheableDependencyInterface;
-use Drupal\Core\Cache\CacheableMetadata;
 use Drupal\Core\Cache\RefinableCacheableDependencyTrait;
 
+/**
+ * Response object to help implement JSON RPC's spec for response objects.
+ */
 class Response implements CacheableDependencyInterface {
 
   use RefinableCacheableDependencyTrait;
@@ -71,30 +73,69 @@ class Response implements CacheableDependencyInterface {
     }
   }
 
+  /**
+   * Gets the ID.
+   *
+   * @return mixed
+   *   The ID.
+   */
   public function id() {
     return $this->id;
   }
 
+  /**
+   * Gets the version.
+   *
+   * @return string
+   *   The version.
+   */
   public function version() {
     return $this->version;
   }
 
+  /**
+   * Get the result of the response.
+   *
+   * @return mixed
+   *   The result of the response.
+   */
   public function getResult() {
     return $this->result;
   }
 
+  /**
+   * Get the error of the response.
+   *
+   * @return mixed
+   *   The error of the response.
+   */
   public function getError() {
     return $this->error;
   }
 
+  /**
+   * Checks if this is an error or result response.
+   *
+   * @return bool
+   *   True if it's a result response.
+   */
   public function isResultResponse() {
     return !$this->isErrorResponse();
   }
 
+  /**
+   * Checks if this is an error or result response.
+   *
+   * @return bool
+   *   True if it's an error response.
+   */
   public function isErrorResponse() {
     return isset($this->error);
   }
 
+  /**
+   * Asserts that the response is valid.
+   */
   protected function assertValidResponse($version, $id, $result, $error) {
     assert(!is_null($result) xor !is_null($error), 'Either the result member or error member MUST be included, but both members MUST NOT be included.');
     assert($version === "2.0", 'A String specifying the version of the JSON-RPC protocol. MUST be exactly "2.0".');
@@ -102,14 +143,20 @@ class Response implements CacheableDependencyInterface {
   }
 
   /**
+   * The schema of the output response.
+   *
    * @return array|null
+   *   The result schema.
    */
   public function getResultSchema() {
     return $this->resultSchema;
   }
 
   /**
-   * @param array|null $resultSchema
+   * Sets the schema for the output response.
+   *
+   * @param array|null $result_schema
+   *   The schema of the result.
    */
   public function setResultSchema($result_schema) {
     $this->resultSchema = $result_schema;

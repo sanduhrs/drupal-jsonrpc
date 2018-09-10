@@ -17,7 +17,7 @@ class JsonRpcParameterDefinition implements ParameterDefinitionInterface {
   /**
    * The name of the parameter if the params are by-name, an offset otherwise.
    *
-   * @var string|integer
+   * @var string|int
    */
   protected $id;
 

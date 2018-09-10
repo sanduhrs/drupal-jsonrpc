@@ -5,6 +5,9 @@ namespace Drupal\jsonrpc;
 use Drupal\Component\Plugin\Definition\PluginDefinitionInterface;
 use Drupal\Core\Access\AccessibleInterface;
 
+/**
+ * Interface for the method plugins.
+ */
 interface MethodInterface extends AccessibleInterface, PluginDefinitionInterface {
 
   /**

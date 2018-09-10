@@ -7,9 +7,11 @@ use Drupal\Core\Plugin\PluginBase;
 use Drupal\jsonrpc\ExecutableWithParamsInterface;
 use Drupal\jsonrpc\HandlerInterface;
 use Drupal\jsonrpc\MethodInterface;
-use Drupal\jsonrpc\ServiceInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
+/**
+ * Base implementation for JSON RPC methods.
+ */
 abstract class JsonRpcMethodBase extends PluginBase implements ContainerFactoryPluginInterface, ExecutableWithParamsInterface {
 
   /**

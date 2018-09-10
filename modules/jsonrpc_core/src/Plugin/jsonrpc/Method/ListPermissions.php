@@ -2,17 +2,7 @@
 
 namespace Drupal\jsonrpc_core\Plugin\jsonrpc\Method;
 
-use Drupal\Core\Annotation\Translation;
-use Drupal\Core\Entity\EntityStorageException;
-use Drupal\jsonrpc\Annotation\JsonRpcMethod;
-use Drupal\jsonrpc\Annotation\JsonRpcParameterDefinition;
-use Drupal\jsonrpc\Exception\JsonRpcException;
-use Drupal\jsonrpc\Object\Error;
 use Drupal\jsonrpc\Object\ParameterBag;
-use Drupal\jsonrpc\Plugin\JsonRpcMethodBase;
-use Drupal\user\PermissionHandlerInterface;
-use Symfony\Component\DependencyInjection\ContainerInterface;
-use Symfony\Component\Validator\ConstraintViolationInterface;
 
 /**
  * @JsonRpcMethod(
@@ -26,6 +16,9 @@ use Symfony\Component\Validator\ConstraintViolationInterface;
  */
 class ListPermissions extends UserPermissionsBase {
 
+  /**
+   * {@inheritdoc}
+   */
   public function execute(ParameterBag $params) {
     $page = $params->get('page');
     return array_slice(

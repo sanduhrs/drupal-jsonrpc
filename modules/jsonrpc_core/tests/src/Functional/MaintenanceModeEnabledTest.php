@@ -18,6 +18,9 @@ class MaintenanceModeEnabledTest extends JsonRpcTestBase {
     'serialization',
   ];
 
+  /**
+   * Tests enabling the maintenance mode.
+   */
   public function testEnablingMaintenanceMode() {
 
     $enabled_request = [

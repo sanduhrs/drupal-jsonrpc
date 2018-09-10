@@ -3,8 +3,10 @@
 namespace Drupal\jsonrpc;
 
 use Drupal\Core\Session\AccountInterface;
-use Drupal\jsonrpc\Object\Request;
 
+/**
+ * Interface for the handler.
+ */
 interface HandlerInterface {
 
   /**

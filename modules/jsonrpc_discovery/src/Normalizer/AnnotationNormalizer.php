@@ -9,11 +9,16 @@ use Drupal\jsonrpc\Annotation\JsonRpcMethod;
 use Drupal\jsonrpc\Annotation\JsonRpcParameterDefinition;
 use Drupal\serialization\Normalizer\NormalizerBase;
 
+/**
+ * The normalizer class for annotated objects.
+ */
 class AnnotationNormalizer extends NormalizerBase {
 
   const DEPTH_KEY = __CLASS__ . '_depth';
 
   /**
+   * The serializer service.
+   *
    * @var \Symfony\Component\Serializer\Normalizer\NormalizerInterface
    */
   protected $serializer;
@@ -60,10 +65,10 @@ class AnnotationNormalizer extends NormalizerBase {
       'attributes' => array_filter($attributes),
     ];
     if ($object instanceof JsonRpcMethod) {
-      $self =  Url::fromRoute('jsonrpc.method_resource', [
-        'method_id' => $object->id()
+      $self = Url::fromRoute('jsonrpc.method_resource', [
+        'method_id' => $object->id(),
       ])->setAbsolute()->toString(TRUE);
-      $collection =  Url::fromRoute('jsonrpc.method_collection')->setAbsolute()->toString(TRUE);
+      $collection = Url::fromRoute('jsonrpc.method_collection')->setAbsolute()->toString(TRUE);
       $this->addCacheableDependency($context, $self);
       $this->addCacheableDependency($context, $collection);
       $normalized['links'] = [
@@ -77,6 +82,15 @@ class AnnotationNormalizer extends NormalizerBase {
     return $normalized;
   }
 
+  /**
+   * Extract the annotation type.
+   *
+   * @param mixed $annotation
+   *   The annotated object.
+   *
+   * @return string
+   *   The type.
+   */
   protected static function getAnnotationType($annotation) {
     switch (get_class($annotation)) {
       case JsonRpcMethod::class:

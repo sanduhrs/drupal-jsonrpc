@@ -3,7 +3,6 @@
 namespace Drupal\jsonrpc\Shaper;
 
 use Drupal\Component\Serialization\Json;
-use Drupal\Core\DependencyInjection\ContainerInjectionInterface;
 use Drupal\jsonrpc\Exception\JsonRpcException;
 use Drupal\jsonrpc\HandlerInterface;
 use Drupal\jsonrpc\Object\Error;
@@ -20,6 +19,9 @@ use Shaper\Validator\InstanceofValidator;
 use Shaper\Validator\JsonSchemaValidator;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
+/**
+ * Creates RPC Request objects.
+ */
 class RpcRequestFactory extends TransformationBase {
 
   const REQUEST_ID_KEY = 'jsonrpc_request_id';

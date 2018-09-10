@@ -7,14 +7,18 @@ use Drupal\Core\Cache\CacheableJsonResponse;
 use Drupal\Core\Cache\CacheableResponseInterface;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\jsonrpc\Exception\JsonRpcException;
-use Drupal\jsonrpc\HandlerInterface;
 use Drupal\jsonrpc\Shaper\RpcRequestFactory;
-use Drupal\jsonrpc\Shaper\RpcResponseNormalizer;
+use Drupal\jsonrpc\Shaper\RpcResponseFactory;
 use Shaper\Util\Context;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * The main front controller.
+ *
+ * Handles all the incoming requests HTTP requests and responses.
+ */
 class HttpController extends ControllerBase {
 
   /**
@@ -67,7 +71,8 @@ class HttpController extends ControllerBase {
     // Map the HTTP request to an RPC request.
     try {
       $rpc_requests = $this->getRpcRequests($http_request);
-    } catch (JsonRpcException $e) {
+    }
+    catch (JsonRpcException $e) {
       return $this->exceptionResponse($e, Response::HTTP_BAD_REQUEST);
     }
 
@@ -97,6 +102,7 @@ class HttpController extends ControllerBase {
    *   The JSON-RPC request or requests.
    *
    * @throws \Drupal\jsonrpc\Exception\JsonRpcException
+   *   When there was an error handling the response.
    */
   protected function getRpcRequests(Request $http_request) {
     $version = $this->handler->supportedVersion();
@@ -104,7 +110,7 @@ class HttpController extends ControllerBase {
       if ($http_request->getMethod() === Request::METHOD_POST) {
         $content = Json::decode($http_request->getContent(FALSE));
       }
-      else if ($http_request->getMethod() === Request::METHOD_GET) {
+      elseif ($http_request->getMethod() === Request::METHOD_GET) {
         $content = Json::decode($http_request->query->get('query'));
       }
       $context = new Context([
@@ -118,7 +124,6 @@ class HttpController extends ControllerBase {
       throw JsonRpcException::fromPrevious($e, $id, $version);
     }
   }
-
 
   /**
    * @param \Drupal\jsonrpc\Object\Request[] $rpc_requests
@@ -171,13 +176,13 @@ class HttpController extends ControllerBase {
    */
   protected function serializeRpcResponse($rpc_responses, $is_batched_response) {
     $context = new Context([
-      RpcResponseNormalizer::RESPONSE_VERSION_KEY => $this->handler->supportedVersion(),
+      RpcResponseFactory::RESPONSE_VERSION_KEY => $this->handler->supportedVersion(),
       RpcRequestFactory::REQUEST_IS_BATCH_REQUEST => $is_batched_response,
     ]);
     // This following is needed to prevent the serializer from using array
     // indices as JSON object keys like {"0": "foo", "1": "bar"}.
     $data = array_values($rpc_responses);
-    $normalizer = new RpcResponseNormalizer($this->validator);
+    $normalizer = new RpcResponseFactory($this->validator);
     return Json::encode($normalizer->transform($data, $context));
   }
 
@@ -189,10 +194,10 @@ class HttpController extends ControllerBase {
    */
   protected function exceptionResponse(JsonRpcException $e, $status = Response::HTTP_INTERNAL_SERVER_ERROR) {
     $context = new Context([
-      RpcResponseNormalizer::RESPONSE_VERSION_KEY => $this->handler->supportedVersion(),
+      RpcResponseFactory::RESPONSE_VERSION_KEY => $this->handler->supportedVersion(),
       RpcRequestFactory::REQUEST_IS_BATCH_REQUEST => FALSE,
     ]);
-    $normalizer = new RpcResponseNormalizer($this->validator);
+    $normalizer = new RpcResponseFactory($this->validator);
     $rpc_response = $e->getResponse();
     $serialized = Json::encode($normalizer->transform([$rpc_response], $context));
     $response = CacheableJsonResponse::fromJsonString($serialized, $status);

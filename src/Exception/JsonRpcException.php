@@ -7,6 +7,9 @@ use Drupal\Core\Cache\CacheableDependencyTrait;
 use Drupal\jsonrpc\Object\Error;
 use Drupal\jsonrpc\Object\Response;
 
+/**
+ * Custom exception class for the module.
+ */
 class JsonRpcException extends \Exception implements CacheableDependencyInterface {
 
   use CacheableDependencyTrait;

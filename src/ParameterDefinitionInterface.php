@@ -2,12 +2,15 @@
 
 namespace Drupal\jsonrpc;
 
+/**
+ * Interface to implement a parameter definition.
+ */
 interface ParameterDefinitionInterface {
 
   /**
    * The name of the parameter if the params are by-name, an offset otherwise.
    *
-   * @return string|integer
+   * @return string|int
    */
   public function getId();
 

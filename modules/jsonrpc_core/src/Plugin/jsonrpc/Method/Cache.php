@@ -2,13 +2,11 @@
 
 namespace Drupal\jsonrpc_core\Plugin\jsonrpc\Method;
 
-use Drupal\Core\Annotation\Translation;
-use Drupal\jsonrpc\Annotation\JsonRpcMethod;
 use Drupal\jsonrpc\Object\ParameterBag;
 use Drupal\jsonrpc\Plugin\JsonRpcMethodBase;
 
 /**
- * Class CacheService
+ * Class CacheService.
  *
  * @JsonRpcMethod(
  *   id = "cache.rebuild",
@@ -18,6 +16,9 @@ use Drupal\jsonrpc\Plugin\JsonRpcMethodBase;
  */
 class Cache extends JsonRpcMethodBase {
 
+  /**
+   * {@inheritdoc}
+   */
   public function execute(ParameterBag $params) {
     drupal_flush_all_caches();
     return TRUE;

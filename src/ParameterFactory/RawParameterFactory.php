@@ -12,6 +12,9 @@ use Shaper\Util\Context;
  */
 class RawParameterFactory extends ParameterFactoryBase {
 
+  /**
+   * {@inheritdoc}
+   */
   public static function schema(ParameterDefinitionInterface $parameter_definition) {
     return $parameter_definition->getSchema();
   }

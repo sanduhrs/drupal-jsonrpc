@@ -12,6 +12,9 @@ use Drupal\jsonrpc\Object\ParameterBag;
 use Drupal\jsonrpc\Object\Request;
 use Drupal\jsonrpc\Object\Response;
 
+/**
+ * Manages all the JSON-RPC business logic.
+ */
 class Handler implements HandlerInterface {
 
   /**
@@ -28,6 +31,12 @@ class Handler implements HandlerInterface {
    */
   protected $methodManager;
 
+  /**
+   * Handler constructor.
+   *
+   * @param \Drupal\Component\Plugin\PluginManagerInterface $method_manager
+   *   The plugin manager for the JSON RPC methods.
+   */
   public function __construct(PluginManagerInterface $method_manager) {
     $this->methodManager = $method_manager;
   }
@@ -63,7 +72,7 @@ class Handler implements HandlerInterface {
   }
 
   /**
-   * @param \Drupal\Core\Session\AccountInterface|NULL $account
+   * @param \Drupal\Core\Session\AccountInterface|null $account
    *
    * @return \Drupal\jsonrpc\MethodInterface[]
    */

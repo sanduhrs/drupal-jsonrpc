@@ -6,6 +6,9 @@ use Drupal\Core\Cache\CacheableDependencyInterface;
 use Drupal\Core\Cache\CacheableDependencyTrait;
 use Drupal\Core\Cache\CacheableMetadata;
 
+/**
+ * Error class to help implement JSON RPC's spec for errors.
+ */
 class Error implements CacheableDependencyInterface {
 
   use CacheableDependencyTrait;
@@ -63,7 +66,7 @@ class Error implements CacheableDependencyInterface {
    * @param mixed $data
    *   (optional) A primitive or structured value that contains additional
    *   information about the error. This may be omitted.
-   * @param CacheableDependencyInterface $cacheability
+   * @param \Drupal\Core\Cache\CacheableDependencyInterface $cacheability
    *   (optional) A cacheable dependency.
    */
   public function __construct($code, $message, $data = NULL, CacheableDependencyInterface $cacheability = NULL) {
@@ -131,7 +134,7 @@ class Error implements CacheableDependencyInterface {
    *
    * @param mixed $data
    *   More specific information about the error.
-   * @param CacheableDependencyInterface $cacheability
+   * @param \Drupal\Core\Cache\CacheableDependencyInterface $cacheability
    *   (optional) A cacheable dependency.
    *
    * @return static
@@ -145,7 +148,7 @@ class Error implements CacheableDependencyInterface {
    *
    * @param string $method_name
    *   The name of the missing method.
-   * @param CacheableDependencyInterface $cacheability
+   * @param \Drupal\Core\Cache\CacheableDependencyInterface $cacheability
    *   (optional) A cacheable dependency.
    *
    * @return static
@@ -160,7 +163,7 @@ class Error implements CacheableDependencyInterface {
    *
    * @param mixed $data
    *   More specific information about the error.
-   * @param CacheableDependencyInterface $cacheability
+   * @param \Drupal\Core\Cache\CacheableDependencyInterface $cacheability
    *   (optional) A cacheable dependency.
    *
    * @return static
@@ -174,7 +177,7 @@ class Error implements CacheableDependencyInterface {
    *
    * @param mixed $data
    *   More specific information about the error.
-   * @param CacheableDependencyInterface $cacheability
+   * @param \Drupal\Core\Cache\CacheableDependencyInterface $cacheability
    *   (optional) A cacheable dependency.
    *
    * @return static

@@ -14,7 +14,10 @@ use Shaper\Validator\CollectionOfValidators;
 use Shaper\Validator\InstanceofValidator;
 use Shaper\Validator\JsonSchemaValidator;
 
-class RpcResponseNormalizer extends TransformationBase {
+/**
+ * Creates RPC Response objects.
+ */
+class RpcResponseFactory extends TransformationBase {
 
   const RESPONSE_VERSION_KEY = RpcRequestFactory::REQUEST_VERSION_KEY;
   const REQUEST_IS_BATCH_REQUEST = RpcRequestFactory::REQUEST_IS_BATCH_REQUEST;
@@ -36,16 +39,28 @@ class RpcResponseNormalizer extends TransformationBase {
     $this->validator = $validator;
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function getInputValidator() {
     return new CollectionOfValidators(new InstanceofValidator(Response::class));
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function getOutputValidator() {
     return $this->outputValidator
       ? $this->outputValidator
       : new AcceptValidator();
   }
 
+  /**
+   * Sets the schema for the response output.
+   *
+   * @param array $result_schema
+   *   The array of the response.
+   */
   public function setOutputSchema($result_schema) {
     $schema = Json::decode(file_get_contents(__DIR__ . '/response-schema.json'));
     $schema['properties']['result'] = $result_schema;
@@ -56,6 +71,9 @@ class RpcResponseNormalizer extends TransformationBase {
     );
   }
 
+  /**
+   * {@inheritdoc}
+   */
   protected function doTransform($data, Context $context) {
     $this->setOutputSchema($data[0]->getResultSchema());
     $output = array_map(function (Response $response) use ($context) {
@@ -69,6 +87,17 @@ class RpcResponseNormalizer extends TransformationBase {
     return $context[static::REQUEST_IS_BATCH_REQUEST] ? $output : reset($output);
   }
 
+  /**
+   * Performs the actual normalization.
+   *
+   * @param \Drupal\jsonrpc\Object\Response $response
+   *   The RPC Response object to return.
+   * @param \Shaper\Util\Context $context
+   *   The context object.
+   *
+   * @return array
+   *   The normalized response.
+   */
   protected function doNormalize(Response $response, Context $context) {
     $normalized = [
       'jsonrpc' => $context[static::RESPONSE_VERSION_KEY],

@@ -3,18 +3,10 @@
 namespace Drupal\jsonrpc\Plugin;
 
 use Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException;
-use Drupal\Core\Access\AccessResultReasonInterface;
 use Drupal\Core\Plugin\DefaultPluginManager;
 use Drupal\Core\Cache\CacheBackendInterface;
 use Drupal\Core\Extension\ModuleHandlerInterface;
-use Drupal\Core\Session\AccountInterface;
 use Drupal\jsonrpc\Annotation\JsonRpcMethod;
-use Drupal\jsonrpc\Exception\JsonRpcException;
-use Drupal\jsonrpc\HandlerInterface;
-use Drupal\jsonrpc\MethodInterface;
-use Drupal\jsonrpc\Object\Error;
-use Drupal\jsonrpc\Object\Request;
-use Drupal\jsonrpc\Object\Response;
 use Drupal\jsonrpc\ParameterFactoryInterface;
 
 /**
@@ -40,7 +32,6 @@ class JsonRpcMethodManager extends DefaultPluginManager {
     parent::__construct('Plugin/jsonrpc/Method', $namespaces, $module_handler, NULL, JsonRpcMethod::class);
     $this->setCacheBackend($cache_backend, 'jsonrpc_plugins');
   }
-
 
   /**
    * {@inheritdoc}

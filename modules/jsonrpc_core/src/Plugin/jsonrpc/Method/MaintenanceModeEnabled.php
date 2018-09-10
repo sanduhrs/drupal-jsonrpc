@@ -2,7 +2,6 @@
 
 namespace Drupal\jsonrpc_core\Plugin\jsonrpc\Method;
 
-use Drupal\jsonrpc\Annotation\JsonRpcMethod;
 use Drupal\Core\State\StateInterface;
 use Drupal\jsonrpc\MethodInterface;
 use Drupal\jsonrpc\Object\ParameterBag;
@@ -26,7 +25,7 @@ class MaintenanceModeEnabled extends JsonRpcMethodBase {
   /**
    * The state API service.
    *
-   * @var \Drupal\Core\State\StateInterface;
+   * @var \Drupal\Core\State\StateInterface
    */
   protected $state;
 
@@ -56,7 +55,7 @@ class MaintenanceModeEnabled extends JsonRpcMethodBase {
    *   The configuration.
    * @param \Drupal\jsonrpc_core\Plugin\jsonrpc\Method\string $plugin_id
    *   The ID of the plugin.
-   * @param MethodInterface $plugin_definition
+   * @param \Drupal\jsonrpc\MethodInterface $plugin_definition
    *   The plugin definition.
    *
    * @return \Drupal\jsonrpc_core\Plugin\jsonrpc\Method\MaintenanceModeEnabled

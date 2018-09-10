@@ -4,6 +4,9 @@ namespace Drupal\jsonrpc;
 
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
+/**
+ * Interface for all parameter factories.
+ */
 interface ParameterFactoryInterface {
 
   /**

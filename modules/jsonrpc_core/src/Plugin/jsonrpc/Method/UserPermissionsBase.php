@@ -6,6 +6,9 @@ use Drupal\jsonrpc\Plugin\JsonRpcMethodBase;
 use Drupal\user\PermissionHandlerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
+/**
+ * Base method for methods that ned access to the user.permissions service.
+ */
 abstract class UserPermissionsBase extends JsonRpcMethodBase {
 
   /**

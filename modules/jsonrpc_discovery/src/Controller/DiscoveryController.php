@@ -15,6 +15,9 @@ use Drupal\serialization\Normalizer\NormalizerBase;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Serializer\SerializerInterface;
 
+/**
+ * The controller that responds with the discovery information.
+ */
 class DiscoveryController extends ControllerBase {
 
   /**
@@ -46,6 +49,12 @@ class DiscoveryController extends ControllerBase {
     return new static($container->get('jsonrpc.handler'), $container->get('serializer'));
   }
 
+  /**
+   * List the available methods.
+   *
+   * @return \Drupal\Core\Cache\CacheableJsonResponse
+   *   The response object.
+   */
   public function methods() {
     $cacheability = new CacheableMetadata();
     $self = Url::fromRoute('jsonrpc.method_collection')->setAbsolute()->toString(TRUE);
@@ -63,6 +72,12 @@ class DiscoveryController extends ControllerBase {
     return CacheableJsonResponse::fromJsonString($serialized)->addCacheableDependency($cacheability);
   }
 
+  /**
+   * Information about the method.
+   *
+   * @return \Drupal\Core\Cache\CacheableJsonResponse
+   *   The response object.
+   */
   public function method($method_id) {
     $cacheability = new CacheableMetadata();
     $cacheability->addCacheContexts(['url.path']);

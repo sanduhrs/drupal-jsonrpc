@@ -3,8 +3,6 @@
 namespace Drupal\jsonrpc_core\Plugin\jsonrpc\Method;
 
 use Drupal\Component\Plugin\PluginManagerInterface;
-use Drupal\Core\Annotation\Translation;
-use Drupal\jsonrpc\Annotation\JsonRpcMethod;
 use Drupal\jsonrpc\Exception\JsonRpcException;
 use Drupal\jsonrpc\HandlerInterface;
 use Drupal\jsonrpc\Object\Error;
@@ -83,11 +81,11 @@ class Plugins extends JsonRpcMethodBase {
       'type' => 'object',
       'patternProperties' => [
         '.{1,}' => [
-          'class' => [ 'type' => 'string' ],
-          'uri' => [ 'type' => 'string' ],
-          'description' => [ 'type' => 'string' ],
-          'provider' => [ 'type' => 'string' ],
-          'id' => [ 'type' => 'string' ],
+          'class' => ['type' => 'string'],
+          'uri' => ['type' => 'string'],
+          'description' => ['type' => 'string'],
+          'provider' => ['type' => 'string'],
+          'id' => ['type' => 'string'],
         ],
       ],
     ];
