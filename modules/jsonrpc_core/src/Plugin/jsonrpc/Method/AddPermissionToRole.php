@@ -30,7 +30,7 @@ class AddPermissionToRole extends UserPermissionsBase {
    *   In case of error.
    */
   public function execute(ParameterBag $params) {
-    $permission = $params->get('permission')->getValue();
+    $permission = $params->get('permission');
     /* @var \Drupal\user\RoleInterface $role */
     $role = $params->get('role');
     try {
