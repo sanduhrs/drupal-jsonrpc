@@ -13,6 +13,9 @@ use Shaper\Util\Context;
 use Shaper\Validator\InstanceofValidator;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
+/**
+ * A factory to create loaded entities from entity type & UUID user input.
+ */
 class EntityParameterFactory extends ParameterFactoryBase {
 
   /**
@@ -26,8 +29,11 @@ class EntityParameterFactory extends ParameterFactoryBase {
    * EntityParameterFactory constructor.
    *
    * @param \Drupal\jsonrpc\ParameterDefinitionInterface $definition
+   *   The parameter definition.
    * @param \JsonSchema\Validator $validator
+   *   The validator to ensure the user input is valid.
    * @param \Drupal\Core\Entity\EntityRepositoryInterface $entity_repository
+   *   The entity type repository to load entities by UUID.
    */
   public function __construct(ParameterDefinitionInterface $definition, Validator $validator, EntityRepositoryInterface $entity_repository) {
     parent::__construct($definition, $validator);
