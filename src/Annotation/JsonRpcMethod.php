@@ -51,7 +51,7 @@ class JsonRpcMethod extends AnnotationBase implements MethodInterface {
    *
    * @var \Drupal\jsonrpc\Annotation\JsonRpcParameterDefinition[]
    */
-  public $params;
+  public $params = [];
 
   /**
    * {@inheritdoc}
@@ -108,7 +108,11 @@ class JsonRpcMethod extends AnnotationBase implements MethodInterface {
     switch ($operation) {
       case 'execute':
         if (is_callable($this->access)) {
-          return call_user_func_array($this->access, [$operation, $account, $return_as_object]);
+          return call_user_func_array($this->access, [
+            $operation,
+            $account,
+            $return_as_object,
+          ]);
         }
         $access_result = AccessResult::allowed();
         foreach ($this->access as $permission) {

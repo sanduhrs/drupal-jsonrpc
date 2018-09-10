@@ -11,7 +11,7 @@ use GuzzleHttp\RequestOptions;
  *
  * @package Drupal\jsonrpc\Tests\Functional
  */
-class JsonRpcTestBase extends BrowserTestBase {
+abstract class JsonRpcTestBase extends BrowserTestBase {
 
   /**
    * Post a request in JSON format.
@@ -25,6 +25,7 @@ class JsonRpcTestBase extends BrowserTestBase {
    *
    * @return \Psr\Http\Message\ResponseInterface
    *   The response.
+   *
    * @throws \GuzzleHttp\Exception\GuzzleException
    *   Exceptions from the Guzzle client.
    */

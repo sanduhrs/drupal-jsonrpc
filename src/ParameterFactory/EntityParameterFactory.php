@@ -25,11 +25,12 @@ class EntityParameterFactory extends ParameterFactoryBase {
   /**
    * EntityParameterFactory constructor.
    *
+   * @param \Drupal\jsonrpc\ParameterDefinitionInterface $definition
    * @param \JsonSchema\Validator $validator
    * @param \Drupal\Core\Entity\EntityRepositoryInterface $entity_repository
    */
-  public function __construct(Validator $validator, EntityRepositoryInterface $entity_repository) {
-    parent::__construct($validator);
+  public function __construct(ParameterDefinitionInterface $definition, Validator $validator, EntityRepositoryInterface $entity_repository) {
+    parent::__construct($definition, $validator);
     $this->entityRepository = $entity_repository;
   }
 

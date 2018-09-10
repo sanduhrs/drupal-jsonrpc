@@ -30,6 +30,7 @@ abstract class ParameterFactoryBase extends TransformationBase implements Parame
   /**
    * ParameterFactoryBase constructor.
    *
+   * @param \Drupal\jsonrpc\ParameterDefinitionInterface $definition
    * @param \JsonSchema\Validator $validator
    */
   public function __construct(ParameterDefinitionInterface $definition, Validator $validator) {
