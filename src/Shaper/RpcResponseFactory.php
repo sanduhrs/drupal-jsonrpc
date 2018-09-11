@@ -65,10 +65,10 @@ class RpcResponseFactory extends TransformationBase {
   /**
    * Sets the schema for the response output.
    *
-   * @param array $result_schema
+   * @param array|null $result_schema
    *   The array of the response.
    */
-  public function setOutputSchema(array $result_schema) {
+  public function setOutputSchema($result_schema) {
     $schema = Json::decode(file_get_contents(__DIR__ . '/response-schema.json'));
     $schema['properties']['result'] = $result_schema;
     $this->outputValidator = new JsonSchemaValidator(

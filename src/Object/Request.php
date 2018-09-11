@@ -128,7 +128,7 @@ class Request {
    *   True if it has parameters.
    */
   public function hasParams() {
-    return !(is_null($this->params) || $this->params->_empty());
+    return !(is_null($this->params) || $this->params->isEmpty());
   }
 
   /**
