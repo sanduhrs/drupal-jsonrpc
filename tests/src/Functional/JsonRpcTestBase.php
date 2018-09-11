@@ -2,8 +2,11 @@
 
 namespace Drupal\Tests\jsonrpc\Functional;
 
+use Drupal\Component\Serialization\Json;
 use Drupal\Core\Session\AccountInterface;
+use Drupal\Core\Url;
 use Drupal\Tests\BrowserTestBase;
+use GuzzleHttp\Psr7\Response;
 use GuzzleHttp\RequestOptions;
 
 /**
@@ -16,9 +19,7 @@ abstract class JsonRpcTestBase extends BrowserTestBase {
   /**
    * Post a request in JSON format.
    *
-   * @param string $url
-   *   The URL to send the request to.
-   * @param array $request
+   * @param array $rpc_request
    *   The request structure that will be sent as JSON.
    * @param \Drupal\Core\Session\AccountInterface $account
    *   The user to be used for Basic Auth authentication.
@@ -29,12 +30,12 @@ abstract class JsonRpcTestBase extends BrowserTestBase {
    * @throws \GuzzleHttp\Exception\GuzzleException
    *   Exceptions from the Guzzle client.
    */
-  protected function postJson($url, array $request, AccountInterface $account = NULL) {
-    $absolute_url = $this->buildUrl($url);
+  protected function postRpc(array $rpc_request, AccountInterface $account = NULL) {
+    $url = $this->buildUrl(Url::fromRoute('jsonrpc.handler'));
     $request_options = [
       RequestOptions::HTTP_ERRORS => FALSE,
       RequestOptions::ALLOW_REDIRECTS => FALSE,
-      RequestOptions::JSON => $request,
+      RequestOptions::JSON => $rpc_request,
     ];
 
     if (NULL !== $account) {
@@ -45,7 +46,34 @@ abstract class JsonRpcTestBase extends BrowserTestBase {
     }
 
     $client = $this->getHttpClient();
-    return $client->request('POST', $absolute_url, $request_options);
+    return $client->request('POST', $url, $request_options);
+  }
+
+  /**
+   * JSON RPC request using the GET method.
+   *
+   * @param array $rpc_request
+   *   The request structure that will be sent as JSON.
+   * @param \Drupal\Core\Session\AccountInterface $account
+   *   The user to be used for Basic Auth authentication.
+   *
+   * @return \Psr\Http\Message\ResponseInterface
+   *   The response.
+   */
+  protected function getRpc(array $rpc_request, AccountInterface $account = NULL) {
+    $url = Url::fromRoute('jsonrpc.handler');
+    if ($account !== NULL) {
+      $this->drupalLogin($account);
+    }
+    $options = ['query' => ['query' => Json::encode($rpc_request)]];
+    $this->drupalGet($url, $options);
+    $session = $this->getSession();
+    $response = new Response(
+      $session->getStatusCode(),
+      $session->getResponseHeaders(),
+      $session->getPage()->getContent()
+    );
+    return $response;
   }
 
 }

@@ -22,6 +22,9 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  */
 class MaintenanceModeEnabled extends JsonRpcMethodBase {
 
+  const ENABLED = 'enabled';
+  const DISABLED = 'disabled';
+
   /**
    * The state API service.
    *
@@ -72,13 +75,9 @@ class MaintenanceModeEnabled extends JsonRpcMethodBase {
     $enabled = $parameters->get('enabled');
 
     $this->state->set('system.maintenance_mode', $enabled);
-
-    $result = 'enabled';
-    if (!$enabled) {
-      $result = 'disabled';
-    }
-
-    return $this->state->get('system.maintenance_mode');
+    return $this->state->get('system.maintenance_mode')
+      ? static::ENABLED
+      : static::DISABLED;
   }
 
   /**
