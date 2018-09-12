@@ -4,6 +4,7 @@ namespace Drupal\jsonrpc\Controller;
 
 use Drupal\Component\Serialization\Json;
 use Drupal\Core\Cache\CacheableJsonResponse;
+use Drupal\Core\Cache\CacheableMetadata;
 use Drupal\Core\Cache\CacheableResponseInterface;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\jsonrpc\Exception\JsonRpcException;
@@ -167,6 +168,10 @@ class HttpController extends ControllerBase {
     try {
       $serialized = $this->serializeRpcResponse($rpc_responses, $is_batched_response);
       $http_response = CacheableJsonResponse::fromJsonString($serialized, Response::HTTP_OK);
+      // Varies the response based on the 'query' parameter.
+      $cache_context = (new CacheableMetadata())
+        ->setCacheContexts(['url.query_args:query']);
+      $http_response->addCacheableDependency($cache_context);
       // Adds the cacheability information of the RPC response(s) to the HTTP
       // response.
       return array_reduce($rpc_responses, function (CacheableResponseInterface $http_response, $response) {

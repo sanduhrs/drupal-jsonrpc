@@ -6,7 +6,6 @@ use Drupal\Component\Serialization\Json;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\Core\Url;
 use Drupal\Tests\BrowserTestBase;
-use GuzzleHttp\Psr7\Response;
 use GuzzleHttp\RequestOptions;
 
 /**
@@ -59,21 +58,26 @@ abstract class JsonRpcTestBase extends BrowserTestBase {
    *
    * @return \Psr\Http\Message\ResponseInterface
    *   The response.
+   *
+   * @throws \GuzzleHttp\Exception\GuzzleException
    */
   protected function getRpc(array $rpc_request, AccountInterface $account = NULL) {
-    $url = Url::fromRoute('jsonrpc.handler');
+    $url = $this->buildUrl(Url::fromRoute('jsonrpc.handler'));
+    $request_options = [
+      RequestOptions::HTTP_ERRORS => FALSE,
+      RequestOptions::ALLOW_REDIRECTS => FALSE,
+      RequestOptions::QUERY => ['query' => Json::encode($rpc_request)],
+    ];
+
     if ($account !== NULL) {
-      $this->drupalLogin($account);
+      $request_options[RequestOptions::AUTH] = [
+        $account->getAccountName(),
+        $account->passRaw,
+      ];
     }
-    $options = ['query' => ['query' => Json::encode($rpc_request)]];
-    $this->drupalGet($url, $options);
-    $session = $this->getSession();
-    $response = new Response(
-      $session->getStatusCode(),
-      $session->getResponseHeaders(),
-      $session->getPage()->getContent()
-    );
-    return $response;
+
+    $client = $this->getHttpClient();
+    return $client->request('GET', $url, $request_options);
   }
 
 }

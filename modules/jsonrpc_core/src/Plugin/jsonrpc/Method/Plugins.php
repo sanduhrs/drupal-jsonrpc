@@ -78,14 +78,17 @@ class Plugins extends JsonRpcMethodBase {
    * @throws \Drupal\jsonrpc\Exception\JsonRpcException
    */
   public function execute(ParameterBag $params) {
-    $paginator = $params->get('page');
+    $pager = $params->get('page');
     $definitions = $this->pluginManager->getDefinitions();
     foreach ($definitions as $definition) {
       if (!is_array($definition)) {
         throw JsonRpcException::fromError(Error::invalidParams('Object-based plugin definitions are not yet supported.'));
       }
     }
-    return array_slice($definitions, $paginator['offset'], $paginator['limit']);
+    if (!$pager) {
+      return $definitions;
+    }
+    return array_slice($definitions, $pager['offset'], $pager['limit']);
   }
 
   /**
