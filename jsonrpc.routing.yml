@@ -6,4 +6,4 @@ jsonrpc.handler:
   requirements:
     _permission: 'use jsonrpc services'
   options:
-    _auth: ['cookie', 'basic_auth', 'oauth2']
+    _auth: ['basic_auth', 'oauth2']

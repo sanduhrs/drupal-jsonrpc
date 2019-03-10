@@ -25,9 +25,6 @@ class AddPermissionToRole extends UserPermissionsBase {
 
   /**
    * {@inheritdoc}
-   *
-   * @throws \Drupal\jsonrpc\Exception\JsonRpcException
-   *   In case of error.
    */
   public function execute(ParameterBag $params) {
     $permission = $params->get('permission');
